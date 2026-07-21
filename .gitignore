@@ -1,0 +1,15 @@
+node_modules/
+.svelte-kit/
+build/
+.wrangler/
+.env
+.env.*
+!.env.example
+.DS_Store
+SOURCE_MIRROR/
+.playwright-cli/
+test-results/
+playwright-report/
+.agents/
+RECON/
+output/
