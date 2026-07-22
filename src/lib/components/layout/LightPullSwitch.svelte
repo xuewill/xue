@@ -199,7 +199,7 @@
 
   .room-shade {
     background: radial-gradient(
-      140% 140% at max(65px, calc(50% - 515px)) 130px,
+      140% 140% at clamp(65px, calc(50% - 515px), 184px) 130px,
       transparent 0%,
       rgb(0 0 0 / 4%) 22%,
       rgb(0 0 0 / 14%) 46%,
@@ -210,7 +210,7 @@
 
   .room-warmth {
     background: radial-gradient(
-      420px circle at max(71px, calc(50% - 523px)) 129px,
+      420px circle at clamp(71px, calc(50% - 523px), 172px) 129px,
       rgb(255 202 125 / 12%),
       rgb(255 190 105 / 4%) 42%,
       transparent 70%
@@ -226,7 +226,7 @@
 
   .pendant-root {
     top: 0;
-    left: max(34px, calc(50% - 560px));
+    left: clamp(34px, calc(50% - 560px), 135px);
     z-index: 560;
     visibility: hidden;
     pointer-events: none;
@@ -332,7 +332,7 @@
 
   .cord-sway {
     top: -54px;
-    right: max(6px, calc(50% - 630px));
+    right: 12px;
     z-index: 570;
     transform-origin: top center;
     animation: switch-sway 8s ease-in-out -2s infinite;

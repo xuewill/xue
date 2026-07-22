@@ -73,7 +73,7 @@ Hero 只做数据来源改造，不改变区块高度、元素层级、主要尺
 | `/#projects` | 首页 Projects 锚点 | 保留 |
 | `/blog` | Blog 文章列表 | 使用原首页 Projects 横向列表样式 |
 | `/blog/[slug]` | Blog 文章正文 | 由 `src/content/posts/*.md` 生成 |
-| `/work/[slug]` | 项目详情 | 迁移需要保留的现有项目内容 |
+| `/home/[slug]` | 项目详情 | 迁移需要保留的现有项目内容 |
 | `/rss.xml` | RSS | 构建时生成 |
 | `/sitemap.xml` | Sitemap | 构建时生成 |
 | `/play` | 旧入口 | 301 重定向到 `/blog` |
@@ -127,7 +127,7 @@ export const siteConfig = {
     email: ''
   },
   navigation: [
-    { label: 'work', href: '/#projects' },
+    { label: 'home', href: '/#projects' },
     { label: 'blog', href: '/blog' }
   ],
   social: {
@@ -143,7 +143,7 @@ export const siteConfig = {
 
 - Header、Footer、SEO、RSS 和 Sitemap 只能读取该配置，不在组件中重复写死。
 - `play` 不再出现在导航配置中。
-- 当前 `work` 下拉结构继续保留，指向 About 和 Projects 锚点。
+- 当前 `home` 下拉结构继续保留，指向 About 和 Projects 锚点。
 
 ### 5.2 `src/lib/config/home.ts`
 
@@ -250,7 +250,7 @@ draft: false
 
 | 组件 | 责任 |
 | --- | --- |
-| `SiteHeader.svelte` | 品牌名、work 下拉、blog、社交入口和当前页状态 |
+| `SiteHeader.svelte` | 品牌名、home 下拉、blog、社交入口和当前页状态 |
 | `SiteFooter.svelte` | 版权信息，从站点配置读取 |
 | `SectionLabel.svelte` | About、Projects、Blog 等统一小标题 |
 | `Seo.svelte` | title、description、canonical 和 Open Graph |
@@ -352,7 +352,7 @@ src/
 │  │  └─ [slug]/
 │  │     ├─ +page.ts
 │  │     └─ +page.svelte
-│  ├─ work/[slug]/
+│  ├─ home/[slug]/
 │  ├─ rss.xml/+server.ts
 │  └─ sitemap.xml/+server.ts
 ├─ app.css
@@ -385,7 +385,7 @@ Cloudflare Pages 使用 `static/_redirects` 处理确定的旧入口：
 
 - 站内不再生成指向 `/play` 的链接。
 - Header 的 Blog 激活状态只根据 `/blog` 和 `/blog/*` 判断。
-- 首页 Projects 卡片继续指向 `/work/[slug]`，不复用旧 `/play/*` URL。
+- 首页 Projects 卡片继续指向 `/home/[slug]`，不复用旧 `/play/*` URL。
 - 未决定去向的 `/play/*` 子路由暂不写批量规则。
 - 上线前生成一次内部链接清单，确保没有残留 `/_next/`、`/play` 或缺失图片地址。
 
@@ -454,7 +454,7 @@ Cloudflare Pages 项目只接收 Actions 生成的 `build/`，不在 Cloudflare 
 - 实现 slug、日期、草稿和排序逻辑。
 - 实现 frontmatter 必填字段校验。
 - 实现 Hero 至少一张启用图片及静态文件存在性校验。
-- 为 `/blog/[slug]` 和 `/work/[slug]` 生成预渲染 entries。
+- 为 `/blog/[slug]` 和 `/home/[slug]` 生成预渲染 entries。
 
 验证：
 
@@ -536,7 +536,7 @@ Cloudflare Pages 项目只接收 Actions 生成的 `build/`，不在 Cloudflare 
 | Blog 导航 | 全站不再显示 Play，统一显示 Blog |
 | Blog 列表 | 使用原 Projects 行样式及响应式行为 |
 | Markdown | 新增文件即可生成文章；草稿不进入生产构建 |
-| 路由 | `/blog`、文章直达、`/work/[slug]`、404 均可刷新访问 |
+| 路由 | `/blog`、文章直达、`/home/[slug]`、404 均可刷新访问 |
 | 旧入口 | `/play` 返回 301 并跳转 `/blog` |
 | SEO | title、description、canonical、OG、RSS、Sitemap 正确 |
 | 构建 | `npm run check` 和 `npm run build` 通过 |

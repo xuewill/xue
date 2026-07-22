@@ -4,7 +4,7 @@
   export let project: ProjectSummary;
 </script>
 
-<a class="project-card" href={`/work/${project.slug}`}>
+<a class="project-card" href={`/home/${project.slug}`}>
   <div class="thumb">
     <img src={project.cover} alt="" loading="lazy" />
   </div>

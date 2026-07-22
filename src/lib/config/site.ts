@@ -7,7 +7,7 @@ export const siteConfig = {
     name: 'Will Xue',
     email: 'willxue@msn.com'
   },
-  workNavigation: [
+  homeNavigation: [
     { label: 'about', href: '/#about' },
     { label: 'projects', href: '/#projects' }
   ],
@@ -15,8 +15,26 @@ export const siteConfig = {
     { label: 'blog', href: '/blog' }
   ],
   social: [
-    { label: 'X', href: 'https://x.com/fruitsaix', icon: '/icons/x.png' },
-    { label: 'GitHub', href: 'https://github.com/xuewill', icon: '/icons/github.png' },
-    { label: 'Email', href: 'mailto:willxue@msn.com', icon: '/icons/mail.png' }
+    {
+      label: 'X',
+      href: 'https://x.com/fruitsaix',
+      icon: '/icons/x.png',
+      handle: '@fruitsaix',
+      preview: 'profile'
+    },
+    {
+      label: 'GitHub',
+      href: 'https://github.com/xuewill',
+      icon: '/icons/github.png',
+      handle: '@xuewill',
+      preview: 'github'
+    },
+    {
+      label: 'Email',
+      href: 'mailto:willxue@msn.com',
+      icon: '/icons/mail.png',
+      handle: 'willxue@msn.com',
+      preview: 'email'
+    }
   ]
 } as const;

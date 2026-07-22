@@ -10,7 +10,7 @@ export const GET: RequestHandler = () => {
     '/',
     '/blog',
     ...posts.map((post) => `/blog/${post.slug}`),
-    ...projects.map((project) => `/work/${project.slug}`)
+    ...projects.map((project) => `/home/${project.slug}`)
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8" ?>

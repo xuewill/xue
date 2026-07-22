@@ -10,7 +10,7 @@
   <title>{data.project.title} — {siteConfig.title}</title>
   <meta name="description" content={data.project.description} />
   <meta property="og:image" content={`${siteConfig.url}${data.project.cover}`} />
-  <link rel="canonical" href={`${siteConfig.url}/work/${data.project.slug}`} />
+  <link rel="canonical" href={`${siteConfig.url}/home/${data.project.slug}`} />
 </svelte:head>
 
 <main class="page article-page project-page">

@@ -6,7 +6,7 @@ draft: false
 tags:
   - Markdown
   - Reference
-cover: /work/sketchbook/tokyo-tower.png
+cover: /home/sketchbook/tokyo-tower.png
 ---
 
 This article is a visual test page for the Markdown styles used across the site. It combines common elements in one place so typography, spacing, color, and responsive behavior can be checked together.
@@ -121,7 +121,7 @@ console.log('Nested fences are preserved');
 
 Images use standard Markdown syntax, including descriptive alternative text and an optional title.
 
-![A line drawing of Tokyo Tower in a travel sketchbook](/work/sketchbook/tokyo-tower.png "Tokyo Tower sketch")
+![A line drawing of Tokyo Tower in a travel sketchbook](/home/sketchbook/tokyo-tower.png "Tokyo Tower sketch")
 
 ## Divider and HTML
 

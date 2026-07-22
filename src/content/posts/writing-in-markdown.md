@@ -5,7 +5,7 @@ date: '2026-07-16'
 draft: false
 tags:
   - Process
-cover: /work/sketchbook/tokyo-tower.png
+cover: /home/sketchbook/tokyo-tower.png
 ---
 
 Posts live in `src/content/posts`. The filename becomes the URL, and the frontmatter at the top of the file supplies the title, date, description, tags, cover image, and draft state.

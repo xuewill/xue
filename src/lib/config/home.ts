@@ -3,7 +3,7 @@ import type { HeroImage, TextSegment } from '$lib/types/content';
 const heroImages: HeroImage[] = [
   {
     id: 'osaka-castle',
-    src: '/work/sketchbook/osaka-castle.png',
+    src: '/home/sketchbook/osaka-castle.png',
     alt: 'Osaka Castle sketch',
     caption: 'Osaka Castle',
     width: 1280,
@@ -12,7 +12,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'shibuya-crossing',
-    src: '/work/sketchbook/shibuya-crossing.png',
+    src: '/home/sketchbook/shibuya-crossing.png',
     alt: 'Shibuya Crossing sketch',
     caption: 'Shibuya Crossing',
     width: 1280,
@@ -21,7 +21,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'tokyo-tower',
-    src: '/work/sketchbook/tokyo-tower.png',
+    src: '/home/sketchbook/tokyo-tower.png',
     alt: 'Tokyo Tower sketch',
     caption: 'Tokyo Tower',
     width: 1280,
@@ -30,7 +30,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'todai-ji',
-    src: '/work/sketchbook/todai-ji.png',
+    src: '/home/sketchbook/todai-ji.png',
     alt: 'Tōdai-ji sketch',
     caption: 'Tōdai-ji',
     width: 1280,
@@ -39,7 +39,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'gion-kyoto',
-    src: '/work/sketchbook/gion-kyoto.png',
+    src: '/home/sketchbook/gion-kyoto.png',
     alt: 'Gion, Kyoto sketch',
     caption: 'Gion, Kyoto',
     width: 1280,
@@ -48,7 +48,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'kamakura',
-    src: '/work/sketchbook/kamakura.png',
+    src: '/home/sketchbook/kamakura.png',
     alt: 'Kamakura sketch',
     caption: 'Kamakura',
     width: 1280,
@@ -57,7 +57,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'taipei',
-    src: '/work/sketchbook/taipei.png',
+    src: '/home/sketchbook/taipei.png',
     alt: 'Taipei sketch',
     caption: 'Taipei',
     width: 1280,
@@ -66,7 +66,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'abandoned-car',
-    src: '/work/sketchbook/abandoned-car-taipei-street.png',
+    src: '/home/sketchbook/abandoned-car-taipei-street.png',
     alt: 'Abandoned car on a Taipei street sketch',
     caption: 'Abandoned Car, Taipei Street',
     width: 1280,
@@ -75,7 +75,7 @@ const heroImages: HeroImage[] = [
   },
   {
     id: 'stanford',
-    src: '/work/sketchbook/stanford.png',
+    src: '/home/sketchbook/stanford.png',
     alt: 'Stanford sketch',
     caption: 'Stanford',
     width: 1280,
