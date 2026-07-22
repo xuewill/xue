@@ -5,7 +5,7 @@
   import SiteHeader from '$lib/components/layout/SiteHeader.svelte';
   import { siteConfig } from '$lib/config/site';
 
-  let { children } = $props();
+  let { data, children } = $props();
 </script>
 
 <svelte:head>
@@ -25,4 +25,4 @@
 <SiteHeader />
 <LightPullSwitch />
 {@render children()}
-<SiteFooter />
+<SiteFooter socialData={data.socialData} />

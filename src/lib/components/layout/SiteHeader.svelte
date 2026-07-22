@@ -3,7 +3,7 @@
   import { siteConfig } from '$lib/config/site';
   import ThemeToggle from './ThemeToggle.svelte';
 
-  const isWork = () => page.url.pathname === '/' || page.url.pathname.startsWith('/work/');
+  const isHome = () => page.url.pathname === '/' || page.url.pathname.startsWith('/home/');
 </script>
 
 <header class="top">
@@ -11,9 +11,9 @@
 
   <nav aria-label="Primary navigation">
     <div class="menu">
-      <a href="/#about" aria-current={isWork() ? 'page' : undefined}>work <span aria-hidden="true">▾</span></a>
+      <a href="/" aria-current={isHome() ? 'page' : undefined}>home <span aria-hidden="true">▾</span></a>
       <div class="dropdown">
-        {#each siteConfig.workNavigation as item}
+        {#each siteConfig.homeNavigation as item}
           <a href={item.href}>{item.label}</a>
         {/each}
       </div>

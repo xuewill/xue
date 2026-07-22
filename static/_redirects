@@ -1,2 +1,3 @@
 /play  /blog  301
 /play/  /blog  301
+/work/*  /home/:splat  301

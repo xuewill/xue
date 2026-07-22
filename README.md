@@ -1,47 +1,125 @@
-# SvelteKit Markdown Blog
+<div align="center">
+  <a href="https://willxue.com">
+    <img src="./static/seal.png" alt="Will Xue seal" width="144" height="144">
+  </a>
 
-轻量静态博客。首页延续原站布局，Projects 使用图片卡片网格，Blog 使用年份、标题和分类组成的横向列表。
+  <h1>Will Xue's Blog</h1>
 
-## 技术栈
+  <p>A lightweight, fully static portfolio and Markdown blog for tech, art, design, and code.</p>
 
-- SvelteKit 2 / Svelte 5 / TypeScript
-- mdsvex Markdown 内容
-- `@sveltejs/adapter-static` 全站预渲染
-- GitHub Actions + Cloudflare Pages
+  <p>
+    <a href="https://github.com/xuewill/xue/actions/workflows/check.yml"><img src="https://github.com/xuewill/xue/actions/workflows/check.yml/badge.svg" alt="Check status"></a>
+    <a href="https://github.com/xuewill/xue/actions/workflows/deploy.yml"><img src="https://github.com/xuewill/xue/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy status"></a>
+    <a href="https://svelte.dev"><img src="https://img.shields.io/badge/SvelteKit-2-ff3e00?logo=svelte&logoColor=white" alt="SvelteKit 2"></a>
+    <a href="https://pages.cloudflare.com"><img src="https://img.shields.io/badge/Cloudflare-Pages-f38020?logo=cloudflare&logoColor=white" alt="Cloudflare Pages"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/github/license/xuewill/xue" alt="MIT license"></a>
+  </p>
 
-线上不需要 Node 服务、数据库或 Worker SSR。
+  <p>
+    <strong>English</strong> · <a href="./README.zh-CN.md">简体中文</a>
+  </p>
+</div>
 
-## 本地开发
+## ✨ Overview
 
-需要 Node.js 22 或更高版本。
+This repository contains the source for [willxue.com](https://willxue.com). The home page preserves the visual structure of the original portfolio, with image-based project cards and a horizontal, year-grouped blog index. Blog posts and project pages are authored in Markdown and compiled into a pre-rendered static site.
 
-```powershell
+There is no production Node.js server, database, or Worker SSR runtime. The generated `build/` directory can be hosted by any static file service.
+
+### Highlights
+
+- SvelteKit 2, Svelte 5, and TypeScript
+- Markdown content powered by mdsvex
+- Fully pre-rendered output via `@sveltejs/adapter-static`
+- Automatic validation for Hero images, post covers, and images referenced in Markdown
+- Built-in RSS feed, sitemap, robots file, and responsive assets
+- Responsive ambient light controls, article TOC, and mobile theme controls
+- Accessible footer previews with live GitHub data and optional official X data
+- GitHub Actions checks and Cloudflare Pages deployment
+
+## 🧰 Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Application | SvelteKit 2 + Svelte 5 |
+| Language | TypeScript |
+| Content | Markdown + mdsvex |
+| Build | Vite + `@sveltejs/adapter-static` |
+| Hosting | Cloudflare Pages |
+| CI/CD | GitHub Actions + Wrangler |
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 22 or newer
+- npm (included with Node.js)
+
+### Install and run
+
+```bash
+git clone https://github.com/xuewill/xue.git
+cd xue
 npm ci
 npm run dev
 ```
 
-默认开发地址由 Vite 输出。生产构建：
+Open the local URL printed by Vite, normally `http://localhost:5173`.
 
-```powershell
+### Production build
+
+```bash
 npm run check
 npm run build
 npm run preview
 ```
 
-静态产物生成在 `build/`。
+The static production output is written to `build/`. `npm run build` also validates content assets before compiling the site.
 
-## 站点配置
+## 📜 Available Scripts
 
-- `src/lib/config/site.ts`：站点标题、域名、作者、导航和社交链接。
-- `src/lib/config/home.ts`：首页 Hero、About 和 Projects 标题。
-- `src/app.css`：颜色、字体、尺寸和响应式样式。
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run check` | Validate content, sync SvelteKit types, and run `svelte-check` |
+| `npm run build` | Validate content and create the static production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run validate:content` | Check referenced images and content assets only |
+| `npm run check:watch` | Run Svelte diagnostics in watch mode |
 
-Hero 图片位于 `static/work/sketchbook/`。在 `homeConfig.hero.images` 中增删对象或调整数组顺序即可控制前台内容：
+## 🗂️ Project Structure
+
+```text
+.
+├── .env.example             # Optional social API credentials
+├── .github/workflows/       # Pull request checks and production deployment
+├── scripts/                 # Content validation scripts
+├── src/
+│   ├── content/posts/       # Blog Markdown files
+│   ├── content/projects/    # Project Markdown files
+│   ├── lib/components/      # Reusable Svelte components
+│   ├── lib/config/          # Site and home-page configuration
+│   ├── lib/server/          # Build-time social data fetching
+│   ├── lib/types/           # Shared content and social data types
+│   └── routes/              # SvelteKit pages, RSS, and sitemap routes
+├── static/                  # Images, fonts, icons, manifest, and robots.txt
+├── svelte.config.js         # mdsvex and static adapter configuration
+└── wrangler.toml            # Cloudflare Pages output configuration
+```
+
+## ⚙️ Site Configuration
+
+- `src/lib/config/site.ts`: site title, canonical URL, author, navigation, and social links.
+- `src/lib/config/home.ts`: Hero images and the About and Projects section copy.
+- `src/app.css`: colors, typography, sizing, and responsive behavior.
+- `static/`: files copied to the site root without transformation.
+
+Hero images live in `static/home/sketchbook/`. Add, remove, or reorder objects in `homeConfig.hero.images` to control what is displayed:
 
 ```ts
 {
   id: 'image-id',
-  src: '/work/sketchbook/image.png',
+  src: '/home/sketchbook/image.png',
   alt: 'Accessible description',
   caption: 'Image caption',
   width: 1280,
@@ -50,11 +128,39 @@ Hero 图片位于 `static/work/sketchbook/`。在 `homeConfig.hero.images` 中�
 }
 ```
 
-构建前会检查 Hero、文章封面和 Markdown 正文图片是否真实存在。
+Keep `width` and `height` aligned with the source image dimensions to avoid layout shifts. Set `enabled: false` to keep an image configured without showing it.
 
-## 发布 Blog
+## 🖥️ Interface Behavior
 
-在 `src/content/posts/` 新建 Markdown 文件，文件名就是 URL slug：
+- The primary navigation uses `home` and `blog`. Project detail pages live at `/home/[slug]`; legacy `/work/*` URLs redirect permanently to `/home/*`.
+- The left pendant lamp follows the responsive content rail but stops before the main reading column. The pull cord stays pinned to the right edge so it does not cover the header navigation.
+- The article table of contents expands on large screens. On mobile, the theme control is an unframed icon separated from navigation by a vertical rule.
+- Footer social icons use 20 px artwork inside 32 px targets. Preview cards support mouse hover and keyboard focus, while touch devices follow the link without opening a card.
+
+## 🔗 Social Preview Data
+
+Social data is loaded during the static build in `src/lib/server/social.ts` and passed through the root layout. An open preview card never makes a browser-side API request, so API credentials are not exposed to visitors.
+
+| Service | Data source | Fallback |
+| --- | --- | --- |
+| GitHub | Public profile API plus the recent contribution calendar | Last verified public counts and a neutral grid if the contribution service is unavailable |
+| X | Official X API when `X_BEARER_TOKEN` is configured | Local name, avatar, and bio; no fabricated follower counts |
+| Email | Local visual envelope | No network request |
+
+Copy the optional values from `.env.example` into the local or deployment build environment:
+
+```bash
+X_BEARER_TOKEN=
+GITHUB_TOKEN=
+```
+
+`GITHUB_TOKEN` is optional locally but recommended to avoid GitHub's anonymous API rate limit. `X_BEARER_TOKEN` requires X API access. Because the site is fully static, social values refresh when `npm run build` runs and a new deployment is published, not each time a visitor opens a card.
+
+## ✍️ Publishing Content
+
+### Add a blog post
+
+Create a Markdown file in `src/content/posts/`. The filename becomes the URL slug.
 
 ```md
 ---
@@ -70,11 +176,11 @@ cover: /images/blog/cover.webp
 Article body.
 ```
 
-例如 `article-title.md` 对应 `/blog/article-title`。生产构建会过滤 `draft: true`，其余文章自动进入 Blog 列表、RSS 和 Sitemap。
+For example, `article-title.md` is published at `/blog/article-title`. Posts with `draft: true` are excluded from production; published posts are added automatically to the blog index, RSS feed, and sitemap.
 
-## 发布 Project
+### Add a project
 
-Project 内容位于 `src/content/projects/`：
+Create a Markdown file in `src/content/projects/`:
 
 ```md
 ---
@@ -90,16 +196,115 @@ draft: false
 Project body.
 ```
 
-首页按照 `order` 升序生成卡片，详情地址为 `/work/[slug]`。
+Projects are ordered by ascending `order` value. A file named `project-name.md` is published at `/home/project-name`.
 
-## Cloudflare Pages
+## ☁️ Deploying to Cloudflare Pages
 
-GitHub 仓库需要配置：
+The included deployment workflow builds the site in GitHub Actions and uploads `build/` with Wrangler. Cloudflare does not run a second build.
 
-- Secret：`CLOUDFLARE_API_TOKEN`
-- Secret：`CLOUDFLARE_ACCOUNT_ID`
-- Variable：`CLOUDFLARE_PROJECT_NAME`
+### 1. Create a Cloudflare Pages project
 
-Pull Request 运行 `.github/workflows/check.yml`。main 分支推送通过检查后，`.github/workflows/deploy.yml` 使用 Wrangler 将 `build/` 部署到 Cloudflare Pages。
+Install dependencies and authenticate Wrangler from the repository directory:
 
-详细实施记录见 [SVELTEKIT_BLOG_PLAN.md](./docs/SVELTEKIT_BLOG_PLAN.md)。
+```bash
+npm ci
+npx wrangler login
+```
+
+Create the Pages project. Replace `xue-blog` if you want a different project name:
+
+```bash
+npx wrangler pages project create xue-blog --production-branch main
+```
+
+If the project already exists, skip this command. The name must match both `name` in `wrangler.toml` and the `CLOUDFLARE_PROJECT_NAME` GitHub variable configured below.
+
+### 2. Create a Cloudflare API token
+
+1. Open the Cloudflare dashboard and go to **My Profile → API Tokens**.
+2. Select **Create Token → Create Custom Token**.
+3. Add the permission **Account → Cloudflare Pages → Edit**.
+4. Under **Account Resources**, include the account that owns the Pages project.
+5. Create the token and store it immediately; Cloudflare shows it only once.
+
+Find the account ID in the Cloudflare dashboard under **Workers & Pages → Overview**. It is also available in the account URL and the dashboard's account details panel.
+
+### 3. Configure the GitHub repository
+
+Open **GitHub repository → Settings → Secrets and variables → Actions**.
+
+Add these repository secrets under **Secrets**:
+
+| Secret | Value |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | The API token created in the previous step |
+| `CLOUDFLARE_ACCOUNT_ID` | The Cloudflare account ID |
+| `X_BEARER_TOKEN` (optional) | An official X API bearer token used to refresh the X preview during builds |
+
+Add this repository variable under **Variables**:
+
+| Variable | Value |
+| --- | --- |
+| `CLOUDFLARE_PROJECT_NAME` | The Pages project name, for example `xue-blog` |
+
+Secrets are encrypted and are not printed in Actions logs. The project name is not sensitive, so it is intentionally stored as a variable. The workflows pass GitHub's built-in `GITHUB_TOKEN` to the build automatically; no additional GitHub secret is required.
+
+### 4. Trigger the first deployment
+
+Push to `main`, or open **Actions → Deploy → Run workflow** in GitHub:
+
+```bash
+git push origin main
+```
+
+The workflow performs the following steps:
+
+1. Checks out the repository and installs Node.js 22.
+2. Runs `npm ci`, `npm run check`, and `npm run build`.
+3. Uploads `build/` to the configured Cloudflare Pages project.
+4. Publishes the result to the production branch named `main`.
+
+When the job finishes, the deployment is available at `<project-name>.pages.dev`. Pull requests run `.github/workflows/check.yml` for validation but do not publish preview deployments.
+
+### 5. Add a custom domain
+
+1. Open **Cloudflare Dashboard → Workers & Pages → your project → Custom domains**.
+2. Select **Set up a custom domain** and enter the domain or subdomain.
+3. Follow the DNS prompts. Domains already managed by the same Cloudflare account can usually be configured automatically.
+4. Update `siteConfig.url` in `src/lib/config/site.ts` and the sitemap URL in `static/robots.txt`.
+5. Rebuild and deploy so canonical URLs, RSS, sitemap, and social metadata use the new domain.
+
+### Manual deployment
+
+Use this path to test Cloudflare deployment without GitHub Actions:
+
+```bash
+npm ci
+npm run check
+npm run build
+npx wrangler pages deploy build --project-name=xue-blog --branch=main
+```
+
+### Deployment troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| `Project not found` | Confirm the Pages project exists and `CLOUDFLARE_PROJECT_NAME` matches it exactly |
+| Authentication or permission error | Recreate the token with **Cloudflare Pages: Edit** for the correct account |
+| `npm ci` fails | Use Node.js 22+ and commit changes to `package-lock.json` whenever dependencies change |
+| Build reports a missing image | Fix the referenced path or add the asset under `static/`, then run `npm run validate:content` |
+| GitHub preview shows the fallback snapshot | Add `GITHUB_TOKEN` to the build environment or wait for the anonymous API limit to reset |
+| X preview has no follower counts | Configure `X_BEARER_TOKEN` in the environment that runs `npm run build` |
+| Custom domain shows stale metadata | Update the canonical URL and `robots.txt`, rebuild, and allow DNS/cache propagation |
+| GitHub deployment does not start | Confirm the push targets `main`, or trigger the workflow manually from the Actions tab |
+
+## 🔄 CI/CD Behavior
+
+- Pull requests and manual runs execute `.github/workflows/check.yml`.
+- Pushes to `main` and manual runs execute `.github/workflows/deploy.yml`.
+- Both workflows use Node.js 22 and run the same checks used locally.
+- Production deployment happens only after checks and the static build succeed.
+
+## 📄 License
+
+Released under the [MIT License](./LICENSE).

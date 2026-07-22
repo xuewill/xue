@@ -209,14 +209,13 @@
     max-height: calc(100dvh - 128px);
     overflow-y: auto;
     transform: translateX(calc(-100% - 32px));
-    scrollbar-width: thin;
   }
 
   .article-toc-title {
     margin: 0 0 16px;
     color: var(--ink);
     font-family: var(--sans);
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: var(--track-caps);
     line-height: 1.4;
     text-transform: uppercase;
@@ -243,7 +242,7 @@
     padding: 6px 0;
     color: var(--ink-muted);
     font-family: var(--sans);
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.035em;
     line-height: 1.45;
     transition: color 0.2s ease;
@@ -283,7 +282,7 @@
     background-size: 7px 2px;
     color: var(--ink-muted);
     font-family: var(--sans);
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: var(--track-nav);
     text-transform: uppercase;
     transition: color 0.2s ease;
@@ -291,6 +290,12 @@
 
   .toc-top-link:hover {
     color: var(--brand);
+  }
+
+  @media (min-width: 1440px) {
+    .article-toc {
+      width: clamp(220px, 16vw, 240px);
+    }
   }
 
   @media (max-width: 1160px) {
