@@ -13,3 +13,4 @@ playwright-report/
 .agents/
 RECON/
 output/
+/tmp/

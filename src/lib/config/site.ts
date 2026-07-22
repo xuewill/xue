@@ -15,12 +15,8 @@ export const siteConfig = {
     { label: 'blog', href: '/blog' }
   ],
   social: [
-    {
-      label: 'Instagram',
-      href: 'https://www.instagram.com/willxue/',
-      icon: '/icons/instagram.png'
-    },
     { label: 'X', href: 'https://x.com/fruitsaix', icon: '/icons/x.png' },
+    { label: 'GitHub', href: 'https://github.com/xuewill', icon: '/icons/github.png' },
     { label: 'Email', href: 'mailto:willxue@msn.com', icon: '/icons/mail.png' }
   ]
 } as const;

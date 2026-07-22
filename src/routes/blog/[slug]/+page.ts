@@ -8,5 +8,11 @@ export function entries() {
 export function load({ params }) {
   const post = getPost(params.slug);
   if (!post) error(404, 'Post not found');
-  return { post };
+
+  const index = posts.findIndex(({ slug }) => slug === post.slug);
+  return {
+    post,
+    previous: posts[index - 1] ?? null,
+    next: posts[index + 1] ?? null
+  };
 }

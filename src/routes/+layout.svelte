@@ -1,5 +1,6 @@
 <script lang="ts">
   import '../app.css';
+  import LightPullSwitch from '$lib/components/layout/LightPullSwitch.svelte';
   import SiteFooter from '$lib/components/layout/SiteFooter.svelte';
   import SiteHeader from '$lib/components/layout/SiteHeader.svelte';
   import { siteConfig } from '$lib/config/site';
@@ -22,5 +23,6 @@
 </svelte:head>
 
 <SiteHeader />
+<LightPullSwitch />
 {@render children()}
 <SiteFooter />
