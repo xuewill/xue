@@ -69,7 +69,9 @@ page.on("response", (resp) => {
   try {
     const h = resp.headers();
     responses.set(resp.url(), { status: resp.status(), type: resp.request().resourceType(), ct: h["content-type"] || "" });
-  } catch {}
+  } catch {
+    // Ignore responses that disappear while the page is navigating.
+  }
 });
 
 console.log(`▸ 加载 + 全程滚动捕获: ${args.url}`);

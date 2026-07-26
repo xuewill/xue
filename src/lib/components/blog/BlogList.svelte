@@ -5,17 +5,17 @@
   export let posts: PostSummary[];
 
   function groupByYear(items: PostSummary[]) {
-    const groups = new Map<string, PostSummary[]>();
+    const groups: Array<{ year: string; posts: PostSummary[] }> = [];
 
     for (const post of items) {
       const year = post.date.slice(0, 4);
-      const group = groups.get(year);
+      const group = groups.at(-1);
 
-      if (group) group.push(post);
-      else groups.set(year, [post]);
+      if (group?.year === year) group.posts.push(post);
+      else groups.push({ year, posts: [post] });
     }
 
-    return Array.from(groups, ([year, groupedPosts]) => ({ year, posts: groupedPosts }));
+    return groups;
   }
 
   $: postGroups = groupByYear(posts);

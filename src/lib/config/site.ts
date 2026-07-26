@@ -12,7 +12,8 @@ export const siteConfig = {
     { label: 'projects', href: '/#projects' }
   ],
   navigation: [
-    { label: 'blog', href: '/blog' }
+    { label: 'blog', href: '/blog' },
+    { label: 'album', href: '/album' }
   ],
   social: [
     {
@@ -35,6 +36,13 @@ export const siteConfig = {
       icon: '/icons/mail.png',
       handle: 'willxue@msn.com',
       preview: 'email'
+    },
+    {
+      label: 'RSS',
+      href: '/rss.xml',
+      icon: '/icons/rss.svg',
+      handle: 'RSS feed',
+      preview: 'rss'
     }
   ]
 } as const;

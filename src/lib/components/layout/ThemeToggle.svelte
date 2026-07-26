@@ -1,29 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { observeTheme, oppositeTheme, setTheme, theme } from '$lib/theme';
 
-  type Theme = 'light' | 'dark';
-
-  const storageKey = 'xue-theme';
-  let theme: Theme = 'light';
-
-  onMount(() => {
-    const current = document.documentElement.dataset.theme;
-    if (current === 'light' || current === 'dark') theme = current;
-  });
+  onMount(observeTheme);
 
   function toggleTheme() {
-    theme = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem(storageKey, theme);
+    setTheme(oppositeTheme($theme));
   }
 </script>
 
 <button
   class="theme-toggle"
   type="button"
-  aria-label={theme === 'dark' ? 'Use light theme' : 'Use dark theme'}
-  aria-pressed={theme === 'dark'}
-  title={theme === 'dark' ? 'Use light theme' : 'Use dark theme'}
+  aria-label={$theme === 'dark' ? 'Use light theme' : 'Use dark theme'}
+  aria-pressed={$theme === 'dark'}
+  title={$theme === 'dark' ? 'Use light theme' : 'Use dark theme'}
   onclick={toggleTheme}
 >
   <svg class="theme-icon theme-icon-light" viewBox="0 0 20 20" aria-hidden="true">

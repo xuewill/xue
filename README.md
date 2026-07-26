@@ -52,7 +52,7 @@ There is no production Node.js server, database, or Worker SSR runtime. The gene
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 22 or newer
+- [Node.js](https://nodejs.org/) 22.13 or newer
 - npm (included with Node.js)
 
 ### Install and run
@@ -69,20 +69,24 @@ Open the local URL printed by Vite, normally `http://localhost:5173`.
 ### Production build
 
 ```bash
-npm run check
-npm run build
+npm run verify
+npm run test:e2e
 npm run preview
 ```
 
-The static production output is written to `build/`. `npm run build` also validates content assets before compiling the site.
+The static production output is written to `build/`. `npm run verify` runs linting, unit tests, content and type checks, and the production build. The end-to-end suite starts a local preview of that build.
 
 ## 📜 Available Scripts
 
 | Command | Description |
 | --- | --- |
 | `npm run dev` | Start the Vite development server |
+| `npm run lint` | Run ESLint across JavaScript, TypeScript, and Svelte files |
+| `npm test` | Run the Vitest unit test suite |
+| `npm run test:e2e` | Run Playwright browser regression tests against the production build |
 | `npm run check` | Validate content, sync SvelteKit types, and run `svelte-check` |
 | `npm run build` | Validate content and create the static production build |
+| `npm run verify` | Run lint, unit tests, checks, and the production build |
 | `npm run preview` | Preview the production build locally |
 | `npm run validate:content` | Check referenced images and content assets only |
 | `npm run check:watch` | Run Svelte diagnostics in watch mode |
@@ -102,7 +106,8 @@ The static production output is written to `build/`. `npm run build` also valida
 │   ├── lib/server/          # Build-time social data fetching
 │   ├── lib/types/           # Shared content and social data types
 │   └── routes/              # SvelteKit pages, RSS, and sitemap routes
-├── static/                  # Images, fonts, icons, manifest, and robots.txt
+├── static/                  # Images, fonts, icons, manifest, and security headers
+├── tests/                   # Vitest unit and Playwright browser tests
 ├── svelte.config.js         # mdsvex and static adapter configuration
 └── wrangler.toml            # Cloudflare Pages output configuration
 ```
@@ -259,8 +264,8 @@ git push origin main
 
 The workflow performs the following steps:
 
-1. Checks out the repository and installs Node.js 22.
-2. Runs `npm ci`, `npm run check`, and `npm run build`.
+1. Checks out the repository and installs Node.js 22.13.
+2. Runs `npm ci`, a dependency audit, and `npm run verify`.
 3. Uploads `build/` to the configured Cloudflare Pages project.
 4. Publishes the result to the production branch named `main`.
 
@@ -271,7 +276,7 @@ When the job finishes, the deployment is available at `<project-name>.pages.dev`
 1. Open **Cloudflare Dashboard → Workers & Pages → your project → Custom domains**.
 2. Select **Set up a custom domain** and enter the domain or subdomain.
 3. Follow the DNS prompts. Domains already managed by the same Cloudflare account can usually be configured automatically.
-4. Update `siteConfig.url` in `src/lib/config/site.ts` and the sitemap URL in `static/robots.txt`.
+4. Update `siteConfig.url` in `src/lib/config/site.ts`; robots, canonical, RSS, and Sitemap URLs are generated from it.
 5. Rebuild and deploy so canonical URLs, RSS, sitemap, and social metadata use the new domain.
 
 ### Manual deployment
@@ -280,8 +285,7 @@ Use this path to test Cloudflare deployment without GitHub Actions:
 
 ```bash
 npm ci
-npm run check
-npm run build
+npm run verify
 npx wrangler pages deploy build --project-name=xue-blog --branch=main
 ```
 
@@ -291,18 +295,19 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 | --- | --- |
 | `Project not found` | Confirm the Pages project exists and `CLOUDFLARE_PROJECT_NAME` matches it exactly |
 | Authentication or permission error | Recreate the token with **Cloudflare Pages: Edit** for the correct account |
-| `npm ci` fails | Use Node.js 22+ and commit changes to `package-lock.json` whenever dependencies change |
+| `npm ci` fails | Use Node.js 22.13+ and commit changes to `package-lock.json` whenever dependencies change |
 | Build reports a missing image | Fix the referenced path or add the asset under `static/`, then run `npm run validate:content` |
 | GitHub preview shows the fallback snapshot | Add `GITHUB_TOKEN` to the build environment or wait for the anonymous API limit to reset |
 | X preview has no follower counts | Configure `X_BEARER_TOKEN` in the environment that runs `npm run build` |
-| Custom domain shows stale metadata | Update the canonical URL and `robots.txt`, rebuild, and allow DNS/cache propagation |
+| Custom domain shows stale metadata | Update `siteConfig.url`, rebuild, and allow DNS/cache propagation |
 | GitHub deployment does not start | Confirm the push targets `main`, or trigger the workflow manually from the Actions tab |
 
 ## 🔄 CI/CD Behavior
 
 - Pull requests and manual runs execute `.github/workflows/check.yml`.
 - Pushes to `main` and manual runs execute `.github/workflows/deploy.yml`.
-- Both workflows use Node.js 22 and run the same checks used locally.
+- Both workflows use Node.js 22.13, audit dependencies, and run the same verification used locally.
+- Pull requests also run the Playwright browser regression suite.
 - Production deployment happens only after checks and the static build succeed.
 
 ## 📄 License

@@ -26,9 +26,13 @@
   let turnId = 0;
   let intro = false;
   let coarsePointer = false;
+  let reducedMotion = false;
   let mounted = false;
+  let heroVisible = true;
+  let heroElement: HTMLElement;
   let introQueue: Omit<TurnState, 'id' | 'dir'>[] = [];
   let introStep = 0;
+  let userInteracted = false;
   let cleanupTimer: number | undefined;
 
   function buildIntroQueue() {
@@ -45,30 +49,45 @@
   }
 
   function beginIntro() {
-    if (enabledImages.length < 2) return;
+    if (enabledImages.length < 2 || reducedMotion || userInteracted) return;
     introQueue = buildIntroQueue();
     introStep = 0;
     intro = true;
     turn = { id: ++turnId, dir: 'next', ...introQueue[0] };
   }
 
-  function move(dir: Direction) {
+  function move(dir: Direction, instant = false) {
     if (enabledImages.length < 2) return;
 
-    if (cleanupTimer) window.clearTimeout(cleanupTimer);
+    userInteracted = true;
+    if (cleanupTimer) {
+      window.clearTimeout(cleanupTimer);
+      cleanupTimer = undefined;
+    }
     if (intro) {
       intro = false;
       introQueue = [];
     }
 
     const base = turn ? turn.to : index;
+    const nextIndex =
+      dir === 'next'
+        ? (base + 1) % enabledImages.length
+        : (base - 1 + enabledImages.length) % enabledImages.length;
+
+    if (instant || reducedMotion) {
+      index = nextIndex;
+      turn = null;
+      return;
+    }
+
     if (turn) index = turn.to;
 
     turn = {
       id: ++turnId,
       dir,
       from: base,
-      to: dir === 'next' ? (base + 1) % enabledImages.length : (base - 1 + enabledImages.length) % enabledImages.length
+      to: nextIndex
     };
   }
 
@@ -99,28 +118,82 @@
   }
 
   function scrollToAbout() {
-    document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelector('#about')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'ArrowLeft') move('prev');
-    if (event.key === 'ArrowRight') move('next');
+    const target = event.target;
+    if (
+      event.defaultPrevented ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      (target instanceof HTMLElement &&
+        (target.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName)))
+    ) {
+      return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      move('prev', true);
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      move('next', true);
+    }
   }
 
   onMount(() => {
-    coarsePointer = window.matchMedia('(max-width: 640px), (pointer: coarse)').matches;
+    const coarseQuery = window.matchMedia('(max-width: 640px), (pointer: coarse)');
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    coarsePointer = coarseQuery.matches;
+    reducedMotion = motionQuery.matches;
     mounted = true;
 
-    if (coarsePointer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      index = Math.max(enabledImages.length - 1, 0);
-      return;
+    let visibilityObserver: IntersectionObserver | undefined;
+    if ('IntersectionObserver' in window) {
+      visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          heroVisible = entry?.isIntersecting ?? true;
+        },
+        { threshold: 0.05 }
+      );
+      visibilityObserver.observe(heroElement);
     }
+
+    const handleMotionPreference = () => {
+      reducedMotion = motionQuery.matches;
+      if (!reducedMotion) return;
+
+      if (turn) index = turn.to;
+      turn = null;
+      intro = false;
+      introQueue = [];
+    };
+    motionQuery.addEventListener('change', handleMotionPreference);
 
     let cancelled = false;
     let decodeTimeout: number | undefined;
     let introTimeout: number | undefined;
+    let preloadTimeout: number | undefined;
 
-    const preloadTimeout = window.setTimeout(async () => {
+    const cleanup = () => {
+      cancelled = true;
+      visibilityObserver?.disconnect();
+      motionQuery.removeEventListener('change', handleMotionPreference);
+      if (preloadTimeout) window.clearTimeout(preloadTimeout);
+      if (decodeTimeout) window.clearTimeout(decodeTimeout);
+      if (introTimeout) window.clearTimeout(introTimeout);
+      if (cleanupTimer) window.clearTimeout(cleanupTimer);
+    };
+
+    if (reducedMotion) {
+      index = Math.max(enabledImages.length - 1, 0);
+      return cleanup;
+    }
+
+    preloadTimeout = window.setTimeout(async () => {
       const decodeImages = [...document.querySelectorAll<HTMLImageElement>('.sb-preload img, .sb-stack img')];
       await Promise.race([
         Promise.allSettled(decodeImages.map((image) => image.decode?.().catch(() => undefined))),
@@ -133,19 +206,19 @@
       introTimeout = window.setTimeout(beginIntro, 200);
     }, 50);
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(preloadTimeout);
-      if (decodeTimeout) window.clearTimeout(decodeTimeout);
-      if (introTimeout) window.clearTimeout(introTimeout);
-      if (cleanupTimer) window.clearTimeout(cleanupTimer);
-    };
+    return cleanup;
   });
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
-<section id="sketchbook" class="hero" aria-label="Sketchbook">
+<section
+  bind:this={heroElement}
+  id="sketchbook"
+  class="hero"
+  class:is-visible={heroVisible}
+  aria-label="Sketchbook"
+>
   <p class="hero-kicker">{kicker}</p>
   <h1 class="hero-name">{title}</h1>
 

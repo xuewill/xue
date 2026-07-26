@@ -1,8 +1,14 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { siteConfig } from '$lib/config/site';
   import { fallbackSocialData, type SocialData } from '$lib/types/social';
 
   let { socialData = fallbackSocialData }: { socialData?: SocialData } = $props();
+  type SocialPreview = (typeof siteConfig.social)[number]['preview'];
+
+  let openPreview = $state<SocialPreview | null>(null);
+  let coarsePointer = $state(false);
+  let activeTrigger: HTMLAnchorElement | null = null;
 
   function contributionColumns(levels: number[]) {
     return Array.from({ length: 26 }, (_, week) =>
@@ -15,22 +21,81 @@
       })
     );
   }
+
+  function previewActionLabel(item: (typeof siteConfig.social)[number]) {
+    if (item.preview === 'email') return 'Send email';
+    if (item.preview === 'rss') return 'Open RSS feed';
+    return `Open ${item.label}`;
+  }
+
+  function handleSocialClick(event: MouseEvent, preview: SocialPreview) {
+    if (!coarsePointer) return;
+
+    event.preventDefault();
+    const current = event.currentTarget as HTMLAnchorElement;
+    if (openPreview === preview) {
+      openPreview = null;
+      activeTrigger = null;
+      current.blur();
+      return;
+    }
+
+    openPreview = preview;
+    activeTrigger = current;
+  }
+
+  onMount(() => {
+    const pointerQuery = window.matchMedia('(hover: none), (pointer: coarse)');
+    coarsePointer = pointerQuery.matches;
+
+    const handlePointerChange = () => {
+      coarsePointer = pointerQuery.matches;
+      if (!coarsePointer) openPreview = null;
+    };
+    const handleDocumentPointer = (event: PointerEvent) => {
+      if (!openPreview) return;
+      const target = event.target;
+      if (target instanceof Element && target.closest('.social-item')) return;
+      openPreview = null;
+      activeTrigger = null;
+    };
+    const handleDocumentKeydown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !openPreview) return;
+      event.preventDefault();
+      openPreview = null;
+      activeTrigger?.focus();
+      activeTrigger = null;
+    };
+
+    pointerQuery.addEventListener('change', handlePointerChange);
+    document.addEventListener('pointerdown', handleDocumentPointer);
+    document.addEventListener('keydown', handleDocumentKeydown);
+
+    return () => {
+      pointerQuery.removeEventListener('change', handlePointerChange);
+      document.removeEventListener('pointerdown', handleDocumentPointer);
+      document.removeEventListener('keydown', handleDocumentKeydown);
+    };
+  });
 </script>
 
 <footer class="foot">
   <nav class="footer-socials" aria-label="Social links">
-    {#each siteConfig.social as item}
-      <span class="social-item">
+    {#each siteConfig.social as item (item.label)}
+      <span class="social-item" data-preview-open={openPreview === item.preview ? '' : undefined}>
         <a
           href={item.href}
           target={item.href.startsWith('http') ? '_blank' : undefined}
           rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
           class="icon-btn social-link"
           aria-label={item.label}
-          aria-describedby={`social-preview-${item.preview}`}
+          aria-controls={`social-preview-${item.preview}`}
+          aria-expanded={coarsePointer ? openPreview === item.preview : undefined}
+          onclick={(event) => handleSocialClick(event, item.preview)}
         >
           <span
             class="icon-mask social-link-icon"
+            class:rss-link-icon={item.preview === 'rss'}
             style={`--icon: url('${item.icon}')`}
             aria-hidden="true"
           ></span>
@@ -39,7 +104,8 @@
         <span
           id={`social-preview-${item.preview}`}
           class={`social-preview social-preview-${item.preview}`}
-          role="tooltip"
+          role="group"
+          aria-label={`${item.label} preview`}
         >
           {#if item.preview === 'profile'}
             <span class="profile-header">
@@ -79,12 +145,11 @@
               ></span>
             </span>
             <span class="contribution-grid" aria-hidden="true">
-              {#each contributionColumns(socialData.github.levels) as week}
+              {#each contributionColumns(socialData.github.levels) as week, weekIndex (weekIndex)}
                 <span class="contribution-column">
-                  {#each week as cell}
+                  {#each week as cell (cell.index)}
                     <i
                       class={`contribution-cell level-${cell.level}`}
-                      style={`--cell-index: ${cell.index}`}
                     ></i>
                   {/each}
                 </span>
@@ -102,7 +167,7 @@
                   : `${socialData.github.followers.toLocaleString()} followers`}
               </span>
             </span>
-          {:else}
+          {:else if item.preview === 'email'}
             <span class="envelope-flap" aria-hidden="true"></span>
             <span class="envelope-return">
               <span>From</span>
@@ -124,7 +189,31 @@
               <span>To</span>
               {item.handle}
             </span>
+          {:else}
+            <span class="rss-preview-header">
+              <span
+                class="preview-network-icon rss-preview-icon"
+                style={`--icon: url('${item.icon}')`}
+                aria-hidden="true"
+              ></span>
+              <span>
+                <strong>RSS</strong>
+                <span>Subscribe to new posts</span>
+              </span>
+            </span>
+            <span class="preview-meta">
+              <span>XML feed</span>
+              <span>/rss.xml</span>
+            </span>
           {/if}
+          <a
+            class="preview-action"
+            href={item.href}
+            target={item.href.startsWith('http') ? '_blank' : undefined}
+            rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
+          >
+            {previewActionLabel(item)} <span aria-hidden="true">↗</span>
+          </a>
         </span>
       </span>
     {/each}
@@ -140,13 +229,18 @@
   }
 
   .social-link {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
   }
 
   .social-link-icon {
     width: 20px;
     height: 20px;
+  }
+
+  .rss-link-icon {
+    width: 16px;
+    height: 16px;
   }
 
   .social-preview {
@@ -175,23 +269,79 @@
     transform-origin: bottom center;
     visibility: hidden;
     transition:
-      opacity 0.2s ease 120ms,
-      transform 0.2s ease 120ms,
-      visibility 0s linear 320ms;
+      opacity var(--duration-ui) var(--ease-out) 80ms,
+      transform var(--duration-ui) var(--ease-out) 80ms,
+      visibility 0s linear 280ms;
   }
 
-  .social-item:hover .social-preview,
   .social-item:focus-within .social-preview {
     opacity: 1;
+    pointer-events: auto;
     transform: translate(-50%, 0) scale(1);
     visibility: visible;
-    transition-delay: 300ms, 300ms, 300ms;
+    transition-delay: 0s;
+  }
+
+  .social-item[data-preview-open] .social-preview {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0) scale(1);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .preview-action {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+    border-top: 1px solid var(--hairline);
+    padding-top: 8px;
+    color: var(--brand);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: var(--track-nav);
+    text-transform: uppercase;
+  }
+
+  .preview-action:focus-visible {
+    outline-offset: 2px;
   }
 
   .profile-header,
-  .github-header {
+  .github-header,
+  .rss-preview-header {
     display: flex;
     align-items: center;
+  }
+
+  .rss-preview-header {
+    gap: 10px;
+  }
+
+  .rss-preview-header > span:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rss-preview-header strong {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .rss-preview-header > span:last-child > span {
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .rss-preview-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--ink-muted);
   }
 
   .profile-header img {
@@ -292,8 +442,6 @@
     border: 0;
     border-radius: 2px;
     background: var(--surface-muted);
-    animation: contribution-cell-in 480ms ease backwards;
-    animation-delay: calc(var(--cell-index, 0) * 2ms);
   }
 
   .contribution-cell.level-1 {
@@ -320,7 +468,7 @@
 
     position: absolute;
     display: block;
-    height: 148px;
+    height: 198px;
     overflow: hidden;
     border: 0;
     border-radius: 5px;
@@ -330,6 +478,16 @@
       var(--mail-paper);
     background-size: 13px 11px, auto;
     color: var(--mail-ink);
+  }
+
+  .social-preview-email .preview-action {
+    position: absolute;
+    right: 12px;
+    bottom: 7px;
+    left: 12px;
+    z-index: 5;
+    border-top-color: rgb(104 102 95 / 24%);
+    color: var(--mail-blue);
   }
 
   .social-preview-email::before {
@@ -486,24 +644,65 @@
     white-space: nowrap;
   }
 
-  @keyframes contribution-cell-in {
-    from {
-      opacity: 0;
-      transform: translateY(4px) scale(0.92);
+  @media (hover: hover) and (pointer: fine) {
+    .social-item:hover .social-preview {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0) scale(1);
+      visibility: visible;
+      transition-delay: 80ms, 80ms, 80ms;
     }
   }
 
-  @media (hover: none) {
-    .social-preview {
-      display: none;
+  @media (width <= 600px) {
+    .social-item:first-child .social-preview {
+      left: 0;
+      transform: translate(0, 4px) scale(0.95);
+      transform-origin: bottom left;
+    }
+
+    .social-item:first-child[data-preview-open] .social-preview,
+    .social-item:first-child:focus-within .social-preview {
+      transform: translate(0, 0) scale(1);
+    }
+
+    .social-item:last-child .social-preview {
+      right: 0;
+      left: auto;
+      transform: translate(0, 4px) scale(0.95);
+      transform-origin: bottom right;
+    }
+
+    .social-item:last-child[data-preview-open] .social-preview,
+    .social-item:last-child:focus-within .social-preview {
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (width <= 600px) {
+    .social-item:first-child:hover .social-preview,
+    .social-item:last-child:hover .social-preview {
+      transform: translate(0, 0) scale(1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .social-preview,
+    .social-preview {
+      transform: translate(-50%, 0) scale(1);
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        visibility 0s linear var(--duration-fast);
+    }
+
     .contribution-cell {
-      animation: none;
-      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) and (width <= 600px) {
+    .social-item:first-child .social-preview,
+    .social-item:last-child .social-preview {
+      transform: translate(0, 0) scale(1);
     }
   }
 </style>

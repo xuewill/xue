@@ -15,6 +15,12 @@ export interface TextSegment {
   href?: string;
 }
 
+export interface ContentHeading {
+  id: string;
+  label: string;
+  level: number;
+}
+
 export interface PostMetadata {
   title: string;
   description: string;
@@ -41,14 +47,16 @@ export interface MarkdownModule<T> {
 
 export interface Post extends PostMetadata {
   slug: string;
+  headings: ContentHeading[];
   component: Component;
 }
 
-export type PostSummary = Omit<Post, 'component'>;
+export type PostSummary = Omit<Post, 'component' | 'headings'>;
 
 export interface Project extends ProjectMetadata {
   slug: string;
+  headings: ContentHeading[];
   component: Component;
 }
 
-export type ProjectSummary = Omit<Project, 'component'>;
+export type ProjectSummary = Omit<Project, 'component' | 'headings'>;

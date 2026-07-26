@@ -4,19 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <script>
-      (() => {
-        try {
-          const stored = localStorage.getItem('xue-theme');
-          const theme = stored === 'light' || stored === 'dark'
-            ? stored
-            : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          document.documentElement.dataset.theme = theme;
-        } catch {
-          document.documentElement.dataset.theme = 'light';
-        }
-      })();
-    </script>
+    <link rel="preload" href="/fonts/cormorant-garamond-semibold-italic-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/futura-regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/futura-medium.ttf" as="font" type="font/ttf" crossorigin />
+    <script src="/theme-init.js"></script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

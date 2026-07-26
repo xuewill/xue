@@ -52,7 +52,7 @@
 
 ### 环境要求
 
-- [Node.js](https://nodejs.org/) 22 或更高版本
+- [Node.js](https://nodejs.org/) 22.13 或更高版本
 - npm（安装 Node.js 时会一并安装）
 
 ### 安装和启动
@@ -69,20 +69,24 @@ npm run dev
 ### 生产构建
 
 ```bash
-npm run check
-npm run build
+npm run verify
+npm run test:e2e
 npm run preview
 ```
 
-静态产物生成在 `build/`。`npm run build` 会先检查内容资源，再编译站点。
+静态产物生成在 `build/`。`npm run verify` 会依次执行 lint、单元测试、内容与类型检查及生产构建；端到端测试会自动启动该构建的本地预览。
 
 ## 📜 可用命令
 
 | 命令 | 说明 |
 | --- | --- |
 | `npm run dev` | 启动 Vite 开发服务器 |
+| `npm run lint` | 检查 JavaScript、TypeScript 和 Svelte 文件 |
+| `npm test` | 运行 Vitest 单元测试 |
+| `npm run test:e2e` | 针对生产构建运行 Playwright 浏览器回归测试 |
 | `npm run check` | 检查内容、同步 SvelteKit 类型并运行 `svelte-check` |
 | `npm run build` | 检查内容并生成静态生产版本 |
+| `npm run verify` | 运行 lint、单元测试、检查和生产构建 |
 | `npm run preview` | 在本地预览生产构建 |
 | `npm run validate:content` | 只检查内容中引用的图片和资源 |
 | `npm run check:watch` | 以监听模式运行 Svelte 诊断 |
@@ -102,7 +106,8 @@ npm run preview
 │   ├── lib/server/          # 构建阶段获取社交平台数据
 │   ├── lib/types/           # 内容与社交数据的共享类型
 │   └── routes/              # 页面、RSS 和 Sitemap 路由
-├── static/                  # 图片、字体、图标、manifest 和 robots.txt
+├── static/                  # 图片、字体、图标、manifest 和安全响应头
+├── tests/                   # Vitest 单元测试与 Playwright 浏览器测试
 ├── svelte.config.js         # mdsvex 和静态适配器配置
 └── wrangler.toml            # Cloudflare Pages 输出配置
 ```
@@ -259,8 +264,8 @@ git push origin main
 
 工作流会依次执行：
 
-1. 拉取仓库并安装 Node.js 22。
-2. 运行 `npm ci`、`npm run check` 和 `npm run build`。
+1. 拉取仓库并安装 Node.js 22.13。
+2. 运行 `npm ci`、依赖审计和 `npm run verify`。
 3. 将 `build/` 上传到指定的 Cloudflare Pages 项目。
 4. 将结果发布到名为 `main` 的生产分支。
 
@@ -271,7 +276,7 @@ git push origin main
 1. 打开 **Cloudflare Dashboard → Workers & Pages → 你的项目 → Custom domains**。
 2. 选择 **Set up a custom domain**，输入域名或子域名。
 3. 按提示设置 DNS。域名已由同一 Cloudflare 账号管理时，一般可以自动完成配置。
-4. 更新 `src/lib/config/site.ts` 中的 `siteConfig.url`，并同步修改 `static/robots.txt` 中的 Sitemap 域名。
+4. 更新 `src/lib/config/site.ts` 中的 `siteConfig.url`；robots、canonical、RSS 和 Sitemap 地址都会据此生成。
 5. 重新构建和部署，使 canonical URL、RSS、Sitemap 和社交分享元数据使用新域名。
 
 ### 手动部署
@@ -280,8 +285,7 @@ git push origin main
 
 ```bash
 npm ci
-npm run check
-npm run build
+npm run verify
 npx wrangler pages deploy build --project-name=xue-blog --branch=main
 ```
 
@@ -291,18 +295,19 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 | --- | --- |
 | 提示 `Project not found` | 确认 Pages 项目已创建，并且 `CLOUDFLARE_PROJECT_NAME` 与项目名完全一致 |
 | 身份验证或权限错误 | 为正确账号重新创建带有 **Cloudflare Pages: Edit** 权限的 Token |
-| `npm ci` 失败 | 使用 Node.js 22+，并在依赖变化时提交更新后的 `package-lock.json` |
+| `npm ci` 失败 | 使用 Node.js 22.13+，并在依赖变化时提交更新后的 `package-lock.json` |
 | 构建提示图片缺失 | 修正引用路径或将资源放入 `static/`，再运行 `npm run validate:content` |
 | GitHub 预览显示回退快照 | 在构建环境中配置 `GITHUB_TOKEN`，或等待匿名 API 限额重置 |
 | X 预览没有关注数字 | 在执行 `npm run build` 的环境中配置 `X_BEARER_TOKEN` |
-| 自定义域名仍显示旧元数据 | 更新规范域名和 `robots.txt`，重新构建，并等待 DNS 或缓存刷新 |
+| 自定义域名仍显示旧元数据 | 更新 `siteConfig.url`，重新构建，并等待 DNS 或缓存刷新 |
 | GitHub 没有触发部署 | 确认推送目标为 `main`，或从 Actions 页面手动运行工作流 |
 
 ## 🔄 CI/CD 规则
 
 - Pull Request 和手动运行会执行 `.github/workflows/check.yml`。
 - 推送到 `main` 和手动运行会执行 `.github/workflows/deploy.yml`。
-- 两个工作流都使用 Node.js 22，并执行与本地一致的检查。
+- 两个工作流都使用 Node.js 22.13，执行依赖审计和与本地一致的验证。
+- Pull Request 还会运行 Playwright 浏览器回归测试。
 - 只有检查和静态构建全部成功后才会发布生产版本。
 
 ## 📄 许可证

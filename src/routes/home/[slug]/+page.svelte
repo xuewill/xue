@@ -1,23 +1,23 @@
 <script lang="ts">
   import ArticleToc from '$lib/components/article/ArticleToc.svelte';
-  import { siteConfig } from '$lib/config/site';
+  import Seo from '$lib/components/layout/Seo.svelte';
 
   let { data } = $props();
   const Content = $derived(data.project.component);
 </script>
 
-<svelte:head>
-  <title>{data.project.title} — {siteConfig.title}</title>
-  <meta name="description" content={data.project.description} />
-  <meta property="og:image" content={`${siteConfig.url}${data.project.cover}`} />
-  <link rel="canonical" href={`${siteConfig.url}/home/${data.project.slug}`} />
-</svelte:head>
+<Seo
+  title={data.project.title}
+  description={data.project.description}
+  path={`/home/${data.project.slug}`}
+  image={data.project.cover}
+/>
 
 <main class="page article-page project-page">
   <a class="back-link" href="/#projects">← all projects</a>
   <div class="article-layout">
     {#key data.project.slug}
-      <ArticleToc />
+      <ArticleToc headings={data.project.headings} />
     {/key}
     <article id="article-overview">
       <header class="article-header">

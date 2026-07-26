@@ -1,8 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveStaticAsset } from './path-utils.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const staticRoot = path.resolve(root, 'static');
 const references = [];
 
 function collect(file, pattern, group = 1) {
@@ -21,8 +23,8 @@ for (const directory of ['src/content/posts', 'src/content/projects']) {
 }
 
 const missing = references.filter(({ asset }) => {
-  const target = path.resolve(root, 'static', asset.replace(/^\//, ''));
-  return !target.startsWith(path.resolve(root, 'static')) || !existsSync(target);
+  const target = resolveStaticAsset(staticRoot, asset);
+  return target === undefined || !existsSync(target);
 });
 
 if (missing.length > 0) {

@@ -2,10 +2,13 @@
   import AboutSection from '$lib/components/home/AboutSection.svelte';
   import HeroSketchbook from '$lib/components/home/HeroSketchbook.svelte';
   import ProjectGrid from '$lib/components/home/ProjectGrid.svelte';
+  import Seo from '$lib/components/layout/Seo.svelte';
   import { homeConfig } from '$lib/config/home';
 
   let { data } = $props();
 </script>
+
+<Seo />
 
 <main class="page home">
   <HeroSketchbook

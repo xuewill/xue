@@ -1,13 +1,10 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import type { ContentHeading } from '$lib/types/content';
 
-  interface TocItem {
-    id: string;
-    label: string;
-    level: number;
-  }
+  export let headings: readonly ContentHeading[] = [];
 
-  let items: TocItem[] = [{ id: 'article-overview', label: 'Overview', level: 1 }];
+  $: items = [{ id: 'article-overview', label: 'Overview', level: 1 }, ...headings];
   let activeId = 'article-overview';
   let isOpen = false;
   let triggerButton: HTMLButtonElement;
@@ -38,44 +35,11 @@
     closeToc(false);
   }
 
-  function createHeadingId(label: string, usedIds: Set<string>): string {
-    const base =
-      label
-        .toLocaleLowerCase()
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^\p{Letter}\p{Number}]+/gu, '-')
-        .replace(/^-|-$/g, '') || 'section';
-
-    let id = base;
-    let suffix = 2;
-    while (usedIds.has(id)) {
-      id = `${base}-${suffix}`;
-      suffix += 1;
-    }
-    return id;
-  }
-
   onMount(() => {
-    const article = document.querySelector<HTMLElement>('#article-overview');
-    if (!article) return;
-
-    const headings = Array.from(
-      article.querySelectorAll<HTMLHeadingElement>('.prose h2, .prose h3, .prose h4, .prose h5, .prose h6')
-    );
-    const usedIds = new Set(
-      Array.from(document.querySelectorAll<HTMLElement>('[id]'), (element) => element.id)
-    );
-
-    const headingItems = headings.map((heading) => {
-      const label = heading.textContent?.trim() || 'Section';
-      if (!heading.id) heading.id = createHeadingId(label, usedIds);
-      usedIds.add(heading.id);
-      return { id: heading.id, label, level: Number(heading.tagName.slice(1)) };
-    });
-
-    items = [...items, ...headingItems];
-    const targets = [article, ...headings];
+    const targets = items
+      .map(({ id }) => document.getElementById(id))
+      .filter((target): target is HTMLElement => target !== null);
+    if (targets.length === 0) return;
     let frame = 0;
 
     const updateActiveItem = () => {
@@ -174,7 +138,7 @@
   <p id="article-toc-title" class="article-toc-title">On this page</p>
   <nav aria-label="Article sections">
     <ol>
-      {#each items as item}
+      {#each items as item (item.id)}
         <li style={`--toc-level: ${Math.max(0, item.level - 2)}`}>
           <a
             class="toc-section-link"
@@ -245,7 +209,7 @@
     font-size: 13px;
     letter-spacing: 0.035em;
     line-height: 1.45;
-    transition: color 0.2s ease;
+    transition: color var(--duration-ui) var(--ease-out);
   }
 
   .toc-section-link::before {
@@ -258,7 +222,7 @@
     background: var(--brand);
     content: '';
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--duration-ui) var(--ease-out);
   }
 
   .toc-section-link:hover,
@@ -285,7 +249,7 @@
     font-size: 11px;
     letter-spacing: var(--track-nav);
     text-transform: uppercase;
-    transition: color 0.2s ease;
+    transition: color var(--duration-ui) var(--ease-out);
   }
 
   .toc-top-link:hover {
@@ -326,8 +290,8 @@
       right: 12px;
       z-index: 490;
       display: flex;
-      width: 30px;
-      height: 30px;
+      width: 44px;
+      height: 44px;
       align-items: center;
       justify-content: center;
       border: 1px solid var(--hairline-strong);
@@ -349,28 +313,30 @@
     .toc-trigger-lines span {
       position: absolute;
       right: 0;
+      top: 50%;
       width: 14px;
       height: 1px;
       background: currentColor;
       transform-origin: center;
-      transition: top 0.2s ease, transform 0.2s ease, opacity 0.15s ease;
+      transition:
+        transform var(--duration-ui) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out);
     }
 
     .toc-trigger-lines span:nth-child(1) {
-      top: 1px;
+      transform: translateY(calc(-50% - 4.5px));
     }
 
     .toc-trigger-lines span:nth-child(2) {
-      top: 5.5px;
+      transform: translateY(-50%);
     }
 
     .toc-trigger-lines span:nth-child(3) {
-      top: 10px;
+      transform: translateY(calc(-50% + 4.5px));
     }
 
     .toc-trigger.is-open .toc-trigger-lines span:nth-child(1) {
-      top: 5.5px;
-      transform: rotate(45deg);
+      transform: translateY(-50%) rotate(45deg);
     }
 
     .toc-trigger.is-open .toc-trigger-lines span:nth-child(2) {
@@ -378,8 +344,7 @@
     }
 
     .toc-trigger.is-open .toc-trigger-lines span:nth-child(3) {
-      top: 5.5px;
-      transform: rotate(-45deg);
+      transform: translateY(-50%) rotate(-45deg);
     }
 
     .toc-backdrop {
@@ -412,7 +377,10 @@
       pointer-events: none;
       transform: translateX(100%);
       visibility: hidden;
-      transition: transform 0.24s ease, opacity 0.2s ease, visibility 0.24s;
+      transition:
+        transform 240ms var(--ease-drawer),
+        opacity 180ms var(--ease-out),
+        visibility 0s linear 240ms;
     }
 
     .article-toc.is-open {
@@ -420,10 +388,36 @@
       pointer-events: auto;
       transform: translateX(0);
       visibility: visible;
+      transition-delay: 0s;
     }
 
     ol {
       columns: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) and (max-width: 720px) {
+    .toc-trigger-lines span {
+      transition: opacity var(--duration-fast) var(--ease-out);
+    }
+
+    .toc-trigger-lines span:nth-child(1),
+    .toc-trigger-lines span:nth-child(2),
+    .toc-trigger-lines span:nth-child(3),
+    .toc-trigger.is-open .toc-trigger-lines span:nth-child(1),
+    .toc-trigger.is-open .toc-trigger-lines span:nth-child(3) {
+      transform: translateY(-50%);
+    }
+
+    .article-toc {
+      transform: none;
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        visibility 0s linear var(--duration-fast);
+    }
+
+    .article-toc.is-open {
+      transition-delay: 0s;
     }
   }
 </style>

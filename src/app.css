@@ -30,6 +30,49 @@
   font-weight: 600;
 }
 
+/* Keep first-paint fallback metrics close to the bundled display fonts. */
+@font-face {
+  font-family: 'Futura Local Fallback';
+  src: local('Futura'), local('Avenir Next'), local('Helvetica Neue'), local('Arial');
+  font-style: normal;
+  font-weight: 300;
+  size-adjust: 88%;
+  ascent-override: 101.8%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Futura Local Fallback';
+  src: local('Futura'), local('Avenir Next'), local('Helvetica Neue'), local('Arial');
+  font-style: normal;
+  font-weight: 400;
+  size-adjust: 88%;
+  ascent-override: 101.8%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Futura Local Fallback';
+  src: local('Futura'), local('Avenir Next'), local('Helvetica Neue'), local('Arial');
+  font-style: normal;
+  font-weight: 500;
+  size-adjust: 92.3%;
+  ascent-override: 101.8%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Cormorant Local Fallback';
+  src: local('Georgia Bold Italic');
+  font-display: swap;
+  font-style: italic;
+  font-weight: 600;
+  size-adjust: 70%;
+}
+
 :root {
   color-scheme: light;
   --paper: #f5f4ed;
@@ -48,11 +91,16 @@
   --book-shadow: rgb(20 20 19 / 14%);
   --whisper-shadow: 0 16px 36px rgb(20 20 19 / 8%);
   --font: Charter, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
-  --sans: 'Futura Local', Futura, 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
-  --display: 'Cormorant Garamond Local', Cormorant Garamond, Georgia, serif;
+  --sans: 'Futura Local', 'Futura Local Fallback', Arial, sans-serif;
+  --display: 'Cormorant Garamond Local', 'Cormorant Local Fallback', Georgia, serif;
   --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
   --track-caps: 0.16em;
   --track-nav: 0.09em;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-fast: 140ms;
+  --duration-ui: 200ms;
 }
 
 :root[data-theme='dark'] {
@@ -129,7 +177,9 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    color var(--duration-ui) var(--ease-out);
 }
 
 button,
@@ -160,7 +210,10 @@ a:focus-visible {
   max-width: 1120px;
   margin: 0 auto;
   padding: calc(clamp(36px, 6vw, 88px) + 56px) clamp(24px, 5vw, 64px) 10vh;
-  animation: page-fade 0.45s ease both;
+}
+
+:root[data-initial-load] .page {
+  animation: page-enter var(--duration-ui) var(--ease-out) both;
 }
 
 .top {
@@ -191,6 +244,8 @@ a:focus-visible {
 }
 
 .top .name {
+  display: inline-flex;
+  align-items: center;
   flex: none;
   font-family: var(--display);
   font-size: var(--top-link-size);
@@ -215,16 +270,16 @@ a:focus-visible {
   display: inline-flex;
   height: var(--top-link-size);
   align-items: center;
+  justify-content: center;
   font-size: var(--top-link-size);
   line-height: 1;
 }
 
 .top nav a {
   color: var(--ink-muted);
-  transition: color 0.2s ease;
+  transition: color var(--duration-ui) var(--ease-out);
 }
 
-.top nav a:hover,
 .top nav a[aria-current='page'] {
   color: var(--ink);
 }
@@ -233,23 +288,61 @@ a:focus-visible {
   position: relative;
 }
 
+.menu-arrow {
+  display: inline-block;
+  transform-origin: center;
+  transition: transform 160ms var(--ease-out);
+  will-change: transform;
+}
+
+.menu:focus-within .menu-arrow {
+  transform: rotateX(180deg);
+}
+
+.menu.touch-open .menu-arrow {
+  transform: rotateX(180deg);
+}
+
 .menu .dropdown {
   position: absolute;
   top: 100%;
   right: 0;
   z-index: 50;
-  display: none;
+  display: flex;
   min-width: 156px;
   padding-top: 18px;
   flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transform-origin: top right;
+  visibility: hidden;
+  transition:
+    opacity 160ms var(--ease-out),
+    transform 160ms var(--ease-out),
+    visibility 0s linear 160ms;
 }
 
-.menu:hover .dropdown,
 .menu:focus-within .dropdown {
-  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.menu.touch-open .dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 .menu .dropdown a {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
   border: 1px solid var(--hairline);
   border-top: 0;
   padding: 12px 16px;
@@ -279,12 +372,9 @@ a:focus-visible {
   height: 17px;
   place-items: center;
   color: var(--ink-muted);
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.icon-btn:hover {
-  color: var(--brand);
-  transform: translateY(-1px);
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 }
 
 .icon-mask {
@@ -306,7 +396,7 @@ a:focus-visible {
   background: transparent;
   color: var(--ink-muted);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color var(--duration-ui) var(--ease-out);
 }
 
 .theme-toggle::before {
@@ -319,12 +409,9 @@ a:focus-visible {
   content: '';
 }
 
-.theme-toggle:hover {
-  color: var(--brand);
-}
-
 .theme-toggle:focus-visible {
-  outline: none;
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
   color: var(--brand);
 }
 
@@ -333,8 +420,8 @@ a:focus-visible {
 }
 
 .theme-icon {
-  width: 100%;
-  height: 100%;
+  width: var(--top-link-size);
+  height: var(--top-link-size);
   fill: none;
   stroke: currentColor;
   stroke-width: 1.35;
@@ -374,6 +461,7 @@ a:focus-visible {
 
 .hero-kicker {
   margin: 0 0 clamp(18px, 3vh, 34px);
+  line-height: 1.32;
   text-align: center;
 }
 
@@ -592,11 +680,13 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   border: 0;
-  padding: 6px 2px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   background: transparent;
   color: var(--ink-muted);
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color var(--duration-ui) var(--ease-out);
 }
 
 .sb-arrow.left {
@@ -605,10 +695,6 @@ a:focus-visible {
 
 .sb-arrow.right {
   margin-left: 30px;
-}
-
-.sb-arrow:hover {
-  color: var(--ink);
 }
 
 .sb-captions {
@@ -626,6 +712,7 @@ a:focus-visible {
   font-family: var(--sans);
   font-size: 12px;
   letter-spacing: var(--track-caps);
+  line-height: 1.3;
   text-transform: uppercase;
   animation: caption-in 0.45s ease both;
 }
@@ -644,11 +731,11 @@ a:focus-visible {
   color: var(--ink);
   cursor: pointer;
   transform: translateX(-50%);
-  animation: cue-breathe 2.6s ease-in-out infinite;
+  animation: cue-breathe 2.6s var(--ease-in-out) infinite paused;
 }
 
-.hero-down:hover {
-  animation: none;
+.hero.is-visible .hero-down {
+  animation-play-state: running;
 }
 
 .about {
@@ -739,23 +826,27 @@ a:focus-visible {
   border-radius: 8px;
   aspect-ratio: 16 / 10;
   background: var(--surface);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transform-origin: center;
+  transition:
+    border-color var(--duration-ui) var(--ease-out),
+    box-shadow var(--duration-ui) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .project-card .thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 220ms var(--ease-out);
 }
 
-.project-card:hover .thumb img {
-  transform: scale(1.04);
-}
-
-.project-card:hover .thumb {
+.project-card:focus-visible .thumb {
   border-color: var(--hairline-strong);
   box-shadow: var(--whisper-shadow);
+}
+
+.project-card:active .thumb {
+  transform: scale(0.98);
 }
 
 .project-card .cap {
@@ -822,7 +913,11 @@ a:focus-visible {
   background-position: left bottom;
   background-repeat: repeat-x;
   background-size: 7px 2px;
-  transition: background-color 0.2s ease, opacity 0.15s ease, padding 0.2s ease;
+  transform: translateX(0);
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 }
 
 .blog-row::before {
@@ -834,15 +929,17 @@ a:focus-visible {
   content: '';
   opacity: 0;
   transform: scaleY(0.3);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 }
 
-.blog-row:hover {
+.blog-row:focus-visible {
   background-color: var(--surface);
-  padding-left: 20px;
+  transform: translateX(8px);
 }
 
-.blog-row:hover::before {
+.blog-row:focus-visible::before {
   opacity: 1;
   transform: scaleY(1);
 }
@@ -891,22 +988,15 @@ a:focus-visible {
   pointer-events: none;
   aspect-ratio: 3 / 2;
   transform: translateY(-50%) scale(0.9);
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 }
 
 .blog-row .row-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.blog-row:hover .row-thumb {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
-}
-
-.blog-rows:hover .blog-row:not(:hover) {
-  opacity: 0.45;
 }
 
 .back-link {
@@ -1268,9 +1358,10 @@ a:focus-visible {
   margin: 0;
 }
 
-@keyframes page-fade {
+@keyframes page-enter {
   from {
     opacity: 0;
+    transform: translateY(4px);
   }
 }
 
@@ -1326,6 +1417,79 @@ a:focus-visible {
   }
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .top nav a:hover {
+    color: var(--ink);
+  }
+
+  .menu:hover .menu-arrow {
+    transform: rotateX(180deg);
+  }
+
+  .menu:hover .dropdown {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .icon-btn:hover {
+    color: var(--brand);
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle:hover {
+    color: var(--brand);
+  }
+
+  .sb-arrow:hover {
+    color: var(--ink);
+  }
+
+  .hero-down:hover {
+    animation-play-state: paused;
+  }
+
+  .project-card:hover .thumb img {
+    transform: scale(1.04);
+  }
+
+  .project-card:hover .thumb {
+    border-color: var(--hairline-strong);
+    box-shadow: var(--whisper-shadow);
+  }
+
+  .blog-row:hover {
+    background-color: var(--surface);
+    transform: translateX(8px);
+  }
+
+  .blog-row:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .blog-row:hover .row-thumb {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  .blog-rows:hover .blog-row:not(:hover) {
+    opacity: 0.45;
+  }
+}
+
+@media (pointer: coarse) {
+  .top nav > a,
+  .top nav > .menu > a,
+  .theme-toggle,
+  .top .name {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 720px) {
   .page {
     padding: calc(28px + 56px) 18px 8vh;
@@ -1335,17 +1499,39 @@ a:focus-visible {
     --top-link-size: 14px;
 
     min-height: 56px;
-    padding: 10px 12px;
+    padding: 6px 8px;
   }
 
   .top nav {
-    gap: 9px;
+    gap: 0;
     font-size: 10px;
     letter-spacing: 0.05em;
   }
 
+  .top nav > a,
+  .top nav > .menu > a,
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .top .name {
+    min-height: 44px;
+  }
+
   .theme-toggle::before {
-    left: -5px;
+    top: 50%;
+    bottom: auto;
+    /* Center the rule in the visible album/icon gap, not the hit-box edge. */
+    left: 6px;
+    width: 2px;
+    height: var(--top-link-size);
+    transform: translate(-50%, -50%);
+    background: transparent;
+    background-image: var(--dot-rule-image);
+    background-position: center center;
+    background-repeat: repeat-y;
+    background-size: 2px 7px;
   }
 
   .menu .dropdown {
@@ -1434,10 +1620,6 @@ a:focus-visible {
     padding: 18px 4px;
   }
 
-  .blog-row:hover {
-    padding-left: 12px;
-  }
-
   .blog-row .tag,
   .blog-row .row-thumb {
     display: none;
@@ -1487,12 +1669,71 @@ a:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+  html {
+    scroll-behavior: auto;
+  }
+
+  :root[data-initial-load] .page,
+  .sb-half,
+  .sb-flap,
+  .sb-caption,
+  .hero-down {
+    animation: none;
+  }
+
+  .menu-arrow,
+  .icon-btn,
+  .project-card .thumb,
+  .project-card .thumb img,
+  .blog-row,
+  .blog-row::before,
+  .blog-row .row-thumb {
+    transition-property: color, background-color, border-color, opacity, box-shadow;
+  }
+
+  .menu-arrow,
+  .icon-btn,
+  .project-card .thumb,
+  .project-card .thumb img,
+  .blog-row,
+  .blog-row::before {
+    transform: none;
+  }
+
+  .blog-row .row-thumb {
+    transform: translateY(-50%);
+  }
+
+  .menu .dropdown {
+    transform: none;
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      visibility 0s linear var(--duration-fast);
+  }
+
+  .menu:focus-within .dropdown {
+    transition-delay: 0s;
+  }
+
+  .project-card:active .thumb,
+  .project-card:hover .thumb img,
+  .blog-row:hover,
+  .blog-row:focus-visible,
+  .blog-row:hover::before,
+  .blog-row:focus-visible::before,
+  .blog-row:hover .row-thumb,
+  .icon-btn:hover,
+  .menu:hover .menu-arrow,
+  .menu:focus-within .menu-arrow,
+  .menu.touch-open .menu-arrow {
+    transform: none;
+  }
+
+  .blog-row:hover .row-thumb {
+    transform: translateY(-50%);
+  }
+
+  .menu.touch-open .dropdown {
+    transform: none;
   }
 }

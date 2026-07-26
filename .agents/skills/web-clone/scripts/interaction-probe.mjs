@@ -71,7 +71,6 @@ function markdown(result) {
 
 async function snapshot(page) {
   return page.evaluate(() => {
-    const text = (node) => (node?.textContent || "").trim().replace(/\s+/g, " ");
     const visible = (selector) => Array.from(document.querySelectorAll(selector)).filter((node) => {
       const rect = node.getBoundingClientRect();
       const style = getComputedStyle(node);

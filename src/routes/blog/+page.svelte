@@ -1,17 +1,14 @@
 <script lang="ts">
   import BlogList from '$lib/components/blog/BlogList.svelte';
+  import Seo from '$lib/components/layout/Seo.svelte';
   import { siteConfig } from '$lib/config/site';
 
   let { data } = $props();
 </script>
 
-<svelte:head>
-  <title>Blog — {siteConfig.title}</title>
-  <meta name="description" content={`Writing by ${siteConfig.author.name}`} />
-  <link rel="canonical" href={`${siteConfig.url}/blog`} />
-</svelte:head>
+<Seo title="Blog" description={`Writing by ${siteConfig.author.name}`} path="/blog" />
 
 <main class="page listing-page">
-  <p class="section-label">Blog</p>
+  <h1 class="section-label">Blog</h1>
   <BlogList posts={data.posts} />
 </main>

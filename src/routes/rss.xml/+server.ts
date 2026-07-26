@@ -1,17 +1,9 @@
 import type { RequestHandler } from './$types';
 import { posts } from '$lib/content/posts';
 import { siteConfig } from '$lib/config/site';
+import { absoluteUrl, escapeXml } from '$lib/server/xml';
 
 export const prerender = true;
-
-function escapeXml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
-}
 
 export const GET: RequestHandler = () => {
   const items = posts
@@ -20,8 +12,8 @@ export const GET: RequestHandler = () => {
     <item>
       <title>${escapeXml(post.title)}</title>
       <description>${escapeXml(post.description)}</description>
-      <link>${siteConfig.url}/blog/${post.slug}</link>
-      <guid isPermaLink="true">${siteConfig.url}/blog/${post.slug}</guid>
+      <link>${escapeXml(absoluteUrl(siteConfig.url, `/blog/${post.slug}`))}</link>
+      <guid isPermaLink="true">${escapeXml(absoluteUrl(siteConfig.url, `/blog/${post.slug}`))}</guid>
       <pubDate>${new Date(`${post.date}T00:00:00Z`).toUTCString()}</pubDate>
     </item>`
     )
@@ -32,8 +24,8 @@ export const GET: RequestHandler = () => {
   <channel>
     <title>${escapeXml(siteConfig.title)}</title>
     <description>${escapeXml(siteConfig.description)}</description>
-    <link>${siteConfig.url}</link>
-    <language>${siteConfig.locale}</language>${items}
+    <link>${escapeXml(absoluteUrl(siteConfig.url, '/'))}</link>
+    <language>${escapeXml(siteConfig.locale)}</language>${items}
   </channel>
 </rss>`;
 

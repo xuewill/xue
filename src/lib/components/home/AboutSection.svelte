@@ -9,7 +9,7 @@
 <section id="about" class="about">
   <div class="about-text">
     <p class="bio">
-      {#each body as segment}
+      {#each body as segment, index (`${index}:${segment.text}`)}
         {#if segment.href}
           <a href={segment.href} target="_blank" rel="noreferrer" class="bio-link">{segment.text}</a>
         {:else}

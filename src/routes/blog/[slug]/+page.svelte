@@ -1,25 +1,24 @@
 <script lang="ts">
   import ArticleToc from '$lib/components/article/ArticleToc.svelte';
-  import { siteConfig } from '$lib/config/site';
+  import Seo from '$lib/components/layout/Seo.svelte';
 
   let { data } = $props();
   const Content = $derived(data.post.component);
 </script>
 
-<svelte:head>
-  <title>{data.post.title} — {siteConfig.title}</title>
-  <meta name="description" content={data.post.description} />
-  <meta property="og:title" content={data.post.title} />
-  <meta property="og:description" content={data.post.description} />
-  {#if data.post.cover}<meta property="og:image" content={`${siteConfig.url}${data.post.cover}`} />{/if}
-  <link rel="canonical" href={`${siteConfig.url}/blog/${data.post.slug}`} />
-</svelte:head>
+<Seo
+  title={data.post.title}
+  description={data.post.description}
+  path={`/blog/${data.post.slug}`}
+  image={data.post.cover}
+  type="article"
+/>
 
 <main class="page article-page">
   <a class="back-link" href="/blog">← all posts</a>
   <div class="article-layout">
     {#key data.post.slug}
-      <ArticleToc />
+      <ArticleToc headings={data.post.headings} />
     {/key}
     <article id="article-overview">
       <header class="article-header">

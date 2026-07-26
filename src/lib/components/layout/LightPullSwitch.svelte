@@ -1,9 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { observeTheme, oppositeTheme, setTheme, theme } from '$lib/theme';
 
-  type Theme = 'light' | 'dark';
-
-  const storageKey = 'xue-theme';
   const lightFlicker: Keyframe[] = [
     { opacity: 1, offset: 0 },
     { opacity: 1, offset: 0.1 },
@@ -16,7 +14,6 @@
     { opacity: 0, offset: 1 }
   ];
 
-  let theme: Theme = 'light';
   let busy = false;
   let pulled = false;
   let blackoutElement: HTMLDivElement;
@@ -38,39 +35,34 @@
     }
   }
 
-  function applyTheme(nextTheme: Theme) {
-    theme = nextTheme;
-    document.documentElement.dataset.theme = nextTheme;
-    localStorage.setItem(storageKey, nextTheme);
-  }
-
   async function pullCord() {
     if (busy || !blackoutElement) return;
     busy = true;
-    const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme = oppositeTheme($theme);
     blackoutElement.getAnimations().forEach((animation) => animation.cancel());
 
     pulled = true;
-    await wait(180);
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      applyTheme(nextTheme);
+      setTheme(nextTheme);
       pulled = false;
       busy = false;
       return;
     }
+
+    await wait(180);
 
     if (nextTheme === 'dark') {
       await animate(blackoutElement, [{ opacity: 0 }, { opacity: 1 }], {
         duration: 160,
         easing: 'ease-in'
       });
-      applyTheme('dark');
+      setTheme('dark');
       pulled = false;
       await wait(120);
       await animate(blackoutElement, lightFlicker, { duration: 820, easing: 'linear' });
     } else {
-      applyTheme('light');
+      setTheme('light');
       pulled = false;
       await wait(680);
     }
@@ -78,19 +70,7 @@
     busy = false;
   }
 
-  onMount(() => {
-    const root = document.documentElement;
-    const syncTheme = () => {
-      const current = root.dataset.theme;
-      if (current === 'light' || current === 'dark') theme = current;
-    };
-
-    syncTheme();
-    const observer = new MutationObserver(syncTheme);
-    observer.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-
-    return () => observer.disconnect();
-  });
+  onMount(observeTheme);
 </script>
 
 <div class="light-switch-root">
@@ -141,10 +121,10 @@
       class:pulled
       type="button"
       role="switch"
-      aria-checked={theme === 'dark'}
+      aria-checked={$theme === 'dark'}
       aria-busy={busy}
-      aria-label={theme === 'dark' ? 'Pull to turn off the light' : 'Pull to turn on the light'}
-      title={theme === 'dark' ? 'Pull to turn off the light' : 'Pull to turn on the light'}
+      aria-label={$theme === 'dark' ? 'Pull to turn off the light' : 'Pull to turn on the light'}
+      title={$theme === 'dark' ? 'Pull to turn off the light' : 'Pull to turn on the light'}
       onclick={pullCord}
     >
       <svg width="32" height="276" viewBox="0 0 32 276" fill="none" aria-hidden="true">
