@@ -31,7 +31,7 @@
   }
 
   function socialHref(item: (typeof siteConfig.social)[number]) {
-    return item.preview === 'email' && !clientReady ? 'mailto:' : item.href;
+    return item.preview === 'email' && !clientReady ? '#' : item.href;
   }
 
   function handleSocialClick(event: MouseEvent, preview: SocialPreview) {

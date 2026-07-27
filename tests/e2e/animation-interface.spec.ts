@@ -36,7 +36,7 @@ test('keyboard sketchbook navigation updates without the physical page-turn anim
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
 
-  const caption = page.locator('.sb-caption');
+  const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
   const previousCaption = await caption.textContent();
 
   await page.keyboard.press('ArrowRight');
@@ -49,9 +49,8 @@ test('pointer sketchbook navigation keeps the production page-turn animation', a
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
 
-  const sketchbook = page.locator('.sb-wrap');
-  await expect(sketchbook).toHaveClass(/intro/, { timeout: 3_000 });
-  await expect(sketchbook).not.toHaveClass(/intro/, { timeout: 4_000 });
+  const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
+  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
 
   await page.locator('.sb-zone.sb-next').click();
 
@@ -70,7 +69,7 @@ test('email links avoid Cloudflare markup rewriting while preserving the address
   const serverHtml = await response.text();
 
   expect(serverHtml).not.toContain('willxue@msn.com');
-  expect(serverHtml).not.toContain('mailto:willxue');
+  expect(serverHtml).not.toContain('mailto:');
 
   await page.goto('/');
   const renderedHtml = await page.content();
@@ -96,12 +95,12 @@ test('desktop sketchbook intro replays on each page load', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
 
-  const sketchbook = page.locator('.sb-wrap');
-  await expect(sketchbook).toHaveClass(/intro/, { timeout: 3_000 });
-  await expect(sketchbook).not.toHaveClass(/intro/, { timeout: 3_000 });
+  const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
+  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
 
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(sketchbook).toHaveClass(/intro/, { timeout: 3_000 });
+  await expect(caption).not.toHaveText('Stanford', { timeout: 1_000 });
+  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
 });
 
 test('client navigation does not replay the initial page entrance', async ({ page }) => {
