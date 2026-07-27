@@ -62,7 +62,16 @@ test('pointer sketchbook navigation keeps the production page-turn animation', a
   await expect(flap).toHaveCount(0, { timeout: 2_000 });
 });
 
-test('email links avoid Cloudflare markup rewriting while preserving the address', async ({ page }) => {
+test('email links avoid Cloudflare markup rewriting while preserving the address', async ({
+  page,
+  request
+}) => {
+  const response = await request.get('/');
+  const serverHtml = await response.text();
+
+  expect(serverHtml).not.toContain('willxue@msn.com');
+  expect(serverHtml).not.toContain('mailto:willxue');
+
   await page.goto('/');
   const renderedHtml = await page.content();
 

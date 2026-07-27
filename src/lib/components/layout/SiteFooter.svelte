@@ -8,6 +8,7 @@
 
   let openPreview = $state<SocialPreview | null>(null);
   let coarsePointer = $state(false);
+  let clientReady = $state(false);
   let activeTrigger: HTMLAnchorElement | null = null;
   const [emailLocalPart, emailDomainPart] = siteConfig.author.email.split('@');
 
@@ -29,6 +30,10 @@
     return `Open ${item.label}`;
   }
 
+  function socialHref(item: (typeof siteConfig.social)[number]) {
+    return item.preview === 'email' && !clientReady ? 'mailto:' : item.href;
+  }
+
   function handleSocialClick(event: MouseEvent, preview: SocialPreview) {
     if (!coarsePointer) return;
 
@@ -46,6 +51,7 @@
   }
 
   onMount(() => {
+    clientReady = true;
     const pointerQuery = window.matchMedia('(hover: none), (pointer: coarse)');
     coarsePointer = pointerQuery.matches;
 
@@ -85,7 +91,7 @@
     {#each siteConfig.social as item (item.label)}
       <span class="social-item" data-preview-open={openPreview === item.preview ? '' : undefined}>
         <a
-          href={item.href}
+          href={socialHref(item)}
           target={item.href.startsWith('http') ? '_blank' : undefined}
           rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
           class="icon-btn social-link"
@@ -188,7 +194,11 @@
             <span class="envelope-postmark" aria-hidden="true"></span>
             <span class="envelope-address">
               <span>To</span>
-              <span>{emailLocalPart}</span><span aria-hidden="true">@</span><span>{emailDomainPart}</span>
+              {#if clientReady}
+                <span>{emailLocalPart}</span><span aria-hidden="true">@</span><span>{emailDomainPart}</span>
+              {:else}
+                <span>willxue.com</span>
+              {/if}
             </span>
           {:else}
             <span class="rss-preview-header">
@@ -209,7 +219,7 @@
           {/if}
           <a
             class="preview-action"
-            href={item.href}
+            href={socialHref(item)}
             target={item.href.startsWith('http') ? '_blank' : undefined}
             rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
           >
