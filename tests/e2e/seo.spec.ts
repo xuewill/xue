@@ -19,3 +19,10 @@ test('robots and page metadata use the canonical site URL', async ({ page, reque
     'An ongoing collection of mixed-media artwork.'
   );
 });
+
+test('the static build includes a real not-found page for missing assets', async ({ request }) => {
+  const response = await request.get('/404.html');
+
+  expect(response.ok()).toBe(true);
+  expect(await response.text()).toContain('Page not found');
+});
