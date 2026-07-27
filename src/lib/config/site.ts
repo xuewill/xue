@@ -32,7 +32,7 @@ export const siteConfig = {
     },
     {
       label: 'Email',
-      href: 'mailto:willxue@msn.com',
+      href: 'mailto:willxue%40msn.com',
       icon: '/icons/mail.png',
       handle: 'willxue@msn.com',
       preview: 'email'

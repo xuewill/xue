@@ -9,6 +9,7 @@
   let openPreview = $state<SocialPreview | null>(null);
   let coarsePointer = $state(false);
   let activeTrigger: HTMLAnchorElement | null = null;
+  const [emailLocalPart, emailDomainPart] = siteConfig.author.email.split('@');
 
   function contributionColumns(levels: number[]) {
     return Array.from({ length: 26 }, (_, week) =>
@@ -80,6 +81,7 @@
 </script>
 
 <footer class="foot">
+  <!--email_off-->
   <nav class="footer-socials" aria-label="Social links">
     {#each siteConfig.social as item (item.label)}
       <span class="social-item" data-preview-open={openPreview === item.preview ? '' : undefined}>
@@ -187,7 +189,7 @@
             <span class="envelope-postmark" aria-hidden="true"></span>
             <span class="envelope-address">
               <span>To</span>
-              {item.handle}
+              <span>{emailLocalPart}</span><span aria-hidden="true">@</span><span>{emailDomainPart}</span>
             </span>
           {:else}
             <span class="rss-preview-header">
@@ -218,6 +220,7 @@
       </span>
     {/each}
   </nav>
+  <!--/email_off-->
   <p class="footer-copyright">© {siteConfig.author.name} {new Date().getFullYear()}</p>
 </footer>
 

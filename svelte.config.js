@@ -6,6 +6,9 @@ import rehypeSlug from 'rehype-slug';
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   extensions: ['.svelte', '.md'],
+  compilerOptions: {
+    preserveComments: true
+  },
   preprocess: [
     vitePreprocess(),
     mdsvex({

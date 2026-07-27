@@ -45,6 +45,45 @@ test('keyboard sketchbook navigation updates without the physical page-turn anim
   await expect(caption).not.toHaveText(previousCaption ?? '');
 });
 
+test('pointer sketchbook navigation keeps the production page-turn animation', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+
+  const sketchbook = page.locator('.sb-wrap');
+  await expect(sketchbook).toHaveClass(/intro/, { timeout: 3_000 });
+  await expect(sketchbook).not.toHaveClass(/intro/, { timeout: 4_000 });
+
+  await page.locator('.sb-zone.sb-next').click();
+
+  const flap = page.locator('.sb-flap.next');
+  await expect(flap).toHaveCount(1);
+  await expect(flap).toHaveCSS('animation-name', 'sb-fold-next');
+  await expect(flap).toHaveCSS('animation-duration', '0.85s');
+  await expect(flap).toHaveCount(0, { timeout: 2_000 });
+});
+
+test('email links avoid Cloudflare markup rewriting while preserving the address', async ({ page }) => {
+  await page.goto('/');
+  const renderedHtml = await page.content();
+
+  const emailItem = page.locator('.social-item').filter({
+    has: page.getByRole('link', { name: 'Email', exact: true })
+  });
+
+  expect(renderedHtml).toContain('<!--email_off-->');
+  expect(renderedHtml).toContain('<!--/email_off-->');
+  expect(renderedHtml).not.toContain('mailto:willxue@msn.com');
+  await expect(emailItem.getByRole('link', { name: 'Email', exact: true })).toHaveAttribute(
+    'href',
+    'mailto:willxue%40msn.com'
+  );
+  await expect(emailItem.locator('.envelope-address')).toHaveText('To willxue@msn.com');
+  await expect(emailItem.locator('.preview-action')).toHaveAttribute(
+    'href',
+    'mailto:willxue%40msn.com'
+  );
+});
+
 test('desktop sketchbook intro replays on each page load', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');

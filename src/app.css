@@ -583,20 +583,19 @@ a:focus-visible {
   z-index: 5;
   width: 50%;
   transform-style: preserve-3d;
-  animation: 0.85s cubic-bezier(0.42, 0.05, 0.25, 1) forwards;
   will-change: transform;
 }
 
 .sb-flap.next {
   left: 50%;
   transform-origin: left center;
-  animation-name: sb-fold-next;
+  animation: sb-fold-next 0.85s cubic-bezier(0.42, 0.05, 0.25, 1) forwards;
 }
 
 .sb-flap.prev {
   left: 0;
   transform-origin: right center;
-  animation-name: sb-fold-prev;
+  animation: sb-fold-prev 0.85s cubic-bezier(0.42, 0.05, 0.25, 1) forwards;
 }
 
 .sb-face {
