@@ -81,7 +81,6 @@
 </script>
 
 <footer class="foot">
-  <!--email_off-->
   <nav class="footer-socials" aria-label="Social links">
     {#each siteConfig.social as item (item.label)}
       <span class="social-item" data-preview-open={openPreview === item.preview ? '' : undefined}>
@@ -220,7 +219,6 @@
       </span>
     {/each}
   </nav>
-  <!--/email_off-->
   <p class="footer-copyright">© {siteConfig.author.name} {new Date().getFullYear()}</p>
 </footer>
 
