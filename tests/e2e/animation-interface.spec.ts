@@ -70,8 +70,7 @@ test('email links avoid Cloudflare markup rewriting while preserving the address
     has: page.getByRole('link', { name: 'Email', exact: true })
   });
 
-  expect(renderedHtml).toContain('<!--email_off-->');
-  expect(renderedHtml).toContain('<!--/email_off-->');
+  expect(renderedHtml).not.toContain('willxue@msn.com');
   expect(renderedHtml).not.toContain('mailto:willxue@msn.com');
   await expect(emailItem.getByRole('link', { name: 'Email', exact: true })).toHaveAttribute(
     'href',
