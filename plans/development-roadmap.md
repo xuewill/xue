@@ -124,8 +124,9 @@ Milestone C 验证记录（2026-07-30）：Vitest 32/32、Playwright 22/22、`sv
 **优先级：P1；外部操作**
 
 - [x] 在 Cloudflare Pages 项目 Metrics 中启用 Web Analytics（2026-07-30）。
-- [ ] 使用包含当前 CSP 和部署后烟雾检查的版本重新部署。
-- [ ] 确认生产 HTML 已注入官方 beacon，页面访问和 Core Web Vitals 开始入库。
+- [x] 使用包含当前 CSP 和部署后烟雾检查的版本重新部署（2026-07-30）。
+- [x] 确认生产 HTML 仅注入一份官方 beacon，并在真实浏览器中发出 RUM 请求。
+- [ ] 确认 Cloudflare Dashboard 开始显示页面访问和 Core Web Vitals 数据。
 - [ ] 按 `plans/analytics-baseline.md` 连续观察 14 天。
 - [ ] 记录页面访问、来源、SPA 导航和 Core Web Vitals 的 p75。
 - [ ] 将 14 天观察结论写回路线图或独立分析文档。
