@@ -6,7 +6,13 @@ import ts from 'typescript-eslint';
 import svelteConfig from './svelte.config.js';
 
 export default defineConfig(
-  globalIgnores(['.svelte-kit/**', 'build/**']),
+  globalIgnores([
+    '.svelte-kit/**',
+    '.velite/**',
+    'build/**',
+    'src/lib/generated/content/**',
+    'static/generated/**'
+  ]),
   js.configs.recommended,
   ts.configs.recommended,
   svelte.configs.recommended,
@@ -23,6 +29,13 @@ export default defineConfig(
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
       ],
       'svelte/no-navigation-without-resolve': ['error', { ignoreLinks: true }]
+    }
+  },
+  // These routes render Velite HTML compiled from trusted, repository-owned Markdown.
+  {
+    files: ['src/routes/blog/*/+page.svelte', 'src/routes/home/*/+page.svelte'],
+    rules: {
+      'svelte/no-at-html-tags': 'off'
     }
   },
   {

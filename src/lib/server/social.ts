@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { site as siteConfig } from '$lib/generated/content/index.js';
 import {
   fallbackSocialData,
   type GitHubSnapshot,
@@ -56,7 +57,7 @@ async function fetchJson<T>(
 async function getGitHub(fetcher: typeof fetch): Promise<GitHubSnapshot> {
   const headers: Record<string, string> = {
     accept: 'application/vnd.github+json',
-    'user-agent': 'willxue.com'
+    'user-agent': new URL(siteConfig.url).hostname
   };
 
   if (env.GITHUB_TOKEN) {

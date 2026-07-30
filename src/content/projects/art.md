@@ -5,7 +5,22 @@ year: ongoing
 category: mixed media
 cover: /home/art/737-lane-neihu.jpg
 order: 3
+updated: '2026-07-29'
 draft: false
+relatedPosts:
+  - mixed-media-city-studies
+  - travel-sketchbook-process
+relatedAlbum:
+  - night-market-table
+  - crossing
+  - station-crowd
+  - market-stall
+  - platform
+  - night-rider
+  - old-street
+  - fragments
+  - rainy-reflections
+  - lane-737
 ---
 
 An ongoing collection of mixed-media artwork.

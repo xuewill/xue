@@ -3,6 +3,7 @@
   import type { HeroImage } from '$lib/types/content';
 
   type Direction = 'next' | 'prev';
+  const heroImageSizes = '(max-width: 640px) 86vw, (max-width: 975px) 80vw, 780px';
 
   interface TurnState {
     id: number;
@@ -27,13 +28,36 @@
   let intro = false;
   let coarsePointer = false;
   let reducedMotion = false;
-  let mounted = false;
   let heroVisible = true;
   let heroElement: HTMLElement;
   let introQueue: Omit<TurnState, 'id' | 'dir'>[] = [];
   let introStep = 0;
   let userInteracted = false;
   let cleanupTimer: number | undefined;
+  const imagePreloads: Record<string, Promise<void>> = {};
+
+  function preloadImage(image: HeroImage): Promise<void> {
+    const cached = imagePreloads[image.id];
+    if (cached) return cached;
+
+    const promise = new Promise<void>((resolve) => {
+      const preload = new Image();
+      const finish = () => resolve();
+      preload.srcset = image.responsive.srcset;
+      preload.sizes = heroImageSizes;
+      preload.onload = () => {
+        const decode = preload.decode?.();
+        if (decode) void decode.catch(() => undefined).finally(finish);
+        else finish();
+      };
+      preload.onerror = finish;
+      preload.src = image.responsive.src;
+      if (preload.complete) finish();
+    });
+
+    imagePreloads[image.id] = promise;
+    return promise;
+  }
 
   function buildIntroQueue() {
     const total = Math.max(enabledImages.length - 1, 0);
@@ -74,6 +98,7 @@
       dir === 'next'
         ? (base + 1) % enabledImages.length
         : (base - 1 + enabledImages.length) % enabledImages.length;
+    void preloadImage(enabledImages[nextIndex]);
 
     if (instant || reducedMotion) {
       index = nextIndex;
@@ -91,15 +116,20 @@
     };
   }
 
-  function finishTurn(event: AnimationEvent) {
+  async function finishTurn(event: AnimationEvent) {
     if (event.target !== event.currentTarget || !turn) return;
 
     const completed = turn;
     index = completed.to;
 
     if (intro && introStep + 1 < introQueue.length) {
-      introStep += 1;
-      turn = { id: ++turnId, dir: 'next', ...introQueue[introStep] };
+      const nextStep = introStep + 1;
+      const nextTurn = introQueue[nextStep];
+      turn = null;
+      await preloadImage(enabledImages[nextTurn.to]);
+      if (!intro || userInteracted) return;
+      introStep = nextStep;
+      turn = { id: ++turnId, dir: 'next', ...nextTurn };
       return;
     }
 
@@ -149,7 +179,6 @@
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     coarsePointer = coarseQuery.matches;
     reducedMotion = motionQuery.matches;
-    mounted = true;
 
     let visibilityObserver: IntersectionObserver | undefined;
     if ('IntersectionObserver' in window) {
@@ -194,9 +223,13 @@
     }
 
     preloadTimeout = window.setTimeout(async () => {
-      const decodeImages = [...document.querySelectorAll<HTMLImageElement>('.sb-preload img, .sb-stack img')];
+      const firstNextImage = enabledImages[1];
+      if (!firstNextImage) return;
+
       await Promise.race([
-        Promise.allSettled(decodeImages.map((image) => image.decode?.().catch(() => undefined))),
+        Promise.all([preloadImage(enabledImages[0]), preloadImage(firstNextImage)]).then(
+          () => undefined
+        ),
         new Promise<void>((resolve) => {
           decodeTimeout = window.setTimeout(resolve, 1500);
         })
@@ -204,6 +237,13 @@
 
       if (cancelled) return;
       introTimeout = window.setTimeout(beginIntro, 200);
+
+      void (async () => {
+        for (const image of enabledImages.slice(2)) {
+          if (cancelled) return;
+          await preloadImage(image);
+        }
+      })();
     }, 50);
 
     return cleanup;
@@ -251,22 +291,24 @@
         <div class="sb-book" style={`aspect-ratio: ${enabledImages[0].width} / ${enabledImages[0].height}`}>
           {#if coarsePointer}
             <div class="sb-full sb-stack">
-              {#each enabledImages as image, imageIndex (image.id)}
-                <img
-                  src={image.src}
-                  alt={imageIndex === index ? image.alt : ''}
-                  width={image.width}
-                  height={image.height}
-                  draggable="false"
-                  decoding="sync"
-                  style:visibility={imageIndex === index ? 'visible' : 'hidden'}
-                />
-              {/each}
+              <img
+                src={enabledImages[index].responsive.src}
+                srcset={enabledImages[index].responsive.srcset}
+                sizes={heroImageSizes}
+                alt={enabledImages[index].alt}
+                width={enabledImages[index].width}
+                height={enabledImages[index].height}
+                draggable="false"
+                decoding="sync"
+                fetchpriority={index === 0 ? 'high' : 'auto'}
+              />
             </div>
           {:else if !turn}
             <div class="sb-full">
               <img
-                src={enabledImages[index].src}
+                src={enabledImages[index].responsive.src}
+                srcset={enabledImages[index].responsive.srcset}
+                sizes={heroImageSizes}
                 alt={enabledImages[index].alt}
                 width={enabledImages[index].width}
                 height={enabledImages[index].height}
@@ -281,7 +323,9 @@
               <div class={`sb-half left ${turn.dir === 'next' ? 'sb-out' : 'sb-in'}`}>
                 <img
                   class="sb-half-img left"
-                  src={enabledImages[turn.dir === 'next' ? turn.from : turn.to].src}
+                  src={enabledImages[turn.dir === 'next' ? turn.from : turn.to].responsive.src}
+                  srcset={enabledImages[turn.dir === 'next' ? turn.from : turn.to].responsive.srcset}
+                  sizes={heroImageSizes}
                   alt=""
                   width={enabledImages[turn.dir === 'next' ? turn.from : turn.to].width}
                   height={enabledImages[turn.dir === 'next' ? turn.from : turn.to].height}
@@ -293,7 +337,9 @@
               <div class={`sb-half right ${turn.dir === 'next' ? 'sb-in' : 'sb-out'}`}>
                 <img
                   class="sb-half-img right"
-                  src={enabledImages[turn.dir === 'next' ? turn.to : turn.from].src}
+                  src={enabledImages[turn.dir === 'next' ? turn.to : turn.from].responsive.src}
+                  srcset={enabledImages[turn.dir === 'next' ? turn.to : turn.from].responsive.srcset}
+                  sizes={heroImageSizes}
                   alt=""
                   width={enabledImages[turn.dir === 'next' ? turn.to : turn.from].width}
                   height={enabledImages[turn.dir === 'next' ? turn.to : turn.from].height}
@@ -306,7 +352,9 @@
                 <div class="sb-face front">
                   <img
                     class={`sb-half-img ${turn.dir === 'next' ? 'right' : 'left'}`}
-                    src={enabledImages[turn.from].src}
+                    src={enabledImages[turn.from].responsive.src}
+                    srcset={enabledImages[turn.from].responsive.srcset}
+                    sizes={heroImageSizes}
                     alt=""
                     width={enabledImages[turn.from].width}
                     height={enabledImages[turn.from].height}
@@ -317,7 +365,9 @@
                 <div class="sb-face back">
                   <img
                     class={`sb-half-img ${turn.dir === 'next' ? 'left' : 'right'}`}
-                    src={enabledImages[turn.to].src}
+                    src={enabledImages[turn.to].responsive.src}
+                    srcset={enabledImages[turn.to].responsive.srcset}
+                    sizes={heroImageSizes}
                     alt=""
                     width={enabledImages[turn.to].width}
                     height={enabledImages[turn.to].height}
@@ -327,14 +377,6 @@
                 </div>
               </div>
             {/key}
-          {/if}
-
-          {#if mounted && !coarsePointer}
-            <div class="sb-preload" aria-hidden="true">
-              {#each enabledImages as image (image.id)}
-                <img src={image.src} alt="" width={image.width} height={image.height} />
-              {/each}
-            </div>
           {/if}
 
           <button class="sb-zone sb-prev" type="button" aria-label="Previous page" onclick={() => move('prev')}></button>

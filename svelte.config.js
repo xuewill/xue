@@ -1,28 +1,19 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { mdsvex } from 'mdsvex';
-import rehypeSlug from 'rehype-slug';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  extensions: ['.svelte', '.md'],
-  preprocess: [
-    vitePreprocess(),
-    mdsvex({
-      extensions: ['.md'],
-      rehypePlugins: [rehypeSlug]
-    })
-  ],
+  preprocess: vitePreprocess(),
   kit: {
     csp: {
       mode: 'hash',
       directives: {
         'default-src': ['self'],
-        'script-src': ['self'],
+        'script-src': ['self', 'https://static.cloudflareinsights.com'],
         'style-src': ['self', 'unsafe-inline'],
         'img-src': ['self', 'data:', 'https:'],
         'font-src': ['self'],
-        'connect-src': ['self'],
+        'connect-src': ['self', 'https://cloudflareinsights.com'],
         'object-src': ['none'],
         'base-uri': ['self'],
         'form-action': ['self']

@@ -1,0 +1,7 @@
+tags:
+  - slug: Engineering
+    label: Engineering
+    description: This slug is not lowercase kebab-case.
+  - slug: Engineering
+    label: Duplicate
+    description: This slug is also duplicated.

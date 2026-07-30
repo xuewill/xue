@@ -1,0 +1,19 @@
+tags:
+  - slug: engineering
+    label: Engineering
+    description: Notes on building reliable, maintainable software and web systems.
+  - slug: design
+    label: Design
+    description: Work and observations across interaction, architecture, and visual design.
+  - slug: art
+    label: Art
+    description: Mixed-media studies, drawing processes, and visual experiments.
+  - slug: field-notes
+    label: Field Notes
+    description: Observations collected through places, sketchbooks, and everyday scenes.
+  - slug: publishing
+    label: Publishing
+    description: The tools and decisions behind this independent digital archive.
+  - slug: reference
+    label: Reference
+    description: Practical examples used to document and verify the site's capabilities.

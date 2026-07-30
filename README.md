@@ -29,12 +29,16 @@ There is no production Node.js server, database, or Worker SSR runtime. The gene
 ### Highlights
 
 - SvelteKit 2, Svelte 5, and TypeScript
-- Markdown content powered by mdsvex
+- Type-safe Markdown and YAML content powered by Velite
+- Build-time syntax highlighting powered by Shiki
 - Fully pre-rendered output via `@sveltejs/adapter-static`
 - Automatic validation for Hero images, post covers, and images referenced in Markdown
 - Built-in RSS feed, sitemap, robots file, and responsive assets
+- Stable topic pages, article series, and cross-links between Blog, Projects, and Album works
+- Build-generated social preview images and JSON-LD for people, posts, projects, and the Album
 - Responsive ambient light controls, article TOC, and mobile theme controls
 - Accessible footer previews with live GitHub data and optional official X data
+- Chromium regression tests, Firefox/WebKit smoke coverage, axe checks, and build-time link validation
 - GitHub Actions checks and Cloudflare Pages deployment
 
 ## 🧰 Tech Stack
@@ -43,7 +47,7 @@ There is no production Node.js server, database, or Worker SSR runtime. The gene
 | --- | --- |
 | Application | SvelteKit 2 + Svelte 5 |
 | Language | TypeScript |
-| Content | Markdown + mdsvex |
+| Content | Markdown + YAML + Velite |
 | Build | Vite + `@sveltejs/adapter-static` |
 | Hosting | Cloudflare Pages |
 | CI/CD | GitHub Actions + Wrangler |
@@ -82,13 +86,16 @@ The static production output is written to `build/`. `npm run verify` runs linti
 | --- | --- |
 | `npm run dev` | Start the Vite development server |
 | `npm run lint` | Run ESLint across JavaScript, TypeScript, and Svelte files |
-| `npm test` | Run the Vitest unit test suite |
-| `npm run test:e2e` | Run Playwright browser regression tests against the production build |
+| `npm test` | Generate Velite data and run the Vitest unit test suite |
+| `npm run test:e2e` | Run Chromium regressions plus Firefox/WebKit smoke and axe checks |
+| `npm run check:links` | Validate generated internal links and probe external links |
+| `npm run check:deployment` | Smoke-test a deployed Pages URL from `DEPLOYMENT_URL` |
 | `npm run check` | Validate content, sync SvelteKit types, and run `svelte-check` |
 | `npm run build` | Validate content and create the static production build |
-| `npm run verify` | Run lint, unit tests, checks, and the production build |
+| `npm run verify` | Run lint, unit tests, checks, build, and generated-site link validation |
 | `npm run preview` | Preview the production build locally |
 | `npm run validate:content` | Check referenced images and content assets only |
+| `npm run validate:generated` | Ensure the tracked web manifest matches its YAML source |
 | `npm run check:watch` | Run Svelte diagnostics in watch mode |
 
 ## 🗂️ Project Structure
@@ -99,48 +106,78 @@ The static production output is written to `build/`. `npm run verify` runs linti
 ├── .github/workflows/       # Pull request checks and production deployment
 ├── scripts/                 # Content validation scripts
 ├── src/
+│   ├── content/config/      # Site, home-page, tag, and album YAML configuration
 │   ├── content/posts/       # Blog Markdown files
 │   ├── content/projects/    # Project Markdown files
 │   ├── lib/components/      # Reusable Svelte components
-│   ├── lib/config/          # Site and home-page configuration
+│   ├── lib/generated/       # Ignored Velite output generated before checks/builds
 │   ├── lib/server/          # Build-time social data fetching
 │   ├── lib/types/           # Shared content and social data types
 │   └── routes/              # SvelteKit pages, RSS, and sitemap routes
-├── static/                  # Images, fonts, icons, manifest, and security headers
+├── static/                  # Images, fonts, icons, generated manifest, and security headers
 ├── tests/                   # Vitest unit and Playwright browser tests
-├── svelte.config.js         # mdsvex and static adapter configuration
+├── svelte.config.js         # Svelte preprocessing and static adapter configuration
+├── velite.config.ts         # Content schemas, transforms, sorting, and generated outputs
 └── wrangler.toml            # Cloudflare Pages output configuration
 ```
 
 ## ⚙️ Site Configuration
 
-- `src/lib/config/site.ts`: site title, canonical URL, author, navigation, and social links.
-- `src/lib/config/home.ts`: Hero images and the About and Projects section copy.
+- `src/content/config/site.yaml`: site metadata, publication timezone, author, icons, manifest, navigation, social links, and social fallback data.
+- `src/content/config/home.yaml`: Hero images and the About and Projects section copy.
+- `src/content/config/tags.yaml`: the finite set of valid tag slugs, labels, and descriptions.
+- `src/content/config/album.yaml`: album photo order, paths, captions, and visual tilt.
+- `velite.config.ts`: strict schemas, file-derived slugs, TOC generation, draft filtering, sorting, and static asset validation.
 - `src/app.css`: colors, typography, sizing, and responsive behavior.
 - `static/`: files copied to the site root without transformation.
 
-Hero images live in `static/home/sketchbook/`. Add, remove, or reorder objects in `homeConfig.hero.images` to control what is displayed:
+Velite generates the ignored `src/lib/generated/content/` directory before tests, checks, builds, and development serving. Sharp also writes ignored, content-hashed WebP variants to `static/generated/media/` for Hero, Album, covers, portraits, and Markdown body images, plus 1200×630 PNG social images to `static/generated/og/`. Source images and YAML/Markdown paths remain the editable source of truth; do not edit generated media directly. Velite also generates the tracked `static/site.webmanifest` snapshot from `site.yaml`, and CI rejects drift between the YAML source and that snapshot.
 
-```ts
-{
-  id: 'image-id',
-  src: '/home/sketchbook/image.png',
-  alt: 'Accessible description',
-  caption: 'Image caption',
-  width: 1280,
-  height: 720,
+Responsive image candidates use intrinsic dimensions and `srcset`. Hero loads the active page first, then progressively preloads each next page without changing the existing autoplay sequence. Album renders small responsive thumbnails and requests the larger lightbox role only after a photo is opened. Cloudflare Pages serves `/generated/*` with `Cache-Control: public, max-age=31536000, immutable`; the filename hash changes whenever the source image or encoding recipe changes.
+
+Album image dimensions and camera details (camera, lens, focal length, aperture, shutter speed, and ISO) are read automatically from each source image during the Velite build. If a file has no value for a particular EXIF field, the album displays `—` for that field.
+
+Configuration objects reject unknown fields. Hero and Album IDs must be unique, Hero width and height must match the source file, and Project `order` values must be unique even for drafts. Tags must use a configured lowercase kebab-case slug. Post, Project, Album, and series references are checked for missing, duplicate, draft-only, self-referential, or conflicting targets before production filtering. Validation errors identify the affected field and explain the expected correction.
+
+Hero images live in `static/home/sketchbook/`. Add, remove, or reorder entries under `hero.images` in `home.yaml` to control what is displayed:
+
+```yaml
+- id: image-id
+  src: /home/sketchbook/image.png
+  alt: Accessible description
+  caption: Image caption
+  width: 1280
+  height: 720
   enabled: true
-}
 ```
 
 Keep `width` and `height` aligned with the source image dimensions to avoid layout shifts. Set `enabled: false` to keep an image configured without showing it.
+
+The Playwright media budgets cover the full Hero autoplay transfer (`<= 2.5 MiB`) and Album first load (`<= 2 MiB`). On the current desktop fixture, measured transfers are approximately 1.36 MiB for Home after autoplay and 0.67 MiB for Album before opening the lightbox.
 
 ## 🖥️ Interface Behavior
 
 - The primary navigation uses `home` and `blog`. Project detail pages live at `/home/[slug]`; legacy `/work/*` URLs redirect permanently to `/home/*`.
 - The left pendant lamp follows the responsive content rail but stops before the main reading column. The pull cord stays pinned to the right edge so it does not cover the header navigation.
 - The article table of contents expands on large screens. On mobile, the theme control is an unframed icon separated from navigation by a vertical rule.
+- Blog topics are available at `/blog/tags`; article tags link to prerendered topic pages. Article and Project footers expose series, related writing, related projects, and Album works without loading unrelated HTML in the client bundle.
 - Footer social icons use 20 px artwork inside 32 px targets. Preview cards support mouse hover and keyboard focus, while touch devices follow the link without opening a card.
+
+## 📈 Privacy-friendly Analytics
+
+The repository is ready for Cloudflare Pages' one-click Web Analytics integration. Enable it under **Workers & Pages → xue-blog → Metrics → Web Analytics**, then deploy again so Cloudflare injects its beacon. Do not add a token or a second beacon script to the repository.
+
+The CSP permits Cloudflare's official script and RUM endpoint. Web Analytics supplies aggregate page views, sources, SPA navigations, and Core Web Vitals without cookies or `localStorage`, but it does not currently support custom interaction events. Album opens, content-flow funnels, and RSS conversions therefore remain deliberately untracked until real traffic justifies a small first-party event system.
+
+The activation checklist, privacy boundary, and initial LCP/CLS snapshot are documented in [`plans/analytics-baseline.md`](./plans/analytics-baseline.md).
+
+## ✅ Continuous Quality
+
+`npm run verify` now finishes by checking every generated internal anchor and fragment, then probes external article and profile links. Definite `404` and `410` responses fail the build; temporary rate limits, server errors, and network failures are reported as inconclusive so a third-party outage does not make every pull request flaky. Set `LINK_CHECK_STRICT_EXTERNAL=1` when an inconclusive external request should also fail.
+
+Playwright runs the complete interaction, responsive, SEO, performance, and accessibility suite in Chromium. A compact public-flow smoke test also runs in Firefox and WebKit, while axe checks five representative routes against automatically detectable WCAG A/AA rules. YAML and Markdown schema behavior is covered by standalone valid and invalid fixture files rather than only the live content collection.
+
+After Wrangler publishes to Cloudflare Pages, the deployment workflow passes the action's exact deployment URL to `npm run check:deployment`. The check verifies Home, Blog, Album, RSS, Sitemap, and a real missing URL before the workflow is considered successful.
 
 ## 🔗 Social Preview Data
 
@@ -172,16 +209,27 @@ Create a Markdown file in `src/content/posts/`. The filename becomes the URL slu
 title: Article title
 description: Article summary
 date: '2026-07-17'
+updated: '2026-07-18'
 draft: false
 tags:
-  - Notes
+  - publishing
 cover: /images/blog/cover.webp
+series:
+  slug: site-notes
+  title: Site Notes
+  order: 4
+related:
+  - another-article
+relatedProjects:
+  - project-name
+relatedAlbum:
+  - album-photo-id
 ---
 
 Article body.
 ```
 
-For example, `article-title.md` is published at `/blog/article-title`. Posts with `draft: true` are excluded from production; published posts are added automatically to the blog index, RSS feed, and sitemap.
+For example, `article-title.md` is published at `/blog/article-title`. Use only slugs declared in `src/content/config/tags.yaml`; tags automatically create topic indexes and RSS categories. `updated`, `series`, `related`, `relatedProjects`, and `relatedAlbum` are optional, but every reference must resolve to existing content and every series order must be unique. Posts with `draft: true` are excluded from production; published posts are added automatically to the blog index, RSS feed, sitemap, and JSON-LD metadata. Published posts cannot use a future date in the timezone configured by `site.yaml` because this static deployment has no scheduled rebuild; keep future work as a draft until its publication date.
 
 ### Add a project
 
@@ -195,13 +243,22 @@ year: '2026'
 category: design
 cover: /images/projects/cover.webp
 order: 10
+updated: '2026-07-18'
 draft: false
+relatedPosts:
+  - article-title
+relatedAlbum:
+  - album-photo-id
 ---
 
 Project body.
 ```
 
-Projects are ordered by ascending `order` value. A file named `project-name.md` is published at `/home/project-name`.
+Projects are ordered by ascending `order` value. Every Project, including drafts, must use a unique order. Optional `relatedPosts` and `relatedAlbum` values connect the detail page to writing and Album works. A file named `project-name.md` is published at `/home/project-name`.
+
+### Content trust boundary
+
+Velite compiles repository-owned Markdown into HTML during the build, and the two content detail routes render that generated HTML directly. Markdown, YAML, and raw HTML are therefore restricted to trusted repository authors; they must never contain visitor input, an unsanitized external feed, or content copied automatically from a CMS. If external publishing is added later, sanitize its HTML at build time before it reaches the generated content module.
 
 ## ☁️ Deploying to Cloudflare Pages
 
@@ -267,7 +324,8 @@ The workflow performs the following steps:
 1. Checks out the repository and installs Node.js 22.13.
 2. Runs `npm ci`, a dependency audit, and `npm run verify`.
 3. Uploads `build/` to the configured Cloudflare Pages project.
-4. Publishes the result to the production branch named `main`.
+4. Checks Home, Blog, Album, RSS, Sitemap, and 404 on the exact deployment URL.
+5. Publishes the result to the production branch named `main`.
 
 When the job finishes, the deployment is available at `<project-name>.pages.dev`. Pull requests run `.github/workflows/check.yml` for validation but do not publish preview deployments.
 
@@ -276,7 +334,7 @@ When the job finishes, the deployment is available at `<project-name>.pages.dev`
 1. Open **Cloudflare Dashboard → Workers & Pages → your project → Custom domains**.
 2. Select **Set up a custom domain** and enter the domain or subdomain.
 3. Follow the DNS prompts. Domains already managed by the same Cloudflare account can usually be configured automatically.
-4. Update `siteConfig.url` in `src/lib/config/site.ts`; robots, canonical, RSS, and Sitemap URLs are generated from it.
+4. Update `url` in `src/content/config/site.yaml`; robots, canonical, RSS, and Sitemap URLs are generated from it.
 5. Rebuild and deploy so canonical URLs, RSS, sitemap, and social metadata use the new domain.
 
 ### Manual deployment
@@ -299,7 +357,7 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 | Build reports a missing image | Fix the referenced path or add the asset under `static/`, then run `npm run validate:content` |
 | GitHub preview shows the fallback snapshot | Add `GITHUB_TOKEN` to the build environment or wait for the anonymous API limit to reset |
 | X preview has no follower counts | Configure `X_BEARER_TOKEN` in the environment that runs `npm run build` |
-| Custom domain shows stale metadata | Update `siteConfig.url`, rebuild, and allow DNS/cache propagation |
+| Custom domain shows stale metadata | Update `src/content/config/site.yaml`, rebuild, and allow DNS/cache propagation |
 | GitHub deployment does not start | Confirm the push targets `main`, or trigger the workflow manually from the Actions tab |
 
 ## 🔄 CI/CD Behavior
@@ -307,8 +365,8 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 - Pull requests and manual runs execute `.github/workflows/check.yml`.
 - Pushes to `main` and manual runs execute `.github/workflows/deploy.yml`.
 - Both workflows use Node.js 22.13, audit dependencies, and run the same verification used locally.
-- Pull requests also run the Playwright browser regression suite.
-- Production deployment happens only after checks and the static build succeed.
+- Pull requests also run Chromium regressions and Firefox/WebKit smoke tests.
+- Production deployment succeeds only after checks, the static build, upload, and deployed-URL smoke test pass.
 
 ## 📄 License
 

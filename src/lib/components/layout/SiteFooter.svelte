@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { siteConfig } from '$lib/config/site';
+  import { posts, site as siteConfig } from '$lib/generated/content/index.js';
   import { fallbackSocialData, type SocialData } from '$lib/types/social';
 
   let { socialData = fallbackSocialData }: { socialData?: SocialData } = $props();
@@ -11,6 +11,12 @@
   let clientReady = $state(false);
   let activeTrigger: HTMLAnchorElement | null = null;
   const [emailLocalPart, emailDomainPart] = siteConfig.author.email.split('@');
+  const siteHostname = new URL(siteConfig.url).hostname.replace(/^www\./, '');
+  const latestPosts = posts.slice(0, 2);
+
+  function shortDate(date: string) {
+    return date.slice(5).replace('-', '.');
+  }
 
   function contributionColumns(levels: number[]) {
     return Array.from({ length: 26 }, (_, week) =>
@@ -101,11 +107,24 @@
           onclick={(event) => handleSocialClick(event, item.preview)}
         >
           <span
-            class="icon-mask social-link-icon"
+            class="social-link-icon"
             class:rss-link-icon={item.preview === 'rss'}
-            style={`--icon: url('${item.icon}')`}
             aria-hidden="true"
-          ></span>
+          >
+            <span
+              class="icon-mask social-link-icon-mono"
+              style={`--icon: url('${item.icon}')`}
+            ></span>
+            <img
+              class="social-link-icon-color"
+              class:monochrome-brand={item.preview === 'profile' || item.preview === 'github'}
+              src={item.icon}
+              alt=""
+              width="20"
+              height="20"
+              decoding="async"
+            />
+          </span>
         </a>
 
         <span
@@ -116,7 +135,27 @@
         >
           {#if item.preview === 'profile'}
             <span class="profile-header">
-              <img src={socialData.x.avatarUrl} alt="" width="1254" height="1254" />
+              {#if socialData.x.avatarUrl === siteConfig.author.portrait}
+                <img
+                  src={siteConfig.author.portraitImage.src}
+                  srcset={siteConfig.author.portraitImage.srcset}
+                  sizes="48px"
+                  alt=""
+                  width={siteConfig.author.portraitImage.width}
+                  height={siteConfig.author.portraitImage.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              {:else}
+                <img
+                  src={socialData.x.avatarUrl}
+                  alt=""
+                  width="1254"
+                  height="1254"
+                  loading="lazy"
+                  decoding="async"
+                />
+              {/if}
               <span class="profile-identity">
                 <strong>{socialData.x.name}</strong>
                 <span>@{socialData.x.username}</span>
@@ -131,14 +170,13 @@
             {#if socialData.x.followers !== null || socialData.x.following !== null}
               <span class="profile-stats">
                 {#if socialData.x.following !== null}
-                  <span><strong>{socialData.x.following.toLocaleString()}</strong> following</span>
+                  <span><strong>{socialData.x.following.toLocaleString()}</strong><small>Following</small></span>
                 {/if}
                 {#if socialData.x.followers !== null}
-                  <span><strong>{socialData.x.followers.toLocaleString()}</strong> followers</span>
+                  <span><strong>{socialData.x.followers.toLocaleString()}</strong><small>Followers</small></span>
                 {/if}
               </span>
             {/if}
-            <span class="preview-meta"><span>View profile</span><span aria-hidden="true">↗</span></span>
           {:else if item.preview === 'github'}
             <span class="github-header">
               <span>
@@ -150,6 +188,10 @@
                 style={`--icon: url('${item.icon}')`}
                 aria-hidden="true"
               ></span>
+            </span>
+            <span class="preview-section-label">
+              <span>26 week activity</span>
+              <span class="activity-status"><i></i> Public</span>
             </span>
             <span class="contribution-grid" aria-hidden="true">
               {#each contributionColumns(socialData.github.levels) as week, weekIndex (weekIndex)}
@@ -179,11 +221,20 @@
             <span class="envelope-return">
               <span>From</span>
               {siteConfig.author.name}<br />
-              willxue.com
+              {siteHostname}
             </span>
             <span class="envelope-stamps" aria-hidden="true">
               <span class="envelope-stamp envelope-stamp-portrait">
-                <img src="/headshot.png" alt="" width="1254" height="1254" />
+                <img
+                  src={siteConfig.author.portraitImage.src}
+                  srcset={siteConfig.author.portraitImage.srcset}
+                  sizes="48px"
+                  alt=""
+                  width={siteConfig.author.portraitImage.width}
+                  height={siteConfig.author.portraitImage.height}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span>WILL · 26</span>
               </span>
               <span class="envelope-stamp envelope-stamp-mark">
@@ -193,11 +244,13 @@
             </span>
             <span class="envelope-postmark" aria-hidden="true"></span>
             <span class="envelope-address">
-              <span>To</span>
+              <span class="envelope-address-label">To</span>
               {#if clientReady}
-                <span>{emailLocalPart}</span><span aria-hidden="true">@</span><span>{emailDomainPart}</span>
+                <span class="envelope-address-value">
+                  <span>{emailLocalPart}</span><span aria-hidden="true">@</span><span>{emailDomainPart}</span>
+                </span>
               {:else}
-                <span>willxue.com</span>
+                <span class="envelope-address-value">{siteHostname}</span>
               {/if}
             </span>
           {:else}
@@ -212,9 +265,14 @@
                 <span>Subscribe to new posts</span>
               </span>
             </span>
-            <span class="preview-meta">
-              <span>XML feed</span>
-              <span>/rss.xml</span>
+            <span class="rss-preview-list" aria-label="Latest posts">
+              {#each latestPosts as post (post.slug)}
+                <a href={`/blog/${post.slug}`}>
+                  <span>{shortDate(post.date)}</span>
+                  <strong>{post.title}</strong>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              {/each}
             </span>
           {/if}
           <a
@@ -245,29 +303,79 @@
   }
 
   .social-link-icon {
+    --social-icon-inset: 0px;
+
+    position: relative;
+    display: block;
     width: 20px;
     height: 20px;
   }
 
   .rss-link-icon {
-    width: 16px;
-    height: 16px;
+    --social-icon-inset: 2px;
+  }
+
+  .social-link-icon-mono,
+  .social-link-icon-color {
+    position: absolute;
+    inset: var(--social-icon-inset);
+    width: calc(100% - (var(--social-icon-inset) * 2));
+    height: calc(100% - (var(--social-icon-inset) * 2));
+    transition:
+      opacity var(--duration-ui) var(--ease-out),
+      transform var(--duration-ui) var(--ease-out);
+  }
+
+  .social-link-icon-mono {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .social-link-icon-color {
+    display: block;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.78) rotate(-5deg);
+  }
+
+  .social-link:hover .social-link-icon-mono,
+  .social-link:focus-visible .social-link-icon-mono {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  .social-link:hover .social-link-icon-color,
+  .social-link:focus-visible .social-link-icon-color {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+
+  :global(:root[data-theme='dark']) .social-link-icon-color.monochrome-brand {
+    filter: invert(1);
   }
 
   .social-preview {
+    --preview-accent: var(--brand);
+
     position: absolute;
     bottom: calc(100% + 16px);
     left: 50%;
     z-index: 100;
     display: flex;
-    width: min(256px, calc(100vw - 32px));
+    width: min(284px, calc(100vw - 32px));
     flex-direction: column;
-    border: 1px solid var(--hairline-strong);
-    border-radius: 2px;
-    gap: 6px;
-    padding: 10px 12px;
-    background: color-mix(in srgb, var(--surface) 97%, transparent);
-    box-shadow: 0 18px 44px rgb(20 20 19 / 18%);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--hairline-strong) 82%, transparent);
+    border-radius: 7px;
+    gap: 10px;
+    padding: 14px 16px 0;
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 5%, transparent) 0 0.55px, transparent 0.75px)
+        0 0 / 12px 12px,
+      color-mix(in srgb, var(--surface) 97%, transparent);
+    box-shadow:
+      0 24px 64px rgb(20 20 19 / 18%),
+      0 4px 14px rgb(20 20 19 / 8%);
     color: var(--ink);
     font-family: var(--sans);
     font-size: 13px;
@@ -283,6 +391,35 @@
       opacity var(--duration-ui) var(--ease-out) 80ms,
       transform var(--duration-ui) var(--ease-out) 80ms,
       visibility 0s linear 280ms;
+  }
+
+  .social-preview::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--preview-accent);
+    content: '';
+    opacity: 0.82;
+  }
+
+  .social-preview-profile {
+    --preview-accent: #181717;
+  }
+
+  .social-preview-github {
+    --preview-accent: #2da44e;
+  }
+
+  .social-preview-email {
+    --preview-accent: #7898b4;
+  }
+
+  .social-preview-rss {
+    --preview-accent: #f26522;
+  }
+
+  :global(:root[data-theme='dark']) .social-preview-profile {
+    --preview-accent: #f5f4ed;
   }
 
   .social-item:focus-within .social-preview {
@@ -307,14 +444,23 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 4px;
-    border-top: 1px solid var(--hairline);
-    padding-top: 8px;
-    color: var(--brand);
+    margin: 0 -16px;
+    border-top: 1px solid color-mix(in srgb, var(--preview-accent) 20%, var(--hairline));
+    padding: 0 16px;
+    background: color-mix(in srgb, var(--preview-accent) 5%, transparent);
+    color: var(--preview-accent);
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: var(--track-nav);
     text-transform: uppercase;
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      letter-spacing var(--duration-fast) var(--ease-out);
+  }
+
+  .preview-action:hover {
+    background: color-mix(in srgb, var(--preview-accent) 9%, transparent);
+    letter-spacing: calc(var(--track-nav) + 0.025em);
   }
 
   .preview-action:focus-visible {
@@ -326,10 +472,11 @@
   .rss-preview-header {
     display: flex;
     align-items: center;
+    min-height: 44px;
   }
 
   .rss-preview-header {
-    gap: 10px;
+    gap: 12px;
   }
 
   .rss-preview-header > span:last-child {
@@ -339,28 +486,33 @@
 
   .rss-preview-header strong {
     color: var(--ink);
-    font-size: 14px;
-    font-weight: 500;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.15;
   }
 
   .rss-preview-header > span:last-child > span {
     color: var(--ink-muted);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   .rss-preview-icon {
-    width: 24px;
-    height: 24px;
-    color: var(--ink-muted);
+    width: 28px;
+    height: 28px;
+    color: var(--preview-accent);
   }
 
   .profile-header img {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex: none;
-    border: 1px solid var(--hairline-strong);
+    border: 1px solid color-mix(in srgb, var(--preview-accent) 24%, var(--hairline-strong));
     border-radius: 50%;
+    box-shadow: 0 3px 10px rgb(20 20 19 / 12%);
     object-fit: cover;
   }
 
@@ -380,28 +532,31 @@
   .profile-identity strong,
   .github-header strong {
     color: var(--ink);
-    font-size: 14px;
-    font-weight: 500;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.15;
   }
 
   .profile-identity > span,
   .github-header > span:first-child > span {
     color: var(--ink-muted);
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 9px;
+    letter-spacing: 0.05em;
   }
 
   .preview-network-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     flex: none;
     background: currentColor;
-    color: var(--ink-muted);
+    color: var(--preview-accent);
     mask: var(--icon) center / contain no-repeat;
   }
 
   .profile-bio {
-    margin-top: 8px;
+    margin: 2px 0;
     color: var(--ink-soft);
     font-family: var(--font);
     font-size: 14px;
@@ -409,24 +564,47 @@
   }
 
   .profile-stats {
-    display: flex;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    border-block: 1px solid var(--hairline);
     color: var(--ink-muted);
-    font-size: 11px;
+    font-family: var(--mono);
+    font-size: 9px;
+  }
+
+  .profile-stats > span {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 8px 0;
+  }
+
+  .profile-stats > span + span {
+    border-left: 1px solid var(--hairline);
+    padding-left: 12px;
   }
 
   .profile-stats strong {
     color: var(--ink);
-    font-weight: 500;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .profile-stats small {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .preview-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: 4px;
+    margin-top: 0;
     border-top: 1px solid var(--hairline);
-    padding-top: 8px;
+    padding-top: 9px;
     color: var(--ink-muted);
     font-family: var(--mono);
     font-size: 10px;
@@ -434,10 +612,36 @@
     text-transform: uppercase;
   }
 
+  .preview-section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .activity-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .activity-status i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--preview-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--preview-accent) 12%, transparent);
+  }
+
   .contribution-grid {
     display: flex;
     gap: 2px;
-    margin-top: 8px;
+    padding: 9px 0;
+    border-block: 1px solid color-mix(in srgb, var(--preview-accent) 12%, var(--hairline));
   }
 
   .contribution-column {
@@ -451,53 +655,104 @@
     width: 7px;
     height: 7px;
     border: 0;
-    border-radius: 2px;
+    border-radius: 1.5px;
     background: var(--surface-muted);
   }
 
   .contribution-cell.level-1 {
-    background: color-mix(in srgb, var(--ink) 30%, transparent);
+    background: color-mix(in srgb, var(--preview-accent) 28%, var(--surface-muted));
   }
 
   .contribution-cell.level-2 {
-    background: color-mix(in srgb, var(--ink) 52%, transparent);
+    background: color-mix(in srgb, var(--preview-accent) 48%, var(--surface-muted));
   }
 
   .contribution-cell.level-3 {
-    background: color-mix(in srgb, var(--ink) 74%, transparent);
+    background: color-mix(in srgb, var(--preview-accent) 70%, var(--surface-muted));
   }
 
   .contribution-cell.level-4 {
-    background: var(--ink);
+    background: var(--preview-accent);
+  }
+
+  .rss-preview-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .rss-preview-list a {
+    display: grid;
+    min-height: 45px;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--ink);
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
+  }
+
+  .rss-preview-list a:hover,
+  .rss-preview-list a:focus-visible {
+    background: color-mix(in srgb, var(--preview-accent) 6%, transparent);
+    color: var(--preview-accent);
+  }
+
+  .rss-preview-list a > span:first-child {
+    color: var(--ink-muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .rss-preview-list strong {
+    overflow: hidden;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rss-preview-list a > span:last-child {
+    color: var(--preview-accent);
+    font-size: 10px;
   }
 
   .social-preview-email {
     --mail-paper: #f5f4ed;
-    --mail-ink: #68665f;
+    --mail-ink: #5e5c56;
     --mail-red: #b56f6b;
     --mail-blue: #7898b4;
 
     position: absolute;
     display: block;
-    height: 198px;
+    height: 204px;
     overflow: hidden;
     border: 0;
-    border-radius: 5px;
+    border-radius: 7px;
     padding: 0;
     background:
-      radial-gradient(circle at 18% 24%, rgb(104 102 95 / 4%) 0 0.5px, transparent 0.75px),
+      radial-gradient(circle at 1px 1px, rgb(104 102 95 / 5%) 0 0.55px, transparent 0.75px)
+        0 0 / 12px 12px,
       var(--mail-paper);
-    background-size: 13px 11px, auto;
     color: var(--mail-ink);
   }
 
   .social-preview-email .preview-action {
     position: absolute;
-    right: 12px;
-    bottom: 7px;
-    left: 12px;
+    right: 4px;
+    bottom: 4px;
+    left: 4px;
     z-index: 5;
+    min-height: 43px;
+    margin: 0;
     border-top-color: rgb(104 102 95 / 24%);
+    padding: 0 13px;
+    background: rgb(245 244 237 / 86%);
     color: var(--mail-blue);
   }
 
@@ -513,9 +768,9 @@
       repeating-linear-gradient(45deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px)
         left / 3px 100% no-repeat,
       repeating-linear-gradient(45deg, var(--mail-red) 0 7px, transparent 7px 14px, var(--mail-blue) 14px 21px, transparent 21px 28px)
-        right / 3px 100% no-repeat;
+        right / 4px 100% no-repeat;
     content: '';
-    opacity: 0.62;
+    opacity: 0.66;
     pointer-events: none;
   }
 
@@ -523,40 +778,40 @@
     position: absolute;
     inset: auto 0 0;
     z-index: 0;
-    height: 66%;
-    clip-path: polygon(0 100%, 0 75%, 50% 25%, 100% 75%, 100% 100%);
-    background: rgb(104 102 95 / 3%);
-    filter: drop-shadow(0 -1px 0 rgb(104 102 95 / 34%));
+    height: 62%;
+    clip-path: polygon(0 100%, 0 66%, 50% 19%, 100% 66%, 100% 100%);
+    background: rgb(104 102 95 / 2.5%);
+    filter: drop-shadow(0 -1px 0 rgb(104 102 95 / 24%));
   }
 
   .envelope-return {
     position: absolute;
-    top: 17px;
-    left: 17px;
+    top: 19px;
+    left: 19px;
     z-index: 1;
     font-family: var(--mono);
-    font-size: 7px;
+    font-size: 8px;
     line-height: 1.45;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .envelope-return > span,
-  .envelope-address > span {
+  .envelope-address-label {
     display: block;
-    margin-bottom: 1px;
+    margin-bottom: 3px;
     font-size: 6px;
     letter-spacing: 0.16em;
-    opacity: 0.72;
+    opacity: 0.68;
   }
 
   .envelope-stamps {
     position: absolute;
-    top: 11px;
-    right: 13px;
+    top: 13px;
+    right: 15px;
     display: grid;
-    grid-template-columns: 48px 36px;
-    gap: 3px;
+    grid-template-columns: 45px 34px;
+    gap: 4px;
     z-index: 2;
   }
 
@@ -572,14 +827,14 @@
   }
 
   .envelope-stamp-portrait {
-    height: 58px;
+    height: 55px;
     background: rgb(181 111 107 / 11%);
-    transform: rotate(2deg);
+    transform: rotate(1.5deg);
   }
 
   .envelope-stamp-portrait img {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     object-fit: cover;
     filter: grayscale(1) contrast(1.08);
   }
@@ -592,8 +847,8 @@
   }
 
   .envelope-stamp-mark {
-    height: 46px;
-    margin-top: 4px;
+    height: 44px;
+    margin-top: 5px;
     background: rgb(120 152 180 / 10%);
     transform: rotate(-3deg);
   }
@@ -605,7 +860,7 @@
 
   .envelope-postmark {
     position: absolute;
-    top: 21px;
+    top: 25px;
     right: 67px;
     z-index: 3;
     width: 34px;
@@ -643,16 +898,20 @@
 
   .envelope-address {
     position: absolute;
-    top: 87px;
-    left: 53px;
+    top: 94px;
+    left: 42px;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
     font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.35;
-    letter-spacing: 0.035em;
+    line-height: 1.25;
     white-space: nowrap;
+  }
+
+  .envelope-address-value {
+    display: inline-flex;
+    align-items: baseline;
+    color: var(--mail-ink);
+    font-size: 13px;
+    letter-spacing: 0.045em;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -698,6 +957,12 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .social-link-icon-mono,
+    .social-link-icon-color {
+      transform: none;
+      transition: opacity var(--duration-fast) var(--ease-out);
+    }
+
     .social-preview {
       transform: translate(-50%, 0) scale(1);
       transition:

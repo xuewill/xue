@@ -1,4 +1,4 @@
-import { projectSummaries } from '$lib/content/projects';
+import { projectSummaries } from '$lib/server/content';
 
 export function load() {
   return { projects: projectSummaries };
