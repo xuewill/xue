@@ -875,6 +875,12 @@ a:focus-visible {
   overflow-x: clip;
 }
 
+@media (min-width: 1161px) {
+  .article-page {
+    overflow-x: visible;
+  }
+}
+
 .listing-page {
   min-height: calc(100vh - 160px);
 }
