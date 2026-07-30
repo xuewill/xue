@@ -12,8 +12,6 @@ function collect(file, pattern, group = 1) {
   for (const match of content.matchAll(pattern)) references.push({ file, asset: match[group] });
 }
 
-collect('src/lib/config/home.ts', /(?:src|portrait):\s*['"](\/[^'"]+)['"]/g);
-
 for (const directory of ['src/content/posts', 'src/content/projects']) {
   for (const name of readdirSync(path.join(root, directory))) {
     if (!name.endsWith('.md')) continue;

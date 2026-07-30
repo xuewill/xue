@@ -1,0 +1,84 @@
+updated: '2026-07-29'
+photos:
+  - id: night-market-table
+    src: /home/art/art-01.jpg
+    alt: A vivid mixed-media painting of diners gathered around a night-market table.
+    tilt: -0.45
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: crossing
+    src: /home/art/art-02.jpg
+    alt: A mixed-media street scene with two older pedestrians crossing in opposite directions.
+    tilt: 0.35
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: station-crowd
+    src: /home/art/art-03.jpg
+    alt: A panoramic mixed-media painting of commuters moving through a busy station.
+    tilt: -0.25
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: market-stall
+    src: /home/art/art-04.jpg
+    alt: A blue and orange night-market painting with two vendors beside a lit stall.
+    tilt: 0.5
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: platform
+    src: /home/art/art-05.jpg
+    alt: A bright mixed-media painting of travelers waiting beside a metro train.
+    tilt: -0.35
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: night-rider
+    src: /home/art/art-06.jpg
+    alt: A cyclist passing through a layered city street painted in deep blue and orange.
+    tilt: 0.25
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: old-street
+    src: /home/art/art-07.jpg
+    alt: A turquoise and amber painting of an old street lined with market stalls.
+    tilt: -0.3
+    relatedPosts:
+      - mixed-media-city-studies
+      - travel-sketchbook-process
+    relatedProjects:
+      - art
+  - id: fragments
+    src: /home/art/from-fragments.jpg
+    alt: A torn-edge mixed-media artwork combining a face, streets, vehicles, and colorful marks.
+    tilt: 0.4
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: rainy-reflections
+    src: /home/art/rainy-reflections.jpg
+    alt: A saturated city painting with reflected lights, signs, pedestrians, and a scooter rider.
+    tilt: -0.2
+    relatedPosts:
+      - mixed-media-city-studies
+    relatedProjects:
+      - art
+  - id: lane-737
+    src: /home/art/737-lane-neihu.jpg
+    alt: A layered mixed-media painting of a crowded Taipei lane at night.
+    tilt: 0.3
+    relatedPosts:
+      - mixed-media-city-studies
+      - travel-sketchbook-process
+    relatedProjects:
+      - art

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { siteConfig } from '$lib/config/site';
+  import { site as siteConfig } from '$lib/generated/content/index.js';
   import ThemeToggle from './ThemeToggle.svelte';
 
   let coarsePointer = false;
@@ -53,22 +53,31 @@
 </script>
 
 <header class="top">
-  <a class="name" href="/">{siteConfig.author.name}</a>
+  <a class="name" href="/" aria-label={`${siteConfig.author.name} home`}>
+    <img
+      src={siteConfig.author.logoImage.src}
+      srcset={siteConfig.author.logoImage.srcset}
+      sizes="(max-width: 720px) 36px, 34px"
+      alt=""
+      width={siteConfig.author.logoImage.width}
+      height={siteConfig.author.logoImage.height}
+    />
+  </a>
 
   <nav aria-label="Primary navigation">
     <div class="menu" class:touch-open={touchMenuOpen}>
       <a
-        href="/"
+        href={siteConfig.homeNavigation.href}
         aria-current={isHome() ? 'page' : undefined}
         aria-haspopup="true"
         aria-expanded={touchMenuOpen}
         aria-controls="home-dropdown"
         onclick={handleHomeClick}
       >
-        home <span class="menu-arrow" aria-hidden="true">▾</span>
+        {siteConfig.homeNavigation.label} <span class="menu-arrow" aria-hidden="true">▾</span>
       </a>
       <div id="home-dropdown" class="dropdown">
-        {#each siteConfig.homeNavigation as item (item.href)}
+        {#each siteConfig.homeNavigation.items as item (item.href)}
           <a href={item.href} onclick={() => (touchMenuOpen = false)}>{item.label}</a>
         {/each}
       </div>

@@ -29,12 +29,16 @@
 ### 主要特性
 
 - SvelteKit 2、Svelte 5 和 TypeScript
-- 使用 mdsvex 管理 Markdown 内容
+- 使用 Velite 管理类型安全的 Markdown 与 YAML 内容
+- 使用 Shiki 在构建阶段完成代码语法高亮
 - 通过 `@sveltejs/adapter-static` 生成全静态页面
 - 自动检查 Hero 图片、文章封面和 Markdown 正文图片
 - 内置 RSS、Sitemap、robots 文件和响应式图片资源
+- 提供稳定标签页、文章系列，以及 Blog、Project、Album 之间的跨内容链接
+- 构建时自动生成社交分享图，并为作者、文章、项目和 Album 输出 JSON-LD
 - 响应式环境灯、文章目录和移动端主题控制
 - 支持键盘访问的页脚预览卡、真实 GitHub 数据和可选的 X 官方数据
+- Chromium 全量回归、Firefox/WebKit 烟雾测试、axe 检查和构建期断链校验
 - 使用 GitHub Actions 检查并部署到 Cloudflare Pages
 
 ## 🧰 技术栈
@@ -43,7 +47,7 @@
 | --- | --- |
 | 应用框架 | SvelteKit 2 + Svelte 5 |
 | 开发语言 | TypeScript |
-| 内容系统 | Markdown + mdsvex |
+| 内容系统 | Markdown + YAML + Velite |
 | 构建工具 | Vite + `@sveltejs/adapter-static` |
 | 托管平台 | Cloudflare Pages |
 | CI/CD | GitHub Actions + Wrangler |
@@ -82,13 +86,16 @@ npm run preview
 | --- | --- |
 | `npm run dev` | 启动 Vite 开发服务器 |
 | `npm run lint` | 检查 JavaScript、TypeScript 和 Svelte 文件 |
-| `npm test` | 运行 Vitest 单元测试 |
-| `npm run test:e2e` | 针对生产构建运行 Playwright 浏览器回归测试 |
+| `npm test` | 生成 Velite 数据并运行 Vitest 单元测试 |
+| `npm run test:e2e` | 运行 Chromium 回归、Firefox/WebKit 烟雾测试和 axe 检查 |
+| `npm run check:links` | 检查生成站点的内部链接并探测外部链接 |
+| `npm run check:deployment` | 使用 `DEPLOYMENT_URL` 对 Pages 部署做烟雾检查 |
 | `npm run check` | 检查内容、同步 SvelteKit 类型并运行 `svelte-check` |
 | `npm run build` | 检查内容并生成静态生产版本 |
-| `npm run verify` | 运行 lint、单元测试、检查和生产构建 |
+| `npm run verify` | 运行 lint、单元测试、检查、构建和生成站点断链校验 |
 | `npm run preview` | 在本地预览生产构建 |
 | `npm run validate:content` | 只检查内容中引用的图片和资源 |
+| `npm run validate:generated` | 检查已跟踪的 Web Manifest 是否与 YAML 源一致 |
 | `npm run check:watch` | 以监听模式运行 Svelte 诊断 |
 
 ## 🗂️ 项目结构
@@ -99,48 +106,78 @@ npm run preview
 ├── .github/workflows/       # Pull Request 检查和生产部署
 ├── scripts/                 # 内容检查脚本
 ├── src/
+│   ├── content/config/      # 站点、首页、标签和相册 YAML 配置
 │   ├── content/posts/       # Blog Markdown 文件
 │   ├── content/projects/    # Project Markdown 文件
 │   ├── lib/components/      # 可复用 Svelte 组件
-│   ├── lib/config/          # 站点和首页配置
+│   ├── lib/generated/       # 检查和构建前生成的 Velite 数据
 │   ├── lib/server/          # 构建阶段获取社交平台数据
 │   ├── lib/types/           # 内容与社交数据的共享类型
 │   └── routes/              # 页面、RSS 和 Sitemap 路由
-├── static/                  # 图片、字体、图标、manifest 和安全响应头
+├── static/                  # 图片、字体、图标、生成的 manifest 和安全响应头
 ├── tests/                   # Vitest 单元测试与 Playwright 浏览器测试
-├── svelte.config.js         # mdsvex 和静态适配器配置
+├── svelte.config.js         # Svelte 预处理和静态适配器配置
+├── velite.config.ts         # 内容 schema、转换、排序和生成规则
 └── wrangler.toml            # Cloudflare Pages 输出配置
 ```
 
 ## ⚙️ 站点配置
 
-- `src/lib/config/site.ts`：站点标题、规范域名、作者、导航和社交链接。
-- `src/lib/config/home.ts`：Hero 图片以及 About 和 Projects 文案。
+- `src/content/config/site.yaml`：站点元数据、发布时区、作者、图标、manifest、导航、社交链接及其回退数据。
+- `src/content/config/home.yaml`：Hero 图片以及 About 和 Projects 文案。
+- `src/content/config/tags.yaml`：有限且稳定的标签 slug、显示名和说明。
+- `src/content/config/album.yaml`：相册图片顺序、路径、说明和视觉倾斜值。
+- `velite.config.ts`：严格 schema、文件名 slug、TOC、草稿过滤、排序和静态资源检查。
 - `src/app.css`：颜色、字体、尺寸和响应式样式。
 - `static/`：不经过转换、直接复制到站点根目录的文件。
 
-Hero 图片位于 `static/home/sketchbook/`。在 `homeConfig.hero.images` 中增删对象或调整数组顺序即可控制前台内容：
+测试、检查、构建和开发服务器启动前，Velite 会生成并覆盖已忽略的 `src/lib/generated/content/`。Sharp 还会为 Hero、Album、封面、头像和 Markdown 正文图片生成带内容哈希的 WebP 多尺寸版本，并写入已忽略的 `static/generated/media/`，同时在 `static/generated/og/` 生成 1200×630 PNG 分享图。源图片以及 YAML/Markdown 中的路径仍是唯一可编辑来源，不要直接修改生成图片。`static/site.webmanifest` 是由 `site.yaml` 生成并纳入版本管理的快照，CI 会阻止 YAML 和该快照发生漂移。
 
-```ts
-{
-  id: 'image-id',
-  src: '/home/sketchbook/image.png',
-  alt: 'Accessible description',
-  caption: 'Image caption',
-  width: 1280,
-  height: 720,
+响应式图片会输出固有宽高和 `srcset`。Hero 先加载当前页，再逐张预取后续页面，原有自动播放顺序不变；Album 首屏只加载小尺寸响应式缩略图，打开照片后才请求较大的灯箱版本。Cloudflare Pages 会为 `/generated/*` 返回 `Cache-Control: public, max-age=31536000, immutable`，源图或编码规格变化时文件名哈希也会变化。
+
+相册图片尺寸和相机信息（相机、镜头、焦距、光圈、快门速度与 ISO）会在 Velite 构建时从源图片的 EXIF 数据中自动读取。如果某张图片缺少某个 EXIF 字段，相册会在该字段显示 `—`。
+
+配置对象会拒绝未知字段。Hero 和 Album ID 必须唯一，Hero 宽高必须与源文件一致，所有 Project（包括草稿）的 `order` 也必须唯一。标签必须使用配置内的 lowercase kebab-case slug；Post、Project、Album 和 series 引用会在过滤草稿前检查缺失、重复、自引用、草稿目标和顺序冲突。校验错误会指出对应字段和修正方式。
+
+Hero 图片位于 `static/home/sketchbook/`。在 `home.yaml` 的 `hero.images` 下增删条目或调整顺序即可控制前台内容：
+
+```yaml
+- id: image-id
+  src: /home/sketchbook/image.png
+  alt: Accessible description
+  caption: Image caption
+  width: 1280
+  height: 720
   enabled: true
-}
 ```
 
 请让 `width` 和 `height` 与源图片尺寸一致，避免页面布局偏移。如果暂时不希望展示某张图片，可保留配置并设置 `enabled: false`。
+
+Playwright 会持续检查完整 Hero 自动播放传输量不超过 2.5 MiB、Album 首屏不超过 2 MiB。当前桌面测试数据约为：首页自动播放完成后 1.36 MiB，Album 打开灯箱前 0.67 MiB。
 
 ## 🖥️ 界面行为
 
 - 顶部主导航使用 `home` 和 `blog`。项目详情页位于 `/home/[slug]`，旧的 `/work/*` 地址会永久重定向到 `/home/*`。
 - 左侧吊灯会跟随响应式内容轨道移动，但会在正文区域之前停止；右侧拉绳固定在视口右边缘，不会遮挡顶部导航。
 - 文章目录会在大屏幕上扩宽。移动端主题切换使用无边框图标，并通过竖线与导航文字分隔。
+- Blog 标签索引位于 `/blog/tags`，文章标签会链接到预渲染的标签页；文章和 Project 底部可展示系列、相关文章、相关项目和 Album 作品，同时不会把无关正文打进客户端包。
 - 页脚 Social 图标使用 20 px 图案和 32 px 点击区域。预览卡支持鼠标悬浮与键盘聚焦；触屏设备会直接打开链接，不显示浮层。
+
+## 📈 隐私友好统计
+
+仓库已经为 Cloudflare Pages 的一键 Web Analytics 接入做好准备。请在 **Workers & Pages → xue-blog → Metrics → Web Analytics** 中启用，然后重新部署，让 Cloudflare 自动注入 beacon。不要把 token 或第二份 beacon 脚本写入仓库。
+
+当前 CSP 已允许 Cloudflare 官方脚本和 RUM 上报端点。Web Analytics 不使用 Cookie 或 `localStorage`，可提供聚合页面访问、来源、SPA 导航和 Core Web Vitals，但目前不支持自定义交互事件。因此 Album 打开、内容流转漏斗和 RSS 转化暂不追踪，只有真实访问量证明有价值后才考虑小型第一方事件方案。
+
+启用检查、隐私边界和首轮 LCP/CLS 快照记录在 [`plans/analytics-baseline.md`](./plans/analytics-baseline.md)。
+
+## ✅ 持续质量
+
+`npm run verify` 现在会在构建完成后检查所有生成页面的内部链接和锚点，并探测文章与资料页中的外部链接。明确返回 `404` 或 `410` 会让检查失败；临时限流、服务端错误和网络失败会标记为“无法确认”，避免第三方短时故障导致所有 Pull Request 波动。需要把无法确认也视为失败时，可设置 `LINK_CHECK_STRICT_EXTERNAL=1`。
+
+Playwright 会在 Chromium 中运行完整的交互、响应式、SEO、性能和无障碍回归；精简的公开页面主流程还会在 Firefox 与 WebKit 中执行。axe 会按可自动检测的 WCAG A/AA 规则检查 5 个代表路由。YAML 与 Markdown schema 另有独立的有效/无效夹具，不再只依赖真实内容集合。
+
+Wrangler 上传 Cloudflare Pages 后，部署工作流会把本次部署的精确 URL 传给 `npm run check:deployment`。首页、Blog、Album、RSS、Sitemap 和真实 404 全部通过后，部署任务才算成功。
 
 ## 🔗 Social 预览数据
 
@@ -172,16 +209,27 @@ GITHUB_TOKEN=
 title: Article title
 description: Article summary
 date: '2026-07-17'
+updated: '2026-07-18'
 draft: false
 tags:
-  - Notes
+  - publishing
 cover: /images/blog/cover.webp
+series:
+  slug: site-notes
+  title: Site Notes
+  order: 4
+related:
+  - another-article
+relatedProjects:
+  - project-name
+relatedAlbum:
+  - album-photo-id
 ---
 
 Article body.
 ```
 
-例如 `article-title.md` 对应 `/blog/article-title`。生产构建会过滤 `draft: true` 的文章，其余文章会自动进入 Blog 列表、RSS 和 Sitemap。
+例如 `article-title.md` 对应 `/blog/article-title`。标签只能使用 `src/content/config/tags.yaml` 中声明的 slug，并会自动生成标签索引和 RSS category。`updated`、`series`、`related`、`relatedProjects` 和 `relatedAlbum` 均为可选字段，但引用必须存在且同一系列 order 不得重复。生产构建会过滤 `draft: true` 的文章，其余文章会自动进入 Blog 列表、RSS、Sitemap 和 JSON-LD。由于当前静态部署没有定时重建机制，已发布文章不能使用 `site.yaml` 所配置时区中的未来日期；未来内容应保持草稿状态，到发布日期再发布。
 
 ### 新增 Project
 
@@ -195,13 +243,22 @@ year: '2026'
 category: design
 cover: /images/projects/cover.webp
 order: 10
+updated: '2026-07-18'
 draft: false
+relatedPosts:
+  - article-title
+relatedAlbum:
+  - album-photo-id
 ---
 
 Project body.
 ```
 
-首页按照 `order` 升序生成卡片。名为 `project-name.md` 的文件会发布到 `/home/project-name`。
+首页按照 `order` 升序生成卡片。每个 Project（包括草稿）都必须使用唯一的 `order` 值。可选的 `relatedPosts` 与 `relatedAlbum` 会把详情页连接到相关文章和 Album 作品。名为 `project-name.md` 的文件会发布到 `/home/project-name`。
+
+### 内容信任边界
+
+Velite 会在构建阶段把仓库内的 Markdown 编译成 HTML，两个内容详情路由会直接渲染这份生成 HTML。因此 Markdown、YAML 和其中的原始 HTML 只允许由受信任的仓库作者维护，不能包含访客输入、未经清洗的外部订阅源或由 CMS 自动同步的内容。如果未来接入外部发布来源，必须先在构建阶段清洗 HTML，再写入生成内容模块。
 
 ## ☁️ 部署到 Cloudflare Pages
 
@@ -267,7 +324,8 @@ git push origin main
 1. 拉取仓库并安装 Node.js 22.13。
 2. 运行 `npm ci`、依赖审计和 `npm run verify`。
 3. 将 `build/` 上传到指定的 Cloudflare Pages 项目。
-4. 将结果发布到名为 `main` 的生产分支。
+4. 在本次部署 URL 上检查首页、Blog、Album、RSS、Sitemap 和 404。
+5. 将结果发布到名为 `main` 的生产分支。
 
 任务完成后，可以通过 `<project-name>.pages.dev` 访问站点。Pull Request 会运行 `.github/workflows/check.yml` 做校验，但不会发布预览环境。
 
@@ -276,7 +334,7 @@ git push origin main
 1. 打开 **Cloudflare Dashboard → Workers & Pages → 你的项目 → Custom domains**。
 2. 选择 **Set up a custom domain**，输入域名或子域名。
 3. 按提示设置 DNS。域名已由同一 Cloudflare 账号管理时，一般可以自动完成配置。
-4. 更新 `src/lib/config/site.ts` 中的 `siteConfig.url`；robots、canonical、RSS 和 Sitemap 地址都会据此生成。
+4. 更新 `src/content/config/site.yaml` 中的 `url`；robots、canonical、RSS 和 Sitemap 地址都会据此生成。
 5. 重新构建和部署，使 canonical URL、RSS、Sitemap 和社交分享元数据使用新域名。
 
 ### 手动部署
@@ -299,7 +357,7 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 | 构建提示图片缺失 | 修正引用路径或将资源放入 `static/`，再运行 `npm run validate:content` |
 | GitHub 预览显示回退快照 | 在构建环境中配置 `GITHUB_TOKEN`，或等待匿名 API 限额重置 |
 | X 预览没有关注数字 | 在执行 `npm run build` 的环境中配置 `X_BEARER_TOKEN` |
-| 自定义域名仍显示旧元数据 | 更新 `siteConfig.url`，重新构建，并等待 DNS 或缓存刷新 |
+| 自定义域名仍显示旧元数据 | 更新 `src/content/config/site.yaml`，重新构建，并等待 DNS 或缓存刷新 |
 | GitHub 没有触发部署 | 确认推送目标为 `main`，或从 Actions 页面手动运行工作流 |
 
 ## 🔄 CI/CD 规则
@@ -307,8 +365,8 @@ npx wrangler pages deploy build --project-name=xue-blog --branch=main
 - Pull Request 和手动运行会执行 `.github/workflows/check.yml`。
 - 推送到 `main` 和手动运行会执行 `.github/workflows/deploy.yml`。
 - 两个工作流都使用 Node.js 22.13，执行依赖审计和与本地一致的验证。
-- Pull Request 还会运行 Playwright 浏览器回归测试。
-- 只有检查和静态构建全部成功后才会发布生产版本。
+- Pull Request 还会运行 Chromium 回归和 Firefox/WebKit 烟雾测试。
+- 只有检查、静态构建、上传和部署 URL 烟雾测试全部成功后，生产部署才算完成。
 
 ## 📄 许可证
 

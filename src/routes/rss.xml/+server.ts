@@ -1,11 +1,11 @@
 import type { RequestHandler } from './$types';
-import { posts } from '$lib/content/posts';
-import { siteConfig } from '$lib/config/site';
+import { posts, site as siteConfig, tagConfig } from '$lib/generated/content/index.js';
 import { absoluteUrl, escapeXml } from '$lib/server/xml';
 
 export const prerender = true;
 
 export const GET: RequestHandler = () => {
+  const tagLabels = new Map(tagConfig.tags.map((tag) => [tag.slug, tag.label]));
   const items = posts
     .map(
       (post) => `
@@ -15,6 +15,9 @@ export const GET: RequestHandler = () => {
       <link>${escapeXml(absoluteUrl(siteConfig.url, `/blog/${post.slug}`))}</link>
       <guid isPermaLink="true">${escapeXml(absoluteUrl(siteConfig.url, `/blog/${post.slug}`))}</guid>
       <pubDate>${new Date(`${post.date}T00:00:00Z`).toUTCString()}</pubDate>
+      ${post.tags
+        .map((tag) => `<category>${escapeXml(tagLabels.get(tag) ?? tag)}</category>`)
+        .join('\n      ')}
     </item>`
     )
     .join('');

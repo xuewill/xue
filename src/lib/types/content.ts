@@ -1,62 +1,25 @@
-import type { Component } from 'svelte';
+import type {
+  AlbumConfig,
+  HomeConfig,
+  Post,
+  Project,
+  TagConfig
+} from '$lib/generated/content/index.js';
 
-export interface HeroImage {
-  id: string;
-  src: string;
-  alt: string;
-  caption: string;
-  width: number;
-  height: number;
-  enabled: boolean;
-}
-
-export interface TextSegment {
-  text: string;
-  href?: string;
-}
-
-export interface ContentHeading {
-  id: string;
-  label: string;
-  level: number;
-}
-
-export interface PostMetadata {
-  title: string;
-  description: string;
-  date: string;
-  draft: boolean;
-  tags: string[];
-  cover?: string;
-}
-
-export interface ProjectMetadata {
-  title: string;
-  description: string;
-  year: string;
-  category: string;
-  cover: string;
-  order: number;
-  draft: boolean;
-}
-
-export interface MarkdownModule<T> {
-  default: Component;
-  metadata: T;
-}
-
-export interface Post extends PostMetadata {
-  slug: string;
-  headings: ContentHeading[];
-  component: Component;
-}
-
-export type PostSummary = Omit<Post, 'component' | 'headings'>;
-
-export interface Project extends ProjectMetadata {
-  slug: string;
-  headings: ContentHeading[];
-  component: Component;
-}
-
-export type ProjectSummary = Omit<Project, 'component' | 'headings'>;
+export type ResponsiveImage = HomeConfig['hero']['images'][number]['responsive'];
+export type HeroImage = HomeConfig['hero']['images'][number];
+export type TextSegment = HomeConfig['about']['body'][number];
+export type ContentHeading = Post['toc'][number];
+export type AlbumPhoto = AlbumConfig['photos'][number];
+export type PostSummary = Omit<Post, 'content' | 'toc'>;
+export type ProjectSummary = Omit<Project, 'content' | 'toc'>;
+export type TagDefinition = TagConfig['tags'][number];
+export type TagSummary = TagDefinition & { count: number };
+export type AlbumPhotoSummary = Pick<
+  AlbumPhoto,
+  'id' | 'alt' | 'width' | 'height' | 'thumbnail'
+>;
+export type AlbumPhotoView = Omit<AlbumPhoto, 'relatedPosts' | 'relatedProjects'> & {
+  relatedPosts: PostSummary[];
+  relatedProjects: ProjectSummary[];
+};

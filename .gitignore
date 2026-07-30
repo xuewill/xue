@@ -1,5 +1,7 @@
 node_modules/
 .svelte-kit/
+.velite/
+src/lib/generated/content/
 build/
 .wrangler/
 .env
@@ -13,5 +15,6 @@ playwright-report/
 .agents/
 RECON/
 output/
+static/generated/
 /tmp/
 .workbuddy/

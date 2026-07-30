@@ -5,7 +5,10 @@ year: '2026'
 category: fashion
 cover: /home/projects/fashionx/01.jpg
 order: 2
+updated: '2026-07-27'
 draft: false
+relatedPosts:
+  - fashionx-runway-notes
 ---
 
 Designs made for the Stanford FashionX Runway Show.

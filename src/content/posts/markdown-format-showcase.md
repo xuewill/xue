@@ -4,8 +4,8 @@ description: A visual reference for the headings, text styles, lists, media, cod
 date: '2026-07-22'
 draft: false
 tags:
-  - Markdown
-  - Reference
+  - reference
+  - publishing
 cover: /home/sketchbook/tokyo-tower.png
 ---
 
@@ -17,7 +17,7 @@ A paragraph can contain **bold text**, *italic text*, ***bold italic text***, ~~
 
 ### Links and line breaks
 
-This is an [inline link](https://developer.mozilla.org/en-US/docs/Web/Markdown), this is a [reference-style link][markdown-guide], and this URL is automatically linked: <https://svelte.dev/>.
+This is an [inline link](https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Howto/Markdown_in_MDN), this is a [reference-style link][markdown-guide], and this URL is automatically linked: <https://svelte.dev/>.
 
 An inline HTML break adds a hard line ending.<br />
 This sentence starts on the next line without becoming a new paragraph.

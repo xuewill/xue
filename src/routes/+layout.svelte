@@ -4,6 +4,7 @@
   import LightPullSwitch from '$lib/components/layout/LightPullSwitch.svelte';
   import SiteFooter from '$lib/components/layout/SiteFooter.svelte';
   import SiteHeader from '$lib/components/layout/SiteHeader.svelte';
+  import { site as siteConfig } from '$lib/generated/content/index.js';
 
   let { data, children } = $props();
 
@@ -17,11 +18,10 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  {#each siteConfig.head.icons as icon (`${icon.rel}:${icon.sizes}`)}
+    <link rel={icon.rel} type={icon.type} sizes={icon.sizes} href={icon.href} />
+  {/each}
+  <link rel="manifest" href={siteConfig.head.manifest} />
 </svelte:head>
 
 <SiteHeader />

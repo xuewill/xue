@@ -1,3 +1,5 @@
+import { site as siteConfig } from '$lib/generated/content/index.js';
+
 export type SocialDataSource = 'live' | 'partial' | 'fallback';
 
 export interface XSnapshot {
@@ -25,20 +27,11 @@ export interface SocialData {
 
 export const fallbackSocialData: SocialData = {
   x: {
-    name: 'Will Xue',
-    username: 'fruitsaix',
-    bio: 'Developer, designer, and idealist shaping thoughtful experiences through code and design.',
-    avatarUrl: '/headshot.png',
-    followers: null,
-    following: null,
+    ...siteConfig.socialFallback.x,
     source: 'fallback'
   },
   github: {
-    username: 'xuewill',
-    // Last verified public snapshot; live build data replaces these values when available.
-    followers: 14,
-    totalContributions: 593,
-    levels: [],
+    ...siteConfig.socialFallback.github,
     source: 'fallback'
   }
 };

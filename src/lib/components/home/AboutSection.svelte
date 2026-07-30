@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { TextSegment } from '$lib/types/content';
+  import type { ResponsiveImage, TextSegment } from '$lib/types/content';
 
   export let body: readonly TextSegment[];
-  export let portrait: string;
+  export let portrait: ResponsiveImage;
   export let portraitAlt: string;
 </script>
 
@@ -19,6 +19,15 @@
     </p>
   </div>
   <div class="headshot">
-    <img src={portrait} alt={portraitAlt} width="990" height="1391" loading="lazy" />
+    <img
+      src={portrait.src}
+      srcset={portrait.srcset}
+      sizes="(max-width: 640px) 112px, 360px"
+      alt={portraitAlt}
+      width={portrait.width}
+      height={portrait.height}
+      loading="lazy"
+      decoding="async"
+    />
   </div>
 </section>

@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { siteConfig } from '$lib/config/site';
+import { site as siteConfig } from '$lib/generated/content/index.js';
 
 export const prerender = true;
 

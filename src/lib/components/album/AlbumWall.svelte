@@ -1,14 +1,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import type { AlbumPhoto } from '$lib/content/album';
+  import type { AlbumPhotoView } from '$lib/types/content';
 
   type LightboxState = 'opening' | 'open' | 'closing';
   type NavigationDirection = 'previous' | 'next';
   type TargetRect = { left: number; top: number; width: number; height: number };
 
-  export let photos: readonly AlbumPhoto[];
+  export let photos: readonly AlbumPhotoView[];
 
-  let selected: AlbumPhoto | null = null;
+  let selected: AlbumPhotoView | null = null;
   let state: LightboxState = 'opening';
   let target: TargetRect | null = null;
   let returnTransform = 'none';
@@ -37,10 +37,11 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  function targetRect(photo: AlbumPhoto): TargetRect {
+  function targetRect(photo: AlbumPhotoView): TargetRect {
     const compact = window.innerWidth <= 720;
     const viewportPadding = compact ? 18 : 32;
-    const detailSpace = compact ? 172 : 104;
+    const hasRelations = photo.relatedPosts.length > 0 || photo.relatedProjects.length > 0;
+    const detailSpace = compact ? (hasRelations ? 224 : 172) : hasRelations ? 142 : 104;
     const maxWidth = Math.max(1, window.innerWidth - viewportPadding * 2);
     const maxHeight = Math.max(1, window.innerHeight - viewportPadding * 2 - detailSpace);
     const scale = Math.min(maxWidth / photo.width, maxHeight / photo.height, 1);
@@ -62,7 +63,7 @@
     return `translate(${translateX}px, ${translateY}px) scale(${scale})`;
   }
 
-  async function openPhoto(event: MouseEvent, photo: AlbumPhoto) {
+  async function openPhoto(event: MouseEvent, photo: AlbumPhotoView) {
     if (selected) return;
 
     trigger = event.currentTarget as HTMLButtonElement;
@@ -83,7 +84,7 @@
     }
   }
 
-  function findTrigger(photo: AlbumPhoto) {
+  function findTrigger(photo: AlbumPhotoView) {
     return (
       [...document.querySelectorAll<HTMLButtonElement>('.album-trigger')].find(
         (button) => button.dataset.photoId === photo.id
@@ -149,7 +150,9 @@
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Tab' && selected) {
       const focusable = Array.from(
-        dialog.querySelectorAll<HTMLButtonElement>('button:not([tabindex="-1"]):not([disabled])')
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([tabindex="-1"]):not([disabled]), a[href]'
+        )
       );
       const first = focusable[0];
       const last = focusable.at(-1);
@@ -202,6 +205,7 @@
   {#each photos as photo, index (photo.id)}
     <article
       class="album-item"
+      id={`photo-${photo.id}`}
       style={`--enter-delay:${120 + Math.abs(index - (photos.length - 1) / 2) * 45}ms`}
     >
       <button
@@ -215,7 +219,9 @@
         onclick={(event) => openPhoto(event, photo)}
       >
         <img
-          src={photo.src}
+          src={photo.thumbnail.src}
+          srcset={photo.thumbnail.srcset}
+          sizes="(max-width: 720px) 46vw, (max-width: 1100px) 30vw, 22vw"
           alt={photo.alt}
           width={photo.width}
           height={photo.height}
@@ -261,10 +267,14 @@
         ontransitionend={handleTransitionEnd}
       >
         <img
-          src={selected.src}
+          src={selected.lightbox.src}
+          srcset={selected.lightbox.srcset}
+          sizes={`${target.width}px`}
           alt={selected.alt}
           width={selected.width}
           height={selected.height}
+          fetchpriority="high"
+          decoding="async"
           draggable="false"
         />
       </button>
@@ -309,16 +319,6 @@
       <span class="album-corner album-corner-bl"></span>
       <span class="album-corner album-corner-br"></span>
     </span>
-    <button
-      bind:this={closeButton}
-      class="album-lightbox-close"
-      type="button"
-      aria-label="Close image"
-      onclick={() => closePhoto()}
-    >
-      <span aria-hidden="true">×</span>
-    </button>
-
     <div class="album-details">
       <dl>
         {#each [
@@ -335,7 +335,32 @@
           </div>
         {/each}
       </dl>
+      {#if selected.relatedPosts.length > 0 || selected.relatedProjects.length > 0}
+        <div class="album-related">
+          {#if selected.relatedPosts.length > 0}
+            <span>Notes</span>
+            {#each selected.relatedPosts as post (post.slug)}
+              <a href={`/blog/${post.slug}`}>{post.title}</a>
+            {/each}
+          {/if}
+          {#if selected.relatedProjects.length > 0}
+            <span>Projects</span>
+            {#each selected.relatedProjects as project (project.slug)}
+              <a href={`/home/${project.slug}`}>{project.title}</a>
+            {/each}
+          {/if}
+        </div>
+      {/if}
     </div>
+    <button
+      bind:this={closeButton}
+      class="album-lightbox-close"
+      type="button"
+      aria-label="Close image"
+      onclick={() => closePhoto()}
+    >
+      <span aria-hidden="true">×</span>
+    </button>
   </dialog>
 {/if}
 
@@ -661,6 +686,54 @@
     white-space: nowrap;
   }
 
+  .album-related {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin-top: 14px;
+    padding-top: 10px;
+    background-image: var(--dot-rule-image);
+    background-position: left top;
+    background-repeat: repeat-x;
+    background-size: 7px 2px;
+    color: var(--ink-muted);
+    font-family: var(--sans);
+    font-size: 10px;
+    letter-spacing: var(--track-nav);
+    opacity: 0;
+    pointer-events: auto;
+    transform: translateY(8px);
+    transition:
+      opacity 180ms var(--ease-out),
+      transform 200ms var(--ease-out);
+  }
+
+  .album-lightbox[data-state='open'] .album-related {
+    opacity: 1;
+    transform: none;
+    transition-delay: 200ms;
+  }
+
+  .album-related span {
+    color: var(--brand);
+    text-transform: uppercase;
+  }
+
+  .album-related a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-decoration-color: var(--hairline-strong);
+    text-underline-offset: 3px;
+  }
+
+  .album-related a:hover {
+    color: var(--brand);
+  }
+
   :global(html:has(.album-lightbox[open])) {
     overflow: hidden;
   }
@@ -754,6 +827,13 @@
       margin-top: 3px;
       font-size: 12px;
     }
+
+    .album-related {
+      gap: 5px 9px;
+      margin-top: 10px;
+      padding-top: 8px;
+      font-size: 9px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -769,7 +849,8 @@
     .album-lightbox-nav,
     .album-lightbox-marks,
     .album-lightbox-close,
-    .album-detail {
+    .album-detail,
+    .album-related {
       transition: none;
       animation: none;
     }

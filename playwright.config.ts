@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173';
 const previewPort = new URL(baseURL).port || '4173';
@@ -13,6 +13,22 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry'
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'firefox-smoke',
+      testMatch: /cross-browser-smoke\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] }
+    },
+    {
+      name: 'webkit-smoke',
+      testMatch: /cross-browser-smoke\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] }
+    }
+  ],
   webServer: {
     command: `npm run preview -- --host 127.0.0.1 --port ${previewPort}`,
     url: baseURL,

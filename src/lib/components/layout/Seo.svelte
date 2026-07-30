@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { siteConfig } from '$lib/config/site';
+  import { site as siteConfig } from '$lib/generated/content/index.js';
 
   interface Props {
     title?: string;
@@ -8,20 +8,28 @@
     image?: string;
     type?: 'article' | 'website';
     noindex?: boolean;
+    jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   }
 
   let {
     title = siteConfig.title,
     description = siteConfig.description,
     path = '/',
-    image,
+    image = siteConfig.ogImage,
     type = 'website',
-    noindex = false
+    noindex = false,
+    jsonLd
   }: Props = $props();
 
   const documentTitle = $derived(title === siteConfig.title ? title : `${title} — ${siteConfig.title}`);
   const canonicalUrl = $derived(new URL(path, siteConfig.url).toString());
-  const imageUrl = $derived(image ? new URL(image, siteConfig.url).toString() : undefined);
+  const imageUrl = $derived(new URL(image, siteConfig.url).toString());
+  const jsonLdText = $derived(jsonLd ? JSON.stringify(jsonLd).replaceAll('<', '\\u003c') : '');
+  const jsonLdMarkup = $derived(
+    jsonLdText
+      ? ['<script type="application/ld+json">', jsonLdText, '</scr', 'ipt>'].join('')
+      : ''
+  );
 </script>
 
 <svelte:head>
@@ -33,11 +41,16 @@
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonicalUrl} />
-  {#if imageUrl}<meta property="og:image" content={imageUrl} />{/if}
-  <meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+  <meta property="og:image" content={imageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
-  {#if imageUrl}<meta name="twitter:image" content={imageUrl} />{/if}
+  <meta name="twitter:image" content={imageUrl} />
   {#if noindex}<meta name="robots" content="noindex, nofollow" />{/if}
   <link rel="canonical" href={canonicalUrl} />
+  <!-- JSON-LD is serialized from trusted repository content and escapes every '<' character. -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {#if jsonLdMarkup}{@html jsonLdMarkup}{/if}
 </svelte:head>

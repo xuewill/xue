@@ -2,10 +2,19 @@
 title: Building this site with SvelteKit
 description: A small, static publishing setup built around Markdown and Cloudflare Pages.
 date: '2026-07-17'
+updated: '2026-07-29'
 draft: false
 tags:
-  - SvelteKit
+  - engineering
+  - publishing
 cover: /home/sketchbook/stanford.png
+series:
+  slug: site-notes
+  title: Site Notes
+  order: 1
+related:
+  - writing-in-markdown
+  - typed-content-media-pipeline
 ---
 
 This site is built as a static SvelteKit application. Pages are generated at build time, then served from Cloudflare's edge network without a database or a long-running application server.

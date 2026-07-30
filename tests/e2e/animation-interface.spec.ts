@@ -32,6 +32,18 @@ test('album lightbox traps focus and restores it to the active photo', async ({ 
   await expect(trigger).toBeFocused();
 });
 
+test('album lightbox exposes related writing and project links', async ({ page }) => {
+  await page.goto('/album');
+  await page.locator('.album-trigger').first().click();
+
+  const relations = page.locator('.album-related');
+  await expect(relations.getByRole('link', { name: 'Mixed-media city studies' })).toBeVisible();
+  await expect(relations.getByRole('link', { name: 'Art', exact: true })).toHaveAttribute(
+    'href',
+    '/home/art'
+  );
+});
+
 test('keyboard sketchbook navigation updates without the physical page-turn animation', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
@@ -192,24 +204,73 @@ test.describe('mobile touch interface', () => {
     expect(hasHorizontalOverflow).toBe(false);
   });
 
-  test('social previews can be opened without following the link', async ({ page }) => {
+  test('all social previews open on touch, stay in view, and preserve their useful content', async ({
+    page
+  }) => {
     await page.goto('/');
 
-    const githubItem = page
-      .locator('.social-item')
-      .filter({ has: page.getByRole('link', { name: 'GitHub', exact: true }) });
-    const githubLink = githubItem.getByRole('link', { name: 'GitHub', exact: true });
+    for (const label of ['X', 'GitHub', 'Email', 'RSS']) {
+      const item = page
+        .locator('.social-item')
+        .filter({ has: page.getByRole('link', { name: label, exact: true }) });
+      const link = item.getByRole('link', { name: label, exact: true });
+      const preview = item.locator('.social-preview');
 
-    await expect(githubLink).toHaveAttribute('aria-expanded', 'false');
-    await githubLink.click();
+      await expect(link).toHaveAttribute('aria-expanded', 'false');
+      await link.click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(link).toHaveAttribute('aria-expanded', 'true');
+      await expect(preview).toBeVisible();
 
-    await expect(page).toHaveURL(/\/$/);
-    await expect(githubLink).toHaveAttribute('aria-expanded', 'true');
-    await expect(githubItem.locator('.social-preview')).toBeVisible();
-    await expect(githubItem.getByRole('link', { name: /Open GitHub/i })).toBeVisible();
+      const box = await preview.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(390);
+      expect(box?.y ?? -1).toBeGreaterThanOrEqual(0);
+      expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(844);
 
-    await page.locator('.footer-copyright').click();
-    await expect(githubLink).toHaveAttribute('aria-expanded', 'false');
+      await link.click();
+      await expect(link).toHaveAttribute('aria-expanded', 'false');
+    }
+
+    const emailLink = page.getByRole('link', { name: 'Email', exact: true });
+    await emailLink.click();
+    const emailValue = page.locator('.envelope-address-value');
+    await expect(emailValue).toHaveText('willxue@msn.com');
+    const emailLineTops = await emailValue.locator('span').evaluateAll((parts) =>
+      parts.map((part) => part.getBoundingClientRect().top)
+    );
+    expect(Math.max(...emailLineTops) - Math.min(...emailLineTops)).toBeLessThan(1);
+    await emailLink.click();
+
+    const rssLink = page.getByRole('link', { name: 'RSS', exact: true });
+    await rssLink.click();
+    await expect(page.locator('.rss-preview-list > a')).toHaveCount(2);
+    await expect(
+      page.locator('.rss-preview-list').getByText('A typed content and media pipeline')
+    ).toBeVisible();
+  });
+
+  test('social icons are mono by default and reveal their SVG brand color on hover', async ({
+    page
+  }) => {
+    await page.goto('/');
+
+    const emailLink = page.getByRole('link', { name: 'Email', exact: true });
+    const monoIcon = emailLink.locator('.social-link-icon-mono');
+    const colorIcon = emailLink.locator('.social-link-icon-color');
+
+    await expect(colorIcon).toHaveAttribute('src', '/icons/mail.svg');
+    await expect(monoIcon).toHaveCSS('opacity', '1');
+    await expect(colorIcon).toHaveCSS('opacity', '0');
+
+    await emailLink.hover();
+    await expect(monoIcon).toHaveCSS('opacity', '0');
+    await expect(colorIcon).toHaveCSS('opacity', '1');
+
+    await emailLink.focus();
+    await expect(monoIcon).toHaveCSS('opacity', '0');
+    await expect(colorIcon).toHaveCSS('opacity', '1');
   });
 
   test('home dropdown is reachable by touch', async ({ page }) => {

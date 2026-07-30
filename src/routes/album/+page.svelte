@@ -1,18 +1,32 @@
 <script lang="ts">
   import AlbumWall from '$lib/components/album/AlbumWall.svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
-  import { albumPhotos } from '$lib/content/album';
-  import { siteConfig } from '$lib/config/site';
+  import { site as siteConfig } from '$lib/generated/content/index.js';
+
+  let { data } = $props();
 </script>
 
-<Seo title="Album" description={`Photography and visual notes by ${siteConfig.author.name}`} path="/album" />
+<Seo
+  title={siteConfig.pages.album.title}
+  description={siteConfig.pages.album.description}
+  path="/album"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: siteConfig.pages.album.title,
+    description: siteConfig.pages.album.description,
+    url: new URL('/album', siteConfig.url).toString(),
+    dateModified: data.updated,
+    author: { '@type': 'Person', name: siteConfig.author.name }
+  }}
+/>
 
 <main class="page listing-page album-page">
   <header class="album-header">
-    <h1 class="section-label">Album</h1>
-    <span>{albumPhotos.length.toString().padStart(2, '0')} frames</span>
+    <h1 class="section-label">{siteConfig.pages.album.title}</h1>
+    <span>{data.photos.length.toString().padStart(2, '0')} frames</span>
   </header>
-  <AlbumWall photos={albumPhotos} />
+  <AlbumWall photos={data.photos} />
 </main>
 
 <style>
