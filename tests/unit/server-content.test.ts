@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import {
   getAlbumPage,
+  getArchiveEntries,
   getPostPage,
   getProject,
   getProjectPage,
@@ -72,6 +73,13 @@ describe('server content boundary', () => {
     expect(project?.relatedAlbum).toHaveLength(10);
     expect(album.photos[0].relatedPosts[0]).not.toHaveProperty('content');
     expect(album.photos[0].relatedProjects[0]).not.toHaveProperty('content');
+    expect(post?.post.locations).toEqual([]);
+    expect(project?.project.locations).toEqual([{ slug: 'taipei', label: 'Taipei' }]);
+    expect(project?.project.roles).toEqual([{ slug: 'artist', label: 'Artist' }]);
+    expect(project?.project.media).toEqual([{ slug: 'mixed-media', label: 'Mixed media' }]);
+    expect(album.photos.find(({ id }) => id === 'lane-737')?.locations).toEqual([
+      { slug: 'taipei', label: 'Taipei' }
+    ]);
   });
 
   it('sorts series navigation by its explicit order', () => {
@@ -82,5 +90,19 @@ describe('server content boundary', () => {
       'writing-in-markdown',
       'typed-content-media-pipeline'
     ]);
+  });
+
+  it('builds compact archive entries across all three content types', () => {
+    const entries = getArchiveEntries();
+    expect(entries).toHaveLength(21);
+    expect(entries[0]).toMatchObject({
+      kind: 'post',
+      year: 2026,
+      href: '/blog/typed-content-media-pipeline'
+    });
+    expect(entries).toContainEqual(
+      expect.objectContaining({ kind: 'album', year: 2024, href: '/album#photo-fragments' })
+    );
+    expect(entries.every((entry) => !('content' in entry))).toBe(true);
   });
 });

@@ -458,6 +458,42 @@ function referenceSlug() {
 
 const referenceList = () => s.array(referenceSlug()).default([]);
 
+const requiredReferenceList = () => s.array(referenceSlug()).min(1);
+
+const taxonomyDefinition = s
+  .object({
+    slug: referenceSlug(),
+    label: s.string().min(1)
+  })
+  .strict();
+
+function validateUniqueTaxonomyDefinitions(
+  group: string,
+  values: readonly { slug: string }[],
+  addIssue: (issue: { code: 'custom'; path: (string | number)[]; message: string }) => void
+): void {
+  const duplicates = new Set(findDuplicateValues(values.map(({ slug }) => slug)));
+  values.forEach((value, index) => {
+    if (!duplicates.has(value.slug)) return;
+    addIssue({
+      code: 'custom',
+      path: [group, index, 'slug'],
+      message: `Duplicate ${group} slug: ${value.slug}`
+    });
+  });
+}
+
+function projectYearLabel(project: {
+  startYear: number;
+  endYear?: number;
+  status: 'completed' | 'ongoing';
+}): string {
+  if (project.status === 'ongoing') return `${project.startYear}–present`;
+  return project.endYear === project.startYear
+    ? project.startYear.toString()
+    : `${project.startYear}–${project.endYear}`;
+}
+
 const seriesSchema = s
   .object({
     slug: referenceSlug(),
@@ -475,7 +511,7 @@ function flattenToc(items: TocEntry[], level = 2): ContentHeading[] {
 
 export function prepareCollections<
   TPost extends { date: string; draft: boolean; slug?: string },
-  TProject extends { order: number; year: string; draft: boolean }
+  TProject extends { order: number; startYear: number; draft: boolean }
 >(
   posts: TPost[],
   projects: TProject[],
@@ -490,7 +526,7 @@ export function prepareCollections<
     );
   }
   posts.sort((a, b) => b.date.localeCompare(a.date));
-  projects.sort((a, b) => a.order - b.order || b.year.localeCompare(a.year));
+  projects.sort((a, b) => a.order - b.order || b.startYear - a.startYear);
 
   if (!production) return;
 
@@ -512,6 +548,7 @@ interface RelationPost {
   related: string[];
   relatedProjects: string[];
   relatedAlbum: string[];
+  locations: string[];
 }
 
 interface RelationProject {
@@ -519,12 +556,23 @@ interface RelationProject {
   draft: boolean;
   relatedPosts: string[];
   relatedAlbum: string[];
+  locations: string[];
+  roles: string[];
+  media: string[];
 }
 
 interface RelationAlbumPhoto {
   id: string;
   relatedPosts: string[];
   relatedProjects: string[];
+  locations: string[];
+  media: string[];
+}
+
+interface ContentMetadataTaxonomy {
+  locations: readonly { slug: string }[];
+  roles: readonly { slug: string }[];
+  media: readonly { slug: string }[];
 }
 
 function assertNoDuplicateReferences(owner: string, field: string, values: string[]): void {
@@ -627,6 +675,44 @@ export function validateContentRelations(
     assertNoDuplicateReferences(owner, 'relatedProjects', photo.relatedProjects);
     for (const slug of photo.relatedPosts) requirePost(owner, slug, false);
     for (const slug of photo.relatedProjects) requireProject(owner, slug, false);
+  }
+}
+
+export function validateContentMetadata(
+  posts: RelationPost[],
+  projects: RelationProject[],
+  photos: RelationAlbumPhoto[],
+  metadata: ContentMetadataTaxonomy
+): void {
+  const knownLocations = new Set(metadata.locations.map(({ slug }) => slug));
+  const knownRoles = new Set(metadata.roles.map(({ slug }) => slug));
+  const knownMedia = new Set(metadata.media.map(({ slug }) => slug));
+
+  const validateReferences = (
+    owner: string,
+    field: string,
+    values: string[],
+    known: Set<string>
+  ) => {
+    assertNoDuplicateReferences(owner, field, values);
+    for (const value of values) {
+      if (!known.has(value)) throw new Error(`${owner} uses unknown ${field} value: ${value}`);
+    }
+  };
+
+  for (const post of posts) {
+    validateReferences(`Post ${post.slug}`, 'locations', post.locations, knownLocations);
+  }
+  for (const project of projects) {
+    const owner = `Project ${project.slug}`;
+    validateReferences(owner, 'locations', project.locations, knownLocations);
+    validateReferences(owner, 'roles', project.roles, knownRoles);
+    validateReferences(owner, 'media', project.media, knownMedia);
+  }
+  for (const photo of photos) {
+    const owner = `Album photo ${photo.id}`;
+    validateReferences(owner, 'locations', photo.locations, knownLocations);
+    validateReferences(owner, 'media', photo.media, knownMedia);
   }
 }
 
@@ -873,6 +959,25 @@ const tagConfig = defineCollection({
 });
 export const tagConfigSchema = tagConfig.schema;
 
+const contentMetadata = defineCollection({
+  name: 'ContentMetadata',
+  pattern: 'config/metadata.yaml',
+  single: true,
+  schema: s
+    .object({
+      locations: s.array(taxonomyDefinition).min(1),
+      roles: s.array(taxonomyDefinition).min(1),
+      media: s.array(taxonomyDefinition).min(1)
+    })
+    .strict()
+    .superRefine((metadata, { addIssue }) => {
+      validateUniqueTaxonomyDefinitions('locations', metadata.locations, addIssue);
+      validateUniqueTaxonomyDefinitions('roles', metadata.roles, addIssue);
+      validateUniqueTaxonomyDefinitions('media', metadata.media, addIssue);
+    })
+});
+export const contentMetadataSchema = contentMetadata.schema;
+
 const home = defineCollection({
   name: 'HomeConfig',
   pattern: 'config/home.yaml',
@@ -956,6 +1061,10 @@ const album = defineCollection({
             src: staticAsset(),
             alt: s.string().min(1),
             tilt: s.number().min(-1).max(1),
+            date: calendarDate(),
+            dateKind: s.enum(['created', 'photographed']),
+            locations: referenceList(),
+            media: requiredReferenceList(),
             relatedPosts: referenceList(),
             relatedProjects: referenceList()
           })
@@ -1015,6 +1124,7 @@ export const postFrontmatterSchema = s
     description: s.string().min(1),
     date: calendarDate(),
     updated: calendarDate().optional(),
+    locations: referenceList(),
     draft: s.boolean(),
     tags: postTagsSchema,
     cover: staticAsset().optional(),
@@ -1051,12 +1161,17 @@ const posts = defineCollection({
     })
 });
 
-export const projectFrontmatterSchema = s
+const projectFrontmatterFields = s
   .object({
     title: s.string().min(1),
     description: s.string().min(1),
-    year: s.string().min(1),
+    startYear: s.number().int().min(1900).max(2100),
+    endYear: s.number().int().min(1900).max(2100).optional(),
+    status: s.enum(['completed', 'ongoing']),
     category: s.string().min(1),
+    locations: referenceList(),
+    roles: requiredReferenceList(),
+    media: requiredReferenceList(),
     cover: staticAsset(),
     order: s.number().int(),
     updated: calendarDate().optional(),
@@ -1066,16 +1181,50 @@ export const projectFrontmatterSchema = s
   })
   .strict();
 
+function validateProjectYears(
+  project: { startYear: number; endYear?: number; status: 'completed' | 'ongoing' },
+  addIssue: (issue: { code: 'custom'; path: (string | number)[]; message: string }) => void
+): void {
+    if (project.status === 'ongoing' && project.endYear !== undefined) {
+      addIssue({
+        code: 'custom',
+        path: ['endYear'],
+        message: 'Ongoing projects must omit endYear'
+      });
+    }
+    if (project.status === 'completed' && project.endYear === undefined) {
+      addIssue({
+        code: 'custom',
+        path: ['endYear'],
+        message: 'Completed projects require endYear'
+      });
+    }
+    if (project.endYear !== undefined && project.endYear < project.startYear) {
+      addIssue({
+        code: 'custom',
+        path: ['endYear'],
+        message: 'endYear must be greater than or equal to startYear'
+      });
+    }
+}
+
+export const projectFrontmatterSchema = projectFrontmatterFields.superRefine((project, { addIssue }) => {
+  validateProjectYears(project, addIssue);
+});
+
 const projects = defineCollection({
   name: 'Project',
   pattern: 'projects/*.md',
-  schema: projectFrontmatterSchema
+  schema: projectFrontmatterFields
     .extend({
       slug: contentSlug(),
       toc: s.toc({ minDepth: 2, maxDepth: 6 }).transform((items) => flattenToc(items)),
       content: s.markdown()
     })
     .strict()
+    .superRefine((project, { addIssue }) => {
+      validateProjectYears(project, addIssue);
+    })
     .transform(async (project) => {
       const [coverImage, ogImage] = await Promise.all([
         generateResponsiveImage(project.cover, responsiveImageSpecs.cover),
@@ -1083,10 +1232,10 @@ const projects = defineCollection({
           slug: project.slug,
           title: project.title,
           eyebrow: 'Project',
-          meta: `${project.year} / ${project.category}`
+          meta: `${projectYearLabel(project)} / ${project.category}`
         })
       ]);
-      return { ...project, coverImage, ogImage };
+      return { ...project, year: projectYearLabel(project), coverImage, ogImage };
     })
 });
 
@@ -1099,7 +1248,7 @@ export default defineConfig({
     base: '/generated/',
     clean: true
   },
-  collections: { site, home, album, tagConfig, posts, projects },
+  collections: { site, home, album, tagConfig, contentMetadata, posts, projects },
   markdown: {
     rehypePlugins: [
       rehypeSlug,
@@ -1118,9 +1267,10 @@ export default defineConfig({
       ]
     ]
   },
-  prepare: ({ site, album, tagConfig, posts, projects }) => {
+  prepare: ({ site, album, tagConfig, contentMetadata, posts, projects }) => {
     const today = calendarDateInTimeZone(site.timezone);
     validateContentRelations(posts, projects, album.photos, tagConfig.tags, today);
+    validateContentMetadata(posts, projects, album.photos, contentMetadata);
     prepareCollections(
       posts,
       projects,

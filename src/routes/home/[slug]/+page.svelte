@@ -45,6 +45,18 @@
           <span>{data.project.year}</span>
           <span aria-hidden="true">·</span>
           <span>{data.project.category}</span>
+          {#if data.project.locations.length > 0}
+            <span aria-hidden="true">·</span>
+            <span>{data.project.locations.map((location) => location.label).join(' / ')}</span>
+          {/if}
+          {#if data.project.roles.length > 0}
+            <span aria-hidden="true">·</span>
+            <span>{data.project.roles.map((role) => role.label).join(' / ')}</span>
+          {/if}
+          {#if data.project.media.length > 0}
+            <span aria-hidden="true">·</span>
+            <span>{data.project.media.map((item) => item.label).join(' / ')}</span>
+          {/if}
           {#if data.project.updated}
             <span aria-hidden="true">·</span>
             <span>Updated <time datetime={data.project.updated}>{data.project.updated}</time></span>

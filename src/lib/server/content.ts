@@ -1,20 +1,53 @@
-import { album, posts, projects, tagConfig } from '../generated/content/index.js';
+import { album, contentMetadata, posts, projects, tagConfig } from '../generated/content/index.js';
 import type {
   AlbumPhotoSummary,
   AlbumPhotoView,
+  ArchiveEntry,
   PostSummary,
   ProjectSummary,
   TagSummary
 } from '../types/content';
 
+type MetadataGroup = 'locations' | 'roles' | 'media';
+const metadataMaps = Object.fromEntries(
+  (['locations', 'roles', 'media'] as const).map((group) => [
+    group,
+    new Map(contentMetadata[group].map((item) => [item.slug, item]))
+  ])
+) as Record<MetadataGroup, Map<string, { slug: string; label: string }>>;
+
+function summarizeMetadata(group: MetadataGroup, values: readonly string[]) {
+  return values
+    .map((slug) => metadataMaps[group].get(slug))
+    .filter((item): item is { slug: string; label: string } => item !== undefined);
+}
+
 function summarizePost({ content: _content, toc: _toc, ...post }: (typeof posts)[number]): PostSummary {
-  return post;
+  return { ...post, locations: summarizeMetadata('locations', post.locations) };
+}
+
+function presentPost(post: (typeof posts)[number]) {
+  return { ...post, locations: summarizeMetadata('locations', post.locations) };
 }
 
 function summarizeProject(
   { content: _content, toc: _toc, ...project }: (typeof projects)[number]
 ): ProjectSummary {
-  return project;
+  return {
+    ...project,
+    locations: summarizeMetadata('locations', project.locations),
+    roles: summarizeMetadata('roles', project.roles),
+    media: summarizeMetadata('media', project.media)
+  };
+}
+
+function presentProject(project: (typeof projects)[number]) {
+  return {
+    ...project,
+    locations: summarizeMetadata('locations', project.locations),
+    roles: summarizeMetadata('roles', project.roles),
+    media: summarizeMetadata('media', project.media)
+  };
 }
 
 export const postSummaries: PostSummary[] = posts.map(summarizePost);
@@ -53,7 +86,11 @@ function summarizeAlbumPhoto(photo: (typeof album.photos)[number]): AlbumPhotoSu
     alt: photo.alt,
     width: photo.width,
     height: photo.height,
-    thumbnail: photo.thumbnail
+    thumbnail: photo.thumbnail,
+    date: photo.date,
+    dateKind: photo.dateKind,
+    locations: summarizeMetadata('locations', photo.locations),
+    media: summarizeMetadata('media', photo.media)
   };
 }
 
@@ -81,7 +118,7 @@ export function getPostPage(slug: string) {
   ];
 
   return {
-    post,
+    post: presentPost(post),
     previous: index > 0 ? postSummaries[index - 1] : null,
     next: index < posts.length - 1 ? postSummaries[index + 1] : null,
     tags: post.tags
@@ -118,7 +155,7 @@ export function getProjectPage(slug: string) {
   ];
 
   return {
-    project,
+    project: presentProject(project),
     relatedPosts: resolvePostSummaries(relatedPostSlugs),
     relatedAlbum: resolveAlbumPhotos(relatedAlbumIds)
   };
@@ -139,6 +176,8 @@ export function getAlbumPage() {
 
     return {
       ...photo,
+      locations: summarizeMetadata('locations', photo.locations),
+      media: summarizeMetadata('media', photo.media),
       relatedPosts: resolvePostSummaries(relatedPostSlugs),
       relatedProjects: resolveProjectSummaries(relatedProjectSlugs)
     };
@@ -166,4 +205,45 @@ export function getProjectEntries() {
 
 export function getTagEntries() {
   return tagSummaries.map(({ slug }) => ({ tag: slug }));
+}
+
+export function getArchiveEntries(): ArchiveEntry[] {
+  const postEntries = postSummaries.map((post) => ({
+    kind: 'post' as const,
+    slug: post.slug,
+    title: post.title,
+    description: post.description,
+    date: post.date,
+    dateLabel: post.date,
+    year: Number(post.date.slice(0, 4)),
+    href: `/blog/${post.slug}`,
+    image: post.coverImage,
+    metadata: post.locations
+  }));
+  const projectEntries = projectSummaries.map((project) => ({
+    kind: 'project' as const,
+    slug: project.slug,
+    title: project.title,
+    description: project.description,
+    date: `${project.startYear}-01-01`,
+    dateLabel: project.year,
+    year: project.startYear,
+    href: `/home/${project.slug}`,
+    image: project.coverImage,
+    metadata: [...project.locations, ...project.roles, ...project.media]
+  }));
+  const albumEntries = album.photos.map((photo) => ({
+    kind: 'album' as const,
+    slug: photo.id,
+    title: photo.alt,
+    date: photo.date,
+    dateLabel: photo.date,
+    year: Number(photo.date.slice(0, 4)),
+    href: `/album#photo-${photo.id}`,
+    image: photo.thumbnail,
+    metadata: [...summarizeMetadata('locations', photo.locations), ...summarizeMetadata('media', photo.media)]
+  }));
+  return [...postEntries, ...projectEntries, ...albumEntries].sort((a, b) =>
+    b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind) || a.slug.localeCompare(b.slug)
+  );
 }

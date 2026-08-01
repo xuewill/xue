@@ -5,6 +5,8 @@ date: '2026-07-27'
 draft: false
 tags:
   - design
+locations:
+  - stanford
 cover: /home/projects/fashionx/01.jpg
 relatedProjects:
   - fashion-design

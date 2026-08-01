@@ -23,6 +23,7 @@ export const GET: RequestHandler = () => {
     { path: '/', lastmod: mostRecent([blogLastmod, projectLastmod, album.updated]) },
     { path: '/blog', lastmod: blogLastmod },
     { path: '/blog/tags', lastmod: blogLastmod },
+    { path: '/archive', lastmod: mostRecent([blogLastmod, projectLastmod, album.updated]) },
     { path: '/album', lastmod: album.updated },
     ...tagConfig.tags
       .map((tag) => {

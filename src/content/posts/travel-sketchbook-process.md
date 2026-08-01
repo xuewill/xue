@@ -6,6 +6,13 @@ draft: false
 tags:
   - field-notes
   - art
+locations:
+  - osaka
+  - tokyo
+  - kyoto
+  - kamakura
+  - taipei
+  - stanford
 cover: /home/sketchbook/osaka-castle.png
 relatedProjects:
   - art

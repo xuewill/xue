@@ -321,6 +321,22 @@
     </span>
     <div class="album-details">
       <dl>
+        <div class="album-detail" style="--detail-index:0">
+          <dt>{selected.dateKind === 'created' ? 'Created' : 'Photographed'}</dt>
+          <dd><time datetime={selected.date}>{selected.date}</time></dd>
+        </div>
+        {#if selected.locations.length > 0}
+          <div class="album-detail" style="--detail-index:1">
+            <dt>Place</dt>
+            <dd>{selected.locations.map((location) => location.label).join(' / ')}</dd>
+          </div>
+        {/if}
+        {#if selected.media.length > 0}
+          <div class="album-detail" style="--detail-index:2">
+            <dt>Media</dt>
+            <dd>{selected.media.map((item) => item.label).join(' / ')}</dd>
+          </div>
+        {/if}
         {#each [
           ['Camera', selected.camera],
           ['Lens', selected.lens],
@@ -329,7 +345,7 @@
           ['Shutter', selected.shutterSpeed],
           ['ISO', selected.iso]
         ] as field, detailIndex (field[0])}
-          <div class="album-detail" style={`--detail-index:${detailIndex}`}>
+          <div class="album-detail" style={`--detail-index:${detailIndex + 3}`}>
             <dt>{field[0]}</dt>
             <dd>{field[1]}</dd>
           </div>

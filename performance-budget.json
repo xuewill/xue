@@ -1,0 +1,36 @@
+{
+  "imageBytes": {
+    "generated/media/hero/": 225280,
+    "generated/media/album-thumbnail/": 225280,
+    "generated/media/album-lightbox/": 716800,
+    "generated/media/content/": 665600,
+    "generated/media/cover/": 307200,
+    "generated/media/logo/": 32768,
+    "generated/media/portrait/": 102400,
+    "generated/og/": 65536
+  },
+  "gzip": {
+    "perResource": {
+      "js": 24576,
+      "css": 16384
+    },
+    "routes": {
+      "/": { "js": 65536, "css": 16384 },
+      "/album": { "js": 65536, "css": 20480 },
+      "/blog/*": { "js": 73728, "css": 24576 },
+      "/home/*": { "js": 73728, "css": 24576 },
+      "/*": { "js": 65536, "css": 20480 }
+    }
+  },
+  "lab": {
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "inpMs": 200,
+    "profile": {
+      "cpuSlowdown": 4,
+      "latencyMs": 40,
+      "downloadKbps": 10240,
+      "uploadKbps": 4096
+    }
+  }
+}

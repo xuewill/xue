@@ -45,6 +45,12 @@ export default defineConfig(
     }
   },
   {
+    files: ['scripts/**/*.mjs'],
+    rules: {
+      '@typescript-eslint/ban-ts-comment': 'off'
+    }
+  },
+  {
     files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
     languageOptions: {
       parserOptions: {

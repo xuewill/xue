@@ -17,10 +17,13 @@ import {
   isValidCalendarDate,
   isValidContentSlug,
   postTagsSchema,
+  projectFrontmatterSchema,
   prepareCollections,
   readAlbumPhotoMetadata,
   siteConfigSchema,
   tagConfigSchema,
+  contentMetadataSchema,
+  validateContentMetadata,
   validateContentRelations,
   validateHeroImageDimensions
 } from '../../velite.config';
@@ -63,7 +66,7 @@ describe('Velite content layer', () => {
 
   it('loads site, home, and album configuration from YAML', () => {
     expect(site.url).toBe('https://willxue.com');
-    expect(site.navigation.map(({ label }) => label)).toEqual(['blog', 'album']);
+    expect(site.navigation.map(({ label }) => label)).toEqual(['blog', 'archive', 'album']);
     expect(home.hero.images.at(-1)?.caption).toBe('Stanford');
     expect(album.photos).toHaveLength(10);
     expect(tagConfig.tags.map(({ slug }) => slug)).toEqual([
@@ -193,9 +196,9 @@ describe('Velite content layer', () => {
       { date: '2026-02-01', draft: false }
     ];
     const projectFixtures = [
-      { order: 2, year: '2025', draft: false },
-      { order: 3, year: '2026', draft: true },
-      { order: 1, year: '2025', draft: false }
+      { order: 2, startYear: 2025, draft: false },
+      { order: 3, startYear: 2026, draft: true },
+      { order: 1, startYear: 2025, draft: false }
     ];
 
     prepareCollections(postFixtures, projectFixtures, true);
@@ -205,8 +208,8 @@ describe('Velite content layer', () => {
       { date: '2026-01-01', draft: false }
     ]);
     expect(projectFixtures).toEqual([
-      { order: 1, year: '2025', draft: false },
-      { order: 2, year: '2025', draft: false }
+      { order: 1, startYear: 2025, draft: false },
+      { order: 2, startYear: 2025, draft: false }
     ]);
   });
 
@@ -215,8 +218,8 @@ describe('Velite content layer', () => {
       prepareCollections(
         [{ date: '2026-01-01', draft: false }],
         [
-          { slug: 'first-project', order: 1, year: '2026', draft: false },
-          { slug: 'second-project', order: 1, year: '2025', draft: false }
+          { slug: 'first-project', order: 1, startYear: 2026, draft: false },
+          { slug: 'second-project', order: 1, startYear: 2025, draft: false }
         ],
         false
       )
@@ -230,14 +233,19 @@ describe('Velite content layer', () => {
         slug: 'project-one',
         draft: false,
         relatedPosts: [],
-        relatedAlbum: []
+        relatedAlbum: [],
+        locations: [],
+        roles: [],
+        media: []
       }
     ];
     const photos = [
       {
         id: 'photo-one',
         relatedPosts: [],
-        relatedProjects: []
+        relatedProjects: [],
+        locations: [],
+        media: []
       }
     ];
     const basePost = {
@@ -249,7 +257,8 @@ describe('Velite content layer', () => {
       series: { slug: 'site-notes', title: 'Site Notes', order: 1 },
       related: [],
       relatedProjects: ['project-one'],
-      relatedAlbum: ['photo-one']
+      relatedAlbum: ['photo-one'],
+      locations: []
     };
 
     expect(() =>
@@ -299,5 +308,70 @@ describe('Velite content layer', () => {
     await expect(tagConfigSchema.safeParseAsync(duplicateTags)).resolves.toMatchObject({
       success: false
     });
+  });
+
+  it('validates taxonomy definitions and content references', async () => {
+    const metadata = {
+      locations: [{ slug: 'taipei', label: 'Taipei' }],
+      roles: [{ slug: 'artist', label: 'Artist' }],
+      media: [{ slug: 'mixed-media', label: 'Mixed media' }]
+    };
+    await expect(contentMetadataSchema.safeParseAsync(metadata)).resolves.toMatchObject({
+      success: true
+    });
+    await expect(
+      contentMetadataSchema.safeParseAsync({
+        ...metadata,
+        locations: [{ ...metadata.locations[0] }, { ...metadata.locations[0] }]
+      })
+    ).resolves.toMatchObject({ success: false });
+    expect(() =>
+      validateContentMetadata(
+        [
+          {
+            slug: 'post',
+            date: '2026-01-01',
+            draft: false,
+            tags: [],
+            related: [],
+            relatedProjects: [],
+            relatedAlbum: [],
+            locations: ['unknown']
+          }
+        ],
+        [],
+        [],
+        metadata
+      )
+    ).toThrow(/unknown locations value/);
+  });
+
+  it('requires coherent project year ranges and status', async () => {
+    const project = {
+      title: 'Fixture project',
+      description: 'A project schema fixture.',
+      startYear: 2026,
+      endYear: 2026,
+      status: 'completed',
+      category: 'design',
+      locations: [],
+      roles: ['designer'],
+      media: ['fashion-design'],
+      cover: '/seal.png',
+      order: 1,
+      draft: true,
+      relatedPosts: [],
+      relatedAlbum: []
+    } as const;
+
+    await expect(projectFrontmatterSchema.safeParseAsync(project)).resolves.toMatchObject({
+      success: true
+    });
+    await expect(
+      projectFrontmatterSchema.safeParseAsync({ ...project, endYear: 2025 })
+    ).resolves.toMatchObject({ success: false });
+    await expect(
+      projectFrontmatterSchema.safeParseAsync({ ...project, status: 'ongoing' })
+    ).resolves.toMatchObject({ success: false });
   });
 });

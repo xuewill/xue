@@ -1,0 +1,27 @@
+locations:
+  - slug: taipei
+    label: Taipei
+  - slug: tokyo
+    label: Tokyo
+  - slug: kyoto
+    label: Kyoto
+  - slug: osaka
+    label: Osaka
+  - slug: kamakura
+    label: Kamakura
+  - slug: stanford
+    label: Stanford
+roles:
+  - slug: designer
+    label: Designer
+  - slug: artist
+    label: Artist
+media:
+  - slug: architecture
+    label: Architecture
+  - slug: three-dimensional-modeling
+    label: 3D modeling
+  - slug: fashion-design
+    label: Fashion design
+  - slug: mixed-media
+    label: Mixed media

@@ -72,6 +72,7 @@ test('sitemap and RSS include discovery routes, last-modified dates, and categor
   const sitemapXml = await sitemap.text();
   expect(sitemap.ok()).toBe(true);
   expect(sitemapXml).toContain('<loc>https://willxue.com/blog/tags/art</loc>');
+  expect(sitemapXml).toContain('<loc>https://willxue.com/archive</loc>');
   expect(sitemapXml).toContain('<lastmod>2026-07-29</lastmod>');
 
   const rss = await request.get('/rss.xml');
@@ -106,7 +107,7 @@ test('discovery pages stay within the target viewports', async ({ page }) => {
   ]) {
     await page.setViewportSize(viewport);
 
-    for (const path of ['/blog/tags', '/blog/mixed-media-city-studies']) {
+    for (const path of ['/blog/tags', '/blog/mixed-media-city-studies', '/archive']) {
       await page.goto(path);
       const dimensions = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,

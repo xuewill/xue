@@ -35,10 +35,12 @@
 - 自动检查 Hero 图片、文章封面和 Markdown 正文图片
 - 内置 RSS、Sitemap、robots 文件和响应式图片资源
 - 提供稳定标签页、文章系列，以及 Blog、Project、Album 之间的跨内容链接
+- 提供统一的 `/archive` 时间线，汇总 Blog、Project、Album，并支持简单类型筛选
 - 构建时自动生成社交分享图，并为作者、文章、项目和 Album 输出 JSON-LD
 - 响应式环境灯、文章目录和移动端主题控制
 - 支持键盘访问的页脚预览卡、真实 GitHub 数据和可选的 X 官方数据
 - Chromium 全量回归、Firefox/WebKit 烟雾测试、axe 检查和构建期断链校验
+- 单图、页面 JS/CSS gzip、构建增长来源和实验室 Core Web Vitals 预算
 - 使用 GitHub Actions 检查并部署到 Cloudflare Pages
 
 ## 🧰 技术栈
@@ -88,13 +90,16 @@ npm run preview
 | `npm run lint` | 检查 JavaScript、TypeScript 和 Svelte 文件 |
 | `npm test` | 生成 Velite 数据并运行 Vitest 单元测试 |
 | `npm run test:e2e` | 运行 Chromium 回归、Firefox/WebKit 烟雾测试和 axe 检查 |
+| `npm run content -- --help` | 查看内容创建、检查、预览和发布 CLI |
 | `npm run check:links` | 检查生成站点的内部链接并探测外部链接 |
+| `npm run check:published` | 确认草稿没有进入生产详情路由和订阅源 |
+| `npm run check:performance` | 检查生成图片、JS/CSS gzip 预算和构建增长来源 |
 | `npm run check:deployment` | 使用 `DEPLOYMENT_URL` 对 Pages 部署做烟雾检查 |
 | `npm run check` | 检查内容、同步 SvelteKit 类型并运行 `svelte-check` |
 | `npm run build` | 检查内容并生成静态生产版本 |
-| `npm run verify` | 运行 lint、单元测试、检查、构建和生成站点断链校验 |
+| `npm run verify` | 运行 lint、单测、检查、构建、性能预算、草稿泄露和断链校验 |
 | `npm run preview` | 在本地预览生产构建 |
-| `npm run validate:content` | 只检查内容中引用的图片和资源 |
+| `npm run validate:content` | 检查内容 schema、图片引用和正文图片 alt 文本 |
 | `npm run validate:generated` | 检查已跟踪的 Web Manifest 是否与 YAML 源一致 |
 | `npm run check:watch` | 以监听模式运行 Svelte 诊断 |
 
@@ -126,6 +131,7 @@ npm run preview
 - `src/content/config/site.yaml`：站点元数据、发布时区、作者、图标、manifest、导航、社交链接及其回退数据。
 - `src/content/config/home.yaml`：Hero 图片以及 About 和 Projects 文案。
 - `src/content/config/tags.yaml`：有限且稳定的标签 slug、显示名和说明。
+- `src/content/config/metadata.yaml`：地点、角色和媒介 taxonomy 的唯一来源。
 - `src/content/config/album.yaml`：相册图片顺序、路径、说明和视觉倾斜值。
 - `velite.config.ts`：严格 schema、文件名 slug、TOC、草稿过滤、排序和静态资源检查。
 - `src/app.css`：颜色、字体、尺寸和响应式样式。
@@ -136,6 +142,8 @@ npm run preview
 响应式图片会输出固有宽高和 `srcset`。Hero 先加载当前页，再逐张预取后续页面，原有自动播放顺序不变；Album 首屏只加载小尺寸响应式缩略图，打开照片后才请求较大的灯箱版本。Cloudflare Pages 会为 `/generated/*` 返回 `Cache-Control: public, max-age=31536000, immutable`，源图或编码规格变化时文件名哈希也会变化。
 
 相册图片尺寸和相机信息（相机、镜头、焦距、光圈、快门速度与 ISO）会在 Velite 构建时从源图片的 EXIF 数据中自动读取。如果某张图片缺少某个 EXIF 字段，相册会在该字段显示 `—`。
+
+Album 日期使用显式的 `date` 和 `dateKind`。Blog 地点、Project 地点/角色/媒介以及 Album 地点/媒介都必须使用 `metadata.yaml` 中的 slug；空数组合法且不会渲染为空标签。
 
 配置对象会拒绝未知字段。Hero 和 Album ID 必须唯一，Hero 宽高必须与源文件一致，所有 Project（包括草稿）的 `order` 也必须唯一。标签必须使用配置内的 lowercase kebab-case slug；Post、Project、Album 和 series 引用会在过滤草稿前检查缺失、重复、自引用、草稿目标和顺序冲突。校验错误会指出对应字段和修正方式。
 
@@ -155,6 +163,10 @@ Hero 图片位于 `static/home/sketchbook/`。在 `home.yaml` 的 `hero.images` 
 
 Playwright 会持续检查完整 Hero 自动播放传输量不超过 2.5 MiB、Album 首屏不超过 2 MiB。当前桌面测试数据约为：首页自动播放完成后 1.36 MiB，Album 打开灯箱前 0.67 MiB。
 
+生产构建完成后，`npm run check:performance` 会读取 [`performance-budget.json`](./performance-budget.json)：按角色检查每张生成图片的最大体积，检查关键 JS/CSS 文件与代表路由的 gzip 预算，并与 [`plans/performance-baseline.json`](./plans/performance-baseline.json) 中的 Vite 语义 chunk 基线比较。失败信息会指出具体图片、路由、语义 chunk 和带哈希文件；即使尚未触及硬限制，只要增长达到 1 KiB 也会输出来源。只有确认构建增长合理后，才应运行 `node scripts/check-performance-budget.mjs --write-baseline` 接受新基线。
+
+Chromium 还会在固定的 4 倍 CPU 降速和 40 ms 网络延迟实验室配置下检查首页与 Album。CI 使用 Core Web Vitals 的 good 边界：LCP `<= 2.5 s`、CLS `<= 0.1`，并用首页真实点击的观测延迟 `<= 200 ms` 作为 INP 等价的合成回归。实验室结果只用于稳定回归，不代表生产用户体验；Cloudflare Web Analytics 的第 75 百分位 RUM 仍是跨设备、网络、缓存和地域判断真实 LCP、CLS、INP 的依据。有限的合成交互也不能替代真实用户 INP。
+
 ## 🖥️ 界面行为
 
 - 顶部主导航使用 `home` 和 `blog`。项目详情页位于 `/home/[slug]`，旧的 `/work/*` 地址会永久重定向到 `/home/*`。
@@ -165,17 +177,17 @@ Playwright 会持续检查完整 Hero 自动播放传输量不超过 2.5 MiB、A
 
 ## 📈 隐私友好统计
 
-仓库已经为 Cloudflare Pages 的一键 Web Analytics 接入做好准备。请在 **Workers & Pages → xue-blog → Metrics → Web Analytics** 中启用，然后重新部署，让 Cloudflare 自动注入 beacon。不要把 token 或第二份 beacon 脚本写入仓库。
+生产环境已经启用 Cloudflare Pages Web Analytics，并从 2026 年 7 月 30 日开始采集。Cloudflare 会在部署时注入唯一一份官方 beacon；不要把 token 或第二份 beacon 脚本写入仓库。
 
 当前 CSP 已允许 Cloudflare 官方脚本和 RUM 上报端点。Web Analytics 不使用 Cookie 或 `localStorage`，可提供聚合页面访问、来源、SPA 导航和 Core Web Vitals，但目前不支持自定义交互事件。因此 Album 打开、内容流转漏斗和 RSS 转化暂不追踪，只有真实访问量证明有价值后才考虑小型第一方事件方案。
 
-启用检查、隐私边界和首轮 LCP/CLS 快照记录在 [`plans/analytics-baseline.md`](./plans/analytics-baseline.md)。
+启用检查、隐私边界、首个现场数据检查点，以及 7 月 30 日至 8 月 13 日的观察窗口记录在 [`plans/analytics-baseline.md`](./plans/analytics-baseline.md)。前三天样本已经证明采集正常，但数量太少且包含 headless 验证流量，暂不用于功能决策。
 
 ## ✅ 持续质量
 
 `npm run verify` 现在会在构建完成后检查所有生成页面的内部链接和锚点，并探测文章与资料页中的外部链接。明确返回 `404` 或 `410` 会让检查失败；临时限流、服务端错误和网络失败会标记为“无法确认”，避免第三方短时故障导致所有 Pull Request 波动。需要把无法确认也视为失败时，可设置 `LINK_CHECK_STRICT_EXTERNAL=1`。
 
-Playwright 会在 Chromium 中运行完整的交互、响应式、SEO、性能和无障碍回归；精简的公开页面主流程还会在 Firefox 与 WebKit 中执行。axe 会按可自动检测的 WCAG A/AA 规则检查 5 个代表路由。YAML 与 Markdown schema 另有独立的有效/无效夹具，不再只依赖真实内容集合。
+Playwright 会在 Chromium 中运行完整的交互、响应式、SEO、性能和无障碍回归；精简的公开页面主流程还会在 Firefox 与 WebKit 中执行。axe 会按可自动检测的 WCAG A/AA 规则检查 5 个代表路由。`npm run verify` 会在生产构建后执行生成图片和 gzip 构建预算，因此 GitHub Actions 会在预览部署前以具体资源归因失败。YAML 与 Markdown schema 另有独立的有效/无效夹具，不再只依赖真实内容集合。
 
 Wrangler 上传 Cloudflare Pages 后，部署工作流会把本次部署的精确 URL 传给 `npm run check:deployment`。首页、Blog、Album、RSS、Sitemap 和真实 404 全部通过后，部署任务才算成功。
 
@@ -200,9 +212,43 @@ GITHUB_TOKEN=
 
 ## ✍️ 发布内容
 
-### 新增 Blog
+仓库提供同时适合人工操作和脚本调用的 Content CLI。它会按当前 schema 创建草稿、给出可执行的错误提示，并且不会提交、push、创建 Pull Request 或部署。
 
-在 `src/content/posts/` 中新建 Markdown 文件，文件名就是 URL slug：
+```bash
+# 交互式创建草稿
+npm run content -- new post
+npm run content -- new project
+
+# 检查并预览草稿，包括只在开发模式存在的详情路由
+npm run content -- check post/article-title
+npm run content -- preview post/article-title --open
+
+# 修改文件前运行完整发布门禁
+npm run content -- publish post/article-title --dry-run
+
+# 在本地设置 draft: false 并运行 npm run verify
+npm run content -- publish post/article-title
+```
+
+`new` 和 `publish` 支持 `--dry-run`。CI 或编辑器集成应使用 `--no-input` 并显式传入完整名称 flag。需要不含 npm 脚本标题的 JSON 时，使用 `npm run --silent content -- check --json`。CLI 用退出码 `2` 表示用法错误，`3` 表示内容或发布校验失败，`1` 表示其他运行错误；同时支持 `NO_COLOR` 和 `--no-color`，并且只在 stdin 是 TTY 时提问。
+
+`preview` 默认只监听 `127.0.0.1`。只有需要局域网内其他设备访问时才传 `--host`，只有希望自动打开浏览器时才传 `--open`。按 Ctrl-C 停止服务器。
+
+### 发布清单
+
+1. 使用 `new post` 或 `new project` 创建草稿。
+2. 补充正文和源图片。每张 Markdown 正文图片都必须有简洁、能表达内容或用途的 alt；空白、只复述文件名或占位 alt 会校验失败。
+3. 运行 `check`，再用 `preview` 检查准确详情路由。
+4. 运行 `publish <target> --dry-run`。
+5. 运行 `publish <target>`，将 `draft` 改为 `false` 并执行 `npm run verify`。
+6. 推送 Pull Request，在桌面和手机上检查 CI 评论中的 Cloudflare Pages URL。
+7. 预览烟雾检查通过后再合并；生产工作流会在部署后执行同一组端点检查。
+
+未来日期文章必须按 `site.yaml` 配置的时区保持草稿，当前静态站点不会定时重建。发布检查失败时 CLI 会恢复原草稿，并且所有创建命令都不会覆盖已有 slug。
+
+### Frontmatter 参考
+
+CLI 只写入必要 frontmatter；可选关系字段应按真实内容需要补充。Blog 支持：
 
 ```md
 ---
@@ -229,18 +275,22 @@ relatedAlbum:
 Article body.
 ```
 
-例如 `article-title.md` 对应 `/blog/article-title`。标签只能使用 `src/content/config/tags.yaml` 中声明的 slug，并会自动生成标签索引和 RSS category。`updated`、`series`、`related`、`relatedProjects` 和 `relatedAlbum` 均为可选字段，但引用必须存在且同一系列 order 不得重复。生产构建会过滤 `draft: true` 的文章，其余文章会自动进入 Blog 列表、RSS、Sitemap 和 JSON-LD。由于当前静态部署没有定时重建机制，已发布文章不能使用 `site.yaml` 所配置时区中的未来日期；未来内容应保持草稿状态，到发布日期再发布。
-
-### 新增 Project
-
-在 `src/content/projects/` 中新建 Markdown 文件：
+文件名必须是 lowercase kebab-case slug，并生成 `/blog/<slug>`。标签只能使用 `src/content/config/tags.yaml` 中声明的值。Project 支持：
 
 ```md
 ---
 title: Project title
 description: Project summary
-year: '2026'
+startYear: 2026
+endYear: 2026
+status: completed
 category: design
+locations:
+  - stanford
+roles:
+  - designer
+media:
+  - fashion-design
 cover: /images/projects/cover.webp
 order: 10
 updated: '2026-07-18'
@@ -254,7 +304,11 @@ relatedAlbum:
 Project body.
 ```
 
-首页按照 `order` 升序生成卡片。每个 Project（包括草稿）都必须使用唯一的 `order` 值。可选的 `relatedPosts` 与 `relatedAlbum` 会把详情页连接到相关文章和 Album 作品。名为 `project-name.md` 的文件会发布到 `/home/project-name`。
+首页按照 `order` 升序生成卡片，该值在草稿间也必须唯一。文件名生成 `/home/<slug>`。Post、Project、Album 和 series 引用都会在生产过滤前统一校验。
+
+进行中的 Project 省略 `endYear` 并使用 `status: ongoing`；生成后的展示文本仍为 `2026` 或 `2026–present`。
+
+Project 正文按真实内容选用 Context、Problem and constraints、Role、Key decisions and process、Outcome 等章节。这些是写作指导而不是强制 schema 字段，因此不同项目不需要为了模板补空章节。
 
 ### 内容信任边界
 
@@ -327,7 +381,7 @@ git push origin main
 4. 在本次部署 URL 上检查首页、Blog、Album、RSS、Sitemap 和 404。
 5. 将结果发布到名为 `main` 的生产分支。
 
-任务完成后，可以通过 `<project-name>.pages.dev` 访问站点。Pull Request 会运行 `.github/workflows/check.yml` 做校验，但不会发布预览环境。
+任务完成后，可以通过 `<project-name>.pages.dev` 访问站点。同仓库分支创建 Pull Request 后，`.github/workflows/check.yml` 会复用已经验证的 `build/` artifact，部署到隔离的 `pr-<编号>` Pages 分支，执行部署烟雾检查，并创建或更新一条预览评论；后续 commit 会替换该分支预览。fork Pull Request 不会获得 Cloudflare secrets，因此只执行检查，不自动部署。
 
 ### 5. 绑定自定义域名
 

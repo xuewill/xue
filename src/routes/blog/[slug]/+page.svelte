@@ -57,6 +57,10 @@
               <a href={`/blog/tags/${tag.slug}`}>{tag.label}</a>
             {/each}
           </span>
+          {#if data.post.locations.length > 0}
+            <span aria-hidden="true">·</span>
+            <span>{data.post.locations.map((location) => location.label).join(' / ')}</span>
+          {/if}
         </p>
         <p class="article-description">{data.post.description}</p>
       </header>

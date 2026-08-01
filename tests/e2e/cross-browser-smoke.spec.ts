@@ -16,6 +16,9 @@ test('core public flow renders and responds without runtime errors', async ({ pa
   await expect(page.getByRole('heading', { level: 1, name: 'Blog' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Browse topics' })).toBeVisible();
 
+  await page.goto('/archive');
+  await expect(page.getByRole('heading', { level: 1, name: /record of making/ })).toBeVisible();
+
   await page.goto('/album');
   await page.getByRole('button', { name: /^View image:/ }).first().click();
   const dialog = page.getByRole('dialog');

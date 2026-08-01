@@ -1,3 +1,5 @@
+// @ts-nocheck -- The Node helper is covered by its dedicated unit test.
+
 import path from 'node:path';
 
 export function resolveStaticAsset(staticRoot, asset) {

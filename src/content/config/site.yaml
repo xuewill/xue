@@ -63,6 +63,8 @@ homeNavigation:
 navigation:
   - label: blog
     href: /blog
+  - label: archive
+    href: /archive
   - label: album
     href: /album
 

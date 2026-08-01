@@ -4,6 +4,7 @@ description: A valid Markdown frontmatter fixture.
 date: '2026-07-20'
 updated: '2026-07-21'
 draft: true
+locations: []
 tags:
   - engineering
 cover: /seal.png
