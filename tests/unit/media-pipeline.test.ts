@@ -68,6 +68,7 @@ describe('responsive media pipeline', () => {
 
     expect(readdirSync('static/icons').filter((file) => file.endsWith('.png'))).toEqual([]);
     expect(readdirSync('static/icons').sort()).toEqual([
+      'design-system.svg',
       'github.svg',
       'instagram.svg',
       'linkedin.svg',

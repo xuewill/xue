@@ -95,7 +95,11 @@
 <footer class="foot">
   <nav class="footer-socials" aria-label="Social links">
     {#each siteConfig.social as item (item.label)}
-      <span class="social-item" data-preview-open={openPreview === item.preview ? '' : undefined}>
+      <span
+        class="social-item"
+        class:social-item-rss={item.preview === 'rss'}
+        data-preview-open={openPreview === item.preview ? '' : undefined}
+      >
         <a
           href={socialHref(item)}
           target={item.href.startsWith('http') ? '_blank' : undefined}
@@ -286,6 +290,24 @@
         </span>
       </span>
     {/each}
+    <span class="social-item social-item-design-system">
+      <a class="icon-btn social-link" href="/design-system" aria-label="Design system">
+        <span class="social-link-icon design-system-link-icon" aria-hidden="true">
+          <span
+            class="icon-mask social-link-icon-mono"
+            style="--icon: url('/icons/design-system.svg')"
+          ></span>
+          <img
+            class="social-link-icon-color"
+            src="/icons/design-system.svg"
+            alt=""
+            width="20"
+            height="20"
+            decoding="async"
+          />
+        </span>
+      </a>
+    </span>
   </nav>
   <p class="footer-copyright">© {siteConfig.author.name} {new Date().getFullYear()}</p>
 </footer>
@@ -936,22 +958,22 @@
       transform: translate(0, 0) scale(1);
     }
 
-    .social-item:last-child .social-preview {
+    .social-item-rss .social-preview {
       right: 0;
       left: auto;
       transform: translate(0, 4px) scale(0.95);
       transform-origin: bottom right;
     }
 
-    .social-item:last-child[data-preview-open] .social-preview,
-    .social-item:last-child:focus-within .social-preview {
+    .social-item-rss[data-preview-open] .social-preview,
+    .social-item-rss:focus-within .social-preview {
       transform: translate(0, 0) scale(1);
     }
   }
 
   @media (hover: hover) and (pointer: fine) and (width <= 600px) {
     .social-item:first-child:hover .social-preview,
-    .social-item:last-child:hover .social-preview {
+    .social-item-rss:hover .social-preview {
       transform: translate(0, 0) scale(1);
     }
   }
@@ -977,7 +999,7 @@
 
   @media (prefers-reduced-motion: reduce) and (width <= 600px) {
     .social-item:first-child .social-preview,
-    .social-item:last-child .social-preview {
+    .social-item-rss .social-preview {
       transform: translate(0, 0) scale(1);
     }
   }

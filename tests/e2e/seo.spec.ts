@@ -107,7 +107,7 @@ test('discovery pages stay within the target viewports', async ({ page }) => {
   ]) {
     await page.setViewportSize(viewport);
 
-    for (const path of ['/blog/tags', '/blog/mixed-media-city-studies', '/archive']) {
+    for (const path of ['/blog/tags', '/blog/mixed-media-city-studies', '/archive', '/design-system']) {
       await page.goto(path);
       const dimensions = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,
@@ -125,4 +125,24 @@ test('the static build includes a real not-found page for missing assets', async
 
   expect(response.ok()).toBe(true);
   expect(await response.text()).toContain('Page not found');
+});
+
+test('design system is public, noindex, and readable without client JavaScript', async ({
+  page,
+  request
+}) => {
+  const response = await request.get('/design-system');
+  const html = await response.text();
+
+  expect(response.ok()).toBe(true);
+  expect(html).toContain('Design System');
+  expect(html).toContain('Components');
+  expect(html).toContain('Materials');
+
+  await page.goto('/design-system');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://willxue.com/design-system'
+  );
 });

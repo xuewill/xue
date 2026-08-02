@@ -190,6 +190,16 @@ test.describe('mobile touch interface', () => {
       await expectMinimumTarget(socialLinks.nth(index));
     }
 
+    await expect(page.getByRole('link', { name: 'Design system', exact: true })).toHaveAttribute(
+      'href',
+      '/design-system'
+    );
+    await expect(page.locator('.footer-socials > .social-item > .social-link')).toHaveCount(5);
+    const footerLabels = await page
+      .locator('.footer-socials > .social-item > .social-link')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('aria-label')));
+    expect(footerLabels).toEqual(['X', 'GitHub', 'Email', 'RSS', 'Design system']);
+
     await page.goto('/blog/markdown-format-showcase');
     await expectMinimumTarget(page.locator('.toc-trigger'));
 
