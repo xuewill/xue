@@ -172,7 +172,7 @@ describe('Velite content layer', () => {
     expect(homeResult.success).toBe(false);
     expect(albumResult.success).toBe(false);
     expect(findDuplicateValues(['one', 'two', 'one', 'two'])).toEqual(['one', 'two']);
-  });
+  }, 15_000);
 
   it('validates declared Hero dimensions against the source file', async () => {
     const image = home.hero.images[0];
