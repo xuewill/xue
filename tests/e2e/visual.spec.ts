@@ -41,9 +41,19 @@ async function settle(page: import('@playwright/test').Page, theme: string) {
   await page.evaluate((value) => {
     document.documentElement.setAttribute('data-theme', value);
   }, theme);
-  // Fonts drive nearly every measurement on this page; screenshotting before
-  // they load produces a fallback-metric baseline that never reproduces.
-  await page.evaluate(() => document.fonts.ready);
+  // document.fonts.ready only waits for font faces the browser has already
+  // requested. The prop table sits below the fold, so explicitly request every
+  // bundled face before measuring it; otherwise CI can capture one frame with
+  // fallback metrics and the next with Futura metrics.
+  await page.evaluate(async () => {
+    await Promise.all([
+      document.fonts.load('300 16px "Futura Local"'),
+      document.fonts.load('400 16px "Futura Local"'),
+      document.fonts.load('500 16px "Futura Local"'),
+      document.fonts.load('italic 600 48px "Cormorant Garamond Local"')
+    ]);
+    await document.fonts.ready;
+  });
   await expect(page.locator('h1')).toBeVisible();
 
   /*
@@ -56,10 +66,12 @@ async function settle(page: import('@playwright/test').Page, theme: string) {
   await expect
     .poll(
       async () => {
-        const first = await page.evaluate(() => document.documentElement.scrollHeight);
-        await page.waitForTimeout(120);
-        const second = await page.evaluate(() => document.documentElement.scrollHeight);
-        return first === second ? second : -1;
+        const heights: number[] = [];
+        for (let sample = 0; sample < 3; sample += 1) {
+          heights.push(await page.evaluate(() => document.documentElement.scrollHeight));
+          await page.waitForTimeout(120);
+        }
+        return new Set(heights).size === 1 ? heights[0] : -1;
       },
       { message: 'document height never stopped changing', timeout: 10_000 }
     )
