@@ -86,7 +86,11 @@ for (const theme of THEMES) {
 
       await expect(page).toHaveScreenshot(`page-${theme}-${breakpoint.name}.png`, {
         fullPage: true,
-        animations: 'disabled'
+        animations: 'disabled',
+        // The tablet image is ~18k px tall. On GitHub's runner the first
+        // comparison can consume most of Playwright's 5s default before the
+        // third, stability-confirming capture starts.
+        timeout: 20_000
       });
     });
   }
@@ -99,7 +103,10 @@ for (const theme of THEMES) {
       await settle(page, theme);
 
       await expect(page.locator(`#${section}`)).toHaveScreenshot(`${section}-${theme}.png`, {
-        animations: 'disabled'
+        animations: 'disabled',
+        // Components is ~10k px tall and needs the same extra comparison time
+        // when the runner is under load. Pixel tolerance remains unchanged.
+        timeout: 20_000
       });
     });
   }
