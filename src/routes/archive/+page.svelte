@@ -93,7 +93,7 @@
   .archive-intro { max-width: 520px; margin: 0; color: var(--ink-muted); font-size: 16px; line-height: 1.55; }
   .archive-count { color: var(--brand); font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
   .archive-filters { display: flex; gap: 8px; margin-bottom: 34px; padding-bottom: 12px; background-image: var(--dot-rule-image); background-position: left bottom; background-repeat: repeat-x; background-size: 7px 2px; }
-  .archive-filters button { min-height: 44px; padding: 0 14px; border: 1px solid transparent; color: var(--ink-muted); font-family: var(--sans); font-size: 11px; letter-spacing: var(--track-nav); text-transform: uppercase; }
+  .archive-filters button { min-height: 44px; padding: 0 14px; border: 1px solid transparent; color: var(--ink-muted); background: transparent; font-family: var(--sans); font-size: 11px; letter-spacing: var(--track-nav); text-transform: uppercase; }
   .archive-filters button:hover, .archive-filters button:focus-visible, .archive-filters button.active { border-color: var(--brand); color: var(--brand); }
   .archive-timeline { background-image: var(--dot-rule-image); background-position: left top; background-repeat: repeat-x; background-size: 7px 2px; }
   .archive-year { display: grid; grid-template-columns: 100px 1fr; gap: 30px; padding: 28px 0 42px; background-image: var(--dot-rule-image); background-position: left bottom; background-repeat: repeat-x; background-size: 7px 2px; }

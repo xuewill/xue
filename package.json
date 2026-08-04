@@ -14,6 +14,8 @@
     "lint": "eslint .",
     "test": "velite && vitest run",
     "test:e2e": "playwright test",
+    "test:visual": "node scripts/visual-baseline.mjs",
+    "test:visual:update": "node scripts/visual-baseline.mjs --update",
     "content": "node scripts/content-cli.mjs",
     "check:links": "node scripts/check-links.mjs",
     "check:published": "node scripts/check-published-content.mjs",
@@ -24,6 +26,10 @@
     "check": "npm run validate:content && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "velite && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "verify": "npm run lint && npm test && npm run check && npm run build && npm run check:performance && npm run check:published && npm run check:links"
+  },
+  "dependencies": {
+    "@webaseui/core": "0.1.0",
+    "@webaseui/svelte": "0.2.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
@@ -56,6 +62,9 @@
   },
   "overrides": {
     "@types/unist": "3.0.3",
+    "brace-expansion": "5.0.9",
+    "postcss": "8.5.25",
+    "undici": "7.29.0",
     "@sveltejs/kit": {
       "cookie": "0.7.2"
     },

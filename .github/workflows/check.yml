@@ -37,6 +37,29 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The image must match scripts/visual-baseline.mjs, which derives its tag from
+    # the pinned @playwright/test version. A unit test fails if the two drift.
+    container: mcr.microsoft.com/playwright:v1.62.0-noble
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright test --project=visual
+        env:
+          PLAYWRIGHT_VISUAL: '1'
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: failure()
+        with:
+          name: visual-diff-${{ github.run_id }}
+          path: test-results
+          if-no-files-found: ignore
+          retention-days: 3
+
   preview:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     needs: check
