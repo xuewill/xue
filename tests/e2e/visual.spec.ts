@@ -1,0 +1,113 @@
+import { expect, test } from '@playwright/test';
+
+/*
+ * Visual regression for the catalogue.
+ *
+ * Baselines are generated inside the Playwright container by
+ * scripts/visual-baseline.sh so they match CI. Running this project on a host
+ * with different font rendering will fail every snapshot — that is why it is
+ * opt-in via PLAYWRIGHT_VISUAL rather than part of `npm run test:e2e`.
+ *
+ * These cover observable appearance, which the DOM and token assertions in
+ * tests/unit/design-system.test.ts cannot: a token edit that quietly changes
+ * how twenty components look still passes every other check in the suite.
+ */
+
+const THEMES = ['light', 'dark'] as const;
+
+/** Sections chosen for density of distinct visual treatments, not for coverage of every anchor. */
+const SECTIONS = ['color', 'type', 'components', 'motion', 'materials'] as const;
+
+/*
+ * Full-page capture is limited to the narrow breakpoints on purpose.
+ *
+ * At 1440px the hero h1 resolves to its 112px clamp ceiling, which puts
+ * "Design System_" right on the wrap boundary. Sub-pixel font-metric differences
+ * flip it between one and two lines, moving everything below it by one 93px line
+ * box, so the stitched image is a different height between runs and no pixel
+ * tolerance can reconcile it. Below 980px the clamp bottoms out at 54px and the
+ * wrap is unambiguous.
+ *
+ * Desktop is not left uncovered: the section captures below run at 1440px.
+ */
+const BREAKPOINTS = [
+  { name: 'mobile', width: 375, height: 900 },
+  { name: 'tablet', width: 768, height: 1024 }
+] as const;
+
+async function settle(page: import('@playwright/test').Page, theme: string) {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/design-system');
+  await page.evaluate((value) => {
+    document.documentElement.setAttribute('data-theme', value);
+  }, theme);
+  // document.fonts.ready only waits for font faces the browser has already
+  // requested. The prop table sits below the fold, so explicitly request every
+  // bundled face before measuring it; otherwise CI can capture one frame with
+  // fallback metrics and the next with Futura metrics.
+  await page.evaluate(async () => {
+    await Promise.all([
+      document.fonts.load('300 16px "Futura Local"'),
+      document.fonts.load('400 16px "Futura Local"'),
+      document.fonts.load('500 16px "Futura Local"'),
+      document.fonts.load('italic 600 48px "Cormorant Garamond Local"')
+    ]);
+    await document.fonts.ready;
+  });
+  await expect(page.locator('h1')).toBeVisible();
+
+  /*
+    Then wait for the document height to hold still. In the Linux container the
+    hero h1 was settling one line late, changing total height by ~93px — exactly
+    its line box (112px * 0.83) — which made full-page captures compare against a
+    differently sized baseline. Height equality is the cheapest reliable signal
+    that layout has stopped moving.
+  */
+  await expect
+    .poll(
+      async () => {
+        const heights: number[] = [];
+        for (let sample = 0; sample < 3; sample += 1) {
+          heights.push(await page.evaluate(() => document.documentElement.scrollHeight));
+          await page.waitForTimeout(120);
+        }
+        return new Set(heights).size === 1 ? heights[0] : -1;
+      },
+      { message: 'document height never stopped changing', timeout: 10_000 }
+    )
+    .toBeGreaterThan(0);
+}
+
+for (const theme of THEMES) {
+  for (const breakpoint of BREAKPOINTS) {
+    test(`design system renders consistently in ${theme} at ${breakpoint.name}`, async ({ page }) => {
+      await page.setViewportSize({ width: breakpoint.width, height: breakpoint.height });
+      await settle(page, theme);
+
+      await expect(page).toHaveScreenshot(`page-${theme}-${breakpoint.name}.png`, {
+        fullPage: true,
+        animations: 'disabled',
+        // The tablet image is ~18k px tall. On GitHub's runner the first
+        // comparison can consume most of Playwright's 5s default before the
+        // third, stability-confirming capture starts.
+        timeout: 20_000
+      });
+    });
+  }
+}
+
+for (const theme of THEMES) {
+  for (const section of SECTIONS) {
+    test(`${section} section renders consistently in ${theme}`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 1000 });
+      await settle(page, theme);
+
+      await expect(page.locator(`#${section}`)).toHaveScreenshot(`${section}-${theme}.png`, {
+        animations: 'disabled',
+        // Components is ~10k px tall and needs the same extra comparison time
+        // when the runner is under load. Pixel tolerance remains unchanged.
+        timeout: 20_000
+      });
+    });
+  }
+}

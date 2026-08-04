@@ -1,3 +1,5 @@
+@import '@webaseui/core/theme.css';
+
 @font-face {
   font-family: 'Futura Local';
   src: url('/fonts/futura-light.ttf') format('truetype');
@@ -71,54 +73,6 @@
   font-style: italic;
   font-weight: 600;
   size-adjust: 70%;
-}
-
-:root {
-  color-scheme: light;
-  --paper: #f5f4ed;
-  --surface: #faf9f5;
-  --surface-muted: #e8e6dc;
-  --ink: #141413;
-  --ink-soft: #504e49;
-  --ink-muted: #6b6a64;
-  --hairline: #e5e3d8;
-  --hairline-strong: #d8d5c9;
-  --placeholder: #e8e6dc;
-  --brand: #1b365d;
-  --brand-light: #2d5a8a;
-  --brand-tint: #eef2f7;
-  --dot-rule-image: radial-gradient(circle, var(--brand) 0 1px, transparent 1.25px);
-  --book-shadow: rgb(20 20 19 / 14%);
-  --whisper-shadow: 0 16px 36px rgb(20 20 19 / 8%);
-  --font: Charter, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
-  --sans: 'Futura Local', 'Futura Local Fallback', Arial, sans-serif;
-  --display: 'Cormorant Garamond Local', 'Cormorant Local Fallback', Georgia, serif;
-  --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-  --track-caps: 0.16em;
-  --track-nav: 0.09em;
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --duration-fast: 140ms;
-  --duration-ui: 200ms;
-}
-
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --paper: #141413;
-  --surface: #242421;
-  --surface-muted: #30302e;
-  --ink: #faf9f5;
-  --ink-soft: #b0aea5;
-  --ink-muted: #8f8c82;
-  --hairline: #44423d;
-  --hairline-strong: #5d5a52;
-  --placeholder: #30302e;
-  --brand: #9bb3d1;
-  --brand-light: #c2d1e3;
-  --brand-tint: #293541;
-  --book-shadow: rgb(0 0 0 / 38%);
-  --whisper-shadow: 0 18px 44px rgb(0 0 0 / 34%);
 }
 
 * {
@@ -201,7 +155,8 @@ img {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--brand);
+  outline: var(--focus-ring);
+  /* Deliberately wider than --focus-ring-offset: the site's links sit in roomier type. */
   outline-offset: 4px;
 }
 
@@ -454,6 +409,7 @@ a:focus-visible {
   overflow-anchor: none;
 }
 
+/* Type treatment only; .section-label also picks up layout further down, near .projects-section. */
 .hero-kicker,
 .section-label {
   color: var(--brand);
@@ -790,6 +746,7 @@ a:focus-visible {
   scroll-margin-top: 100px;
 }
 
+/* Layout only; the type treatment lives above, shared with .hero-kicker. The two sets are disjoint. */
 .section-label {
   display: flex;
   align-items: center;

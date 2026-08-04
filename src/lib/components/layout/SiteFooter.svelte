@@ -947,6 +947,13 @@
   }
 
   @media (width <= 600px) {
+    .social-preview {
+      /* The second item is centered 136px from the viewport edge at the
+         390px touch breakpoint, so 272px is the widest symmetric preview
+         that stays fully on-screen. */
+      width: min(272px, calc(100vw - 32px));
+    }
+
     .social-item:first-child .social-preview {
       left: 0;
       transform: translate(0, 4px) scale(0.95);

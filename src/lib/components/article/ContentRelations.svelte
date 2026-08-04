@@ -206,11 +206,21 @@
           {#each album as photo, index (photo.id)}
             {@const offset = albumOffset(index)}
             {@const depth = Math.min(Math.abs(offset), 5)}
+            <!--
+              Only the front card is a link. The stacked neighbours overlap far too
+              much to be valid pointer targets (WCAG 2.5.8), and they duplicate the
+              progress nav below, so they carry no href and stay out of the
+              accessibility tree. Dropping `href` — rather than swapping the element
+              for a <div> — keeps the same DOM node across selections so the
+              coverflow transition is never interrupted. Clicking one still brings
+              it forward via `selectAlbum`.
+            -->
             <a
               class:relation-image-active={offset === 0}
-              href={`/album#photo-${photo.id}`}
-              aria-label={`${offset === 0 ? 'View' : 'Select'} in Album: ${photo.alt}`}
+              href={offset === 0 ? `/album#photo-${photo.id}` : undefined}
+              aria-label={offset === 0 ? `View in Album: ${photo.alt}` : undefined}
               aria-current={offset === 0 ? 'true' : undefined}
+              aria-hidden={offset === 0 ? undefined : 'true'}
               data-depth={depth}
               draggable="false"
               style={`--relation-direction:${Math.sign(offset)};--relation-depth:${depth}`}
@@ -503,23 +513,38 @@
   .relation-album-progress {
     display: flex;
     justify-content: center;
-    gap: 5px;
+    gap: 0;
     margin-top: 16px;
   }
 
+  /*
+    The button is a 24x24 pointer target (WCAG 2.5.8 Target Size); the dot itself
+    is drawn by ::before so the visual stays 7px. Scaling the pseudo-element
+    instead of the button keeps the active state on a compositor-friendly
+    property without inflating the hit area into its neighbours.
+  */
   .relation-album-progress button {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .relation-album-progress button::before {
     width: 7px;
     height: 7px;
-    border: 0;
-    padding: 0;
     border-radius: 50%;
     background: var(--hairline-strong);
-    cursor: pointer;
+    content: '';
     opacity: 0.65;
     transition: transform 180ms var(--ease-out), background-color 180ms var(--ease-out), opacity 180ms var(--ease-out);
   }
 
-  .relation-album-progress button.active {
+  .relation-album-progress button.active::before {
     background: var(--brand);
     opacity: 1;
     transform: scale(1.5);
@@ -576,7 +601,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .relation-images > a,
-    .relation-album-progress button {
+    .relation-album-progress button::before {
       transition: none;
     }
   }

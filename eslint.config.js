@@ -10,6 +10,8 @@ export default defineConfig(
     '.svelte-kit/**',
     '.velite/**',
     'build/**',
+    'packages/*/.svelte-kit/**',
+    'packages/*/dist/**',
     'src/lib/generated/content/**',
     'static/generated/**'
   ]),

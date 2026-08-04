@@ -3,6 +3,7 @@ node_modules/
 .velite/
 src/lib/generated/content/
 build/
+packages/*/dist/
 .wrangler/
 .env
 .env.*
@@ -18,3 +19,4 @@ output/
 static/generated/
 /tmp/
 .workbuddy/
+.spec-workflow/
