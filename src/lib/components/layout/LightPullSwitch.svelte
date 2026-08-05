@@ -82,13 +82,13 @@
       <div class="pendant-glow"></div>
       <svg class="pendant-svg" width="74" height="188" viewBox="0 0 74 188" fill="none">
         <defs>
-          <radialGradient id="xue-bulb-light" cx="0.42" cy="0.35" r="0.72">
+          <radialGradient id="webase-bulb-light" cx="0.42" cy="0.35" r="0.72">
             <stop offset="0" stop-color="#fffdf0"></stop>
             <stop offset="0.5" stop-color="#ffedbb"></stop>
             <stop offset="0.84" stop-color="#ffd680"></stop>
             <stop offset="1" stop-color="#efad5a"></stop>
           </radialGradient>
-          <linearGradient id="xue-fixture-sheen" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient id="webase-fixture-sheen" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#ffffff" stop-opacity="0.16"></stop>
             <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.03"></stop>
             <stop offset="1" stop-color="#000000" stop-opacity="0.24"></stop>
@@ -104,10 +104,10 @@
           width="44"
           height="40"
           rx="8"
-          fill="url(#xue-fixture-sheen)"
+          fill="url(#webase-fixture-sheen)"
         ></rect>
         <path class="pendant-vents" d="M26 79 H48 M26 84 H48 M26 89 H48 M26 94 H48"></path>
-        <circle class="pendant-bulb" cx="37" cy="129" r="23.5" fill="url(#xue-bulb-light)"></circle>
+        <circle class="pendant-bulb" cx="37" cy="129" r="23.5" fill="url(#webase-bulb-light)"></circle>
         <circle class="pendant-bulb-off" cx="37" cy="129" r="23.5"></circle>
         <path class="pendant-glint" d="M22.5 127 A17 17 0 0 1 29 114"></path>
         <rect class="pendant-ring" x="15" y="105" width="44" height="5" rx="2.5"></rect>
@@ -129,7 +129,7 @@
     >
       <svg width="32" height="276" viewBox="0 0 32 276" fill="none" aria-hidden="true">
         <defs>
-          <linearGradient id="xue-pull-sheen" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient id="webase-pull-sheen" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#ffffff" stop-opacity="0.34"></stop>
             <stop offset="0.48" stop-color="#ffffff" stop-opacity="0.03"></stop>
             <stop offset="1" stop-color="#000000" stop-opacity="0.17"></stop>
@@ -144,7 +144,7 @@
         <path
           class="pull-handle-sheen"
           d="M9 210 Q9 205 14 205 H18 Q23 205 23 210 V234 Q23 241 16 244 Q9 241 9 234 Z"
-          fill="url(#xue-pull-sheen)"
+          fill="url(#webase-pull-sheen)"
         ></path>
         <rect class="pull-accent" x="9" y="212" width="14" height="4" rx="1"></rect>
         <path class="pull-grip" d="M12 226 H20 M12 231 H20 M13 236 H19"></path>
@@ -285,7 +285,7 @@
 
   .pendant-ring,
   .pull-accent {
-    fill: var(--brand);
+    fill: var(--webase-color-brand);
   }
 
   .pendant-bulb {
@@ -389,7 +389,7 @@
   }
 
   .cord-button:focus-visible .pull-handle {
-    stroke: var(--brand);
+    stroke: var(--webase-color-brand);
     stroke-width: 2.2px;
   }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseBadge } from '@webaseui/svelte';
   import AlbumWall from '$lib/components/album/AlbumWall.svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
   import { site as siteConfig } from '$lib/generated/content/index.js';
@@ -24,7 +25,7 @@
 <main class="page listing-page album-page">
   <header class="album-header">
     <h1 class="section-label">{siteConfig.pages.album.title}</h1>
-    <span>{data.photos.length.toString().padStart(2, '0')} frames</span>
+    <WeBaseBadge label={`${data.photos.length.toString().padStart(2, '0')} frames`} />
   </header>
   <AlbumWall photos={data.photos} />
 </main>
@@ -41,11 +42,4 @@
     margin-bottom: 0;
   }
 
-  .album-header > span {
-    color: var(--ink-muted);
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-  }
 </style>

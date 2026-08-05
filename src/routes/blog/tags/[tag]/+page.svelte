@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseBadge, WeBaseLink } from '@webaseui/svelte';
   import BlogList from '$lib/components/blog/BlogList.svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
 
@@ -12,13 +13,13 @@
 />
 
 <main class="page listing-page tag-page">
-  <a class="back-link" href="/blog/tags">← all topics</a>
+  <WeBaseLink class="back-link" variant="back" href="/blog/tags" label="all topics" />
   <header class="tag-header">
     <div>
       <p>Topic</p>
       <h1>{data.tag.label}</h1>
     </div>
-    <span>{data.tag.count.toString().padStart(2, '0')} posts</span>
+    <WeBaseBadge label={`${data.tag.count.toString().padStart(2, '0')} posts`} />
   </header>
   <p class="tag-introduction">{data.tag.description}</p>
   <BlogList posts={data.posts} />
@@ -38,12 +39,11 @@
     margin: 0;
   }
 
-  .tag-header p,
-  .tag-header > span {
-    color: var(--brand);
-    font-family: var(--sans);
+  .tag-header p {
+    color: var(--webase-color-brand);
+    font-family: var(--webase-font-sans);
     font-size: 10px;
-    letter-spacing: var(--track-caps);
+    letter-spacing: var(--webase-letter-spacing-caps);
     text-transform: uppercase;
   }
 
@@ -54,14 +54,10 @@
     line-height: 1;
   }
 
-  .tag-header > span {
-    color: var(--ink-muted);
-  }
-
   .tag-introduction {
     max-width: 620px;
     margin: 28px 0 clamp(48px, 8vh, 76px);
-    color: var(--ink-soft);
+    color: var(--webase-color-ink-soft);
     font-size: clamp(17px, 2.2vw, 21px);
     line-height: 1.55;
   }

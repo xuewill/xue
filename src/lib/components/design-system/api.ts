@@ -174,6 +174,18 @@ export const componentApi: ComponentDoc[] = [
     props: [{ name: 'label', type: 'string', default: "'Loading'" }]
   },
   {
+    name: 'WeBaseLink',
+    summary: 'Semantic text navigation for inline, back, nav, and action contexts.',
+    props: [
+      { name: 'href', type: 'string' },
+      { name: 'label', type: 'string', default: "''" },
+      { name: 'variant', type: "'inline' | 'back' | 'nav' | 'action'", default: "'inline'" },
+      { name: 'icon', type: 'WeBaseIconName' },
+      { name: 'iconPosition', type: "'start' | 'end'", default: 'variant default' },
+      { name: 'children', type: 'Snippet' }
+    ]
+  },
+  {
     name: 'WeBasePagination',
     summary: 'Numbered pager that clamps at both ends.',
     props: [
@@ -257,6 +269,17 @@ export const componentApi: ComponentDoc[] = [
       { name: 'checked', type: 'boolean', default: 'false', bindable: true },
       { name: 'disabled', type: 'boolean', default: 'false' },
       { name: 'description', type: 'string', default: "''" }
+    ]
+  },
+  {
+    name: 'WeBaseTag',
+    summary: 'Compact taxonomy label that can remain static or navigate to a filtered view.',
+    props: [
+      { name: 'label', type: 'string' },
+      { name: 'href', type: 'string' },
+      { name: 'variant', type: "'neutral' | 'brand' | 'outline'", default: "'neutral'" },
+      { name: 'count', type: 'number | string' },
+      { name: 'selected', type: 'boolean', default: 'false' }
     ]
   },
   {

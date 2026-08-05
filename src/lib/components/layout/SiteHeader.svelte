@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
+  import { WeBaseLink } from '@webaseui/svelte';
   import { site as siteConfig } from '$lib/generated/content/index.js';
   import ThemeToggle from './ThemeToggle.svelte';
 
@@ -66,7 +67,8 @@
 
   <nav aria-label="Primary navigation">
     <div class="menu" class:touch-open={touchMenuOpen}>
-      <a
+      <WeBaseLink
+        variant="nav"
         href={siteConfig.homeNavigation.href}
         aria-current={isHome() ? 'page' : undefined}
         aria-haspopup="true"
@@ -75,18 +77,23 @@
         onclick={handleHomeClick}
       >
         {siteConfig.homeNavigation.label} <span class="menu-arrow" aria-hidden="true">▾</span>
-      </a>
+      </WeBaseLink>
       <div id="home-dropdown" class="dropdown">
         {#each siteConfig.homeNavigation.items as item (item.href)}
-          <a href={item.href} onclick={() => (touchMenuOpen = false)}>{item.label}</a>
+          <WeBaseLink variant="nav" href={item.href} onclick={() => (touchMenuOpen = false)}>
+            {item.label}
+          </WeBaseLink>
         {/each}
       </div>
     </div>
 
     {#each siteConfig.navigation as item (item.href)}
-      <a href={item.href} aria-current={page.url.pathname.startsWith(item.href) ? 'page' : undefined}>
-        {item.label}
-      </a>
+      <WeBaseLink
+        variant="nav"
+        href={item.href}
+        label={item.label}
+        aria-current={page.url.pathname.startsWith(item.href) ? 'page' : undefined}
+      />
     {/each}
 
     <ThemeToggle />

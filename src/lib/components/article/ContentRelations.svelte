@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseLink } from '@webaseui/svelte';
   import type {
     AlbumPhotoSummary,
     PostSummary,
@@ -151,7 +152,7 @@
               {#if item.slug === currentSlug}
                 <strong aria-current="page">{item.title}</strong>
               {:else}
-                <a href={`/blog/${item.slug}`}>{item.title}</a>
+                <WeBaseLink href={`/blog/${item.slug}`} label={item.title} />
               {/if}
             </li>
           {/each}
@@ -268,7 +269,7 @@
     gap: clamp(34px, 5vw, 52px);
     margin-top: clamp(64px, 10vh, 108px);
     padding-top: clamp(28px, 4vw, 42px);
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left top;
     background-repeat: repeat-x;
     background-size: 7px 2px;
@@ -284,17 +285,17 @@
   }
 
   .relation-label {
-    color: var(--brand);
-    font-family: var(--sans);
+    color: var(--webase-color-brand);
+    font-family: var(--webase-font-sans);
     font-size: 10px;
     font-weight: 500;
-    letter-spacing: var(--track-caps);
+    letter-spacing: var(--webase-letter-spacing-caps);
     text-transform: uppercase;
   }
 
   .relation-group h2 {
     margin-top: 8px;
-    color: var(--ink);
+    color: var(--webase-color-ink);
     font-size: clamp(22px, 3vw, 28px);
     font-weight: 500;
   }
@@ -308,7 +309,7 @@
 
   .relation-series li,
   .relation-links li {
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left bottom;
     background-repeat: repeat-x;
     background-size: 7px 2px;
@@ -324,27 +325,25 @@
   .relation-series li > span,
   .relation-links time,
   .relation-links small {
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 10px;
     font-weight: 400;
-    letter-spacing: var(--track-nav);
+    letter-spacing: var(--webase-letter-spacing-nav);
     text-transform: uppercase;
   }
 
   .relation-series strong {
-    color: var(--ink-muted);
+    color: var(--webase-color-ink-muted);
     font-weight: 500;
   }
 
-  .relation-series a,
   .relation-links a {
-    transition: color var(--duration-ui) var(--ease-out);
+    transition: color var(--webase-duration-ui) var(--webase-ease-out);
   }
 
-  .relation-series a:hover,
   .relation-links a:hover {
-    color: var(--brand);
+    color: var(--webase-color-brand);
   }
 
   .relation-links a {
@@ -357,7 +356,7 @@
   }
 
   .relation-links a > span {
-    color: var(--ink);
+    color: var(--webase-color-ink);
     font-size: 17px;
   }
 
@@ -393,17 +392,17 @@
     width: min(40vw, 620px);
     height: clamp(170px, 20vw, 290px);
     overflow: hidden;
-    border: 1px solid var(--hairline);
+    border: 1px solid var(--webase-color-border);
     border-radius: 3px;
-    background: var(--surface);
+    background: var(--webase-color-surface);
     opacity: var(--relation-opacity, 0.08);
     transform: translate(-50%, -50%) translateX(calc(var(--relation-direction) * var(--relation-distance, min(54vw, 1080px)))) scale(var(--relation-scale, 0.13));
     filter: saturate(var(--relation-saturation, 0.35)) brightness(var(--relation-brightness, 0.9));
     transition:
-      border-color var(--duration-ui) var(--ease-out),
+      border-color var(--webase-duration-ui) var(--webase-ease-out),
       transform 660ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 520ms var(--ease-out),
-      filter 520ms var(--ease-out);
+      opacity 520ms var(--webase-ease-out),
+      filter 520ms var(--webase-ease-out);
     will-change: transform, opacity, filter;
     -webkit-user-drag: none;
   }
@@ -452,7 +451,7 @@
 
   .relation-images a:hover,
   .relation-images a:focus-visible {
-    border-color: var(--brand);
+    border-color: var(--webase-color-brand);
     filter: saturate(0.9) brightness(1);
   }
 
@@ -467,12 +466,12 @@
 
   .relation-images-fade-left {
     left: 0;
-    background: linear-gradient(to right, var(--paper), color-mix(in srgb, var(--paper) 78%, transparent) 50%, transparent);
+    background: linear-gradient(to right, var(--webase-color-canvas), color-mix(in srgb, var(--webase-color-canvas) 78%, transparent) 50%, transparent);
   }
 
   .relation-images-fade-right {
     right: 0;
-    background: linear-gradient(to left, var(--paper), color-mix(in srgb, var(--paper) 78%, transparent) 50%, transparent);
+    background: linear-gradient(to left, var(--webase-color-canvas), color-mix(in srgb, var(--webase-color-canvas) 78%, transparent) 50%, transparent);
   }
 
   .relation-images img {
@@ -489,16 +488,16 @@
     justify-content: center;
     gap: 12px;
     margin-top: 12px;
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 11px;
     text-align: center;
   }
 
   .relation-album-caption span:first-child {
     flex: none;
-    color: var(--brand);
-    font-family: var(--mono);
+    color: var(--webase-color-brand);
+    font-family: var(--webase-font-mono);
     font-size: 10px;
     letter-spacing: 0.08em;
   }
@@ -538,14 +537,14 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--hairline-strong);
+    background: var(--webase-color-border-strong);
     content: '';
     opacity: 0.65;
-    transition: transform 180ms var(--ease-out), background-color 180ms var(--ease-out), opacity 180ms var(--ease-out);
+    transition: transform 180ms var(--webase-ease-out), background-color 180ms var(--webase-ease-out), opacity 180ms var(--webase-ease-out);
   }
 
   .relation-album-progress button.active::before {
-    background: var(--brand);
+    background: var(--webase-color-brand);
     opacity: 1;
     transform: scale(1.5);
   }

@@ -81,12 +81,12 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--paper);
+  background: var(--webase-color-canvas);
 }
 
 @supports not selector(::-webkit-scrollbar) {
   * {
-    scrollbar-color: var(--brand) transparent;
+    scrollbar-color: var(--webase-color-brand) transparent;
     scrollbar-width: thin;
   }
 }
@@ -102,7 +102,7 @@ html {
 
 *::-webkit-scrollbar-thumb {
   background-color: transparent;
-  background-image: radial-gradient(circle, var(--brand) 0 1px, transparent 1.25px);
+  background-image: radial-gradient(circle, var(--webase-color-brand) 0 1px, transparent 1.25px);
   background-position: center;
   background-repeat: repeat;
   background-size: 8px 7px;
@@ -110,11 +110,11 @@ html {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-image: radial-gradient(circle, var(--brand-light) 0 2.5px, transparent 2.75px);
+  background-image: radial-gradient(circle, var(--webase-color-brand-light) 0 2.5px, transparent 2.75px);
 }
 
 *::-webkit-scrollbar-thumb:active {
-  background-image: radial-gradient(circle, var(--brand) 0 2.5px, transparent 2.75px);
+  background-image: radial-gradient(circle, var(--webase-color-brand) 0 2.5px, transparent 2.75px);
   cursor: grabbing;
 }
 
@@ -125,15 +125,15 @@ html {
 body {
   min-width: 320px;
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font);
+  background: var(--webase-color-canvas);
+  color: var(--webase-color-ink);
+  font-family: var(--webase-font-body);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   transition:
-    background-color var(--duration-ui) var(--ease-out),
-    color var(--duration-ui) var(--ease-out);
+    background-color var(--webase-duration-ui) var(--webase-ease-out),
+    color var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 button,
@@ -155,8 +155,8 @@ img {
 
 button:focus-visible,
 a:focus-visible {
-  outline: var(--focus-ring);
-  /* Deliberately wider than --focus-ring-offset: the site's links sit in roomier type. */
+  outline: var(--webase-focus-ring);
+  /* Deliberately wider than --webase-focus-ring-offset: the site's links sit in roomier type. */
   outline-offset: 4px;
 }
 
@@ -168,7 +168,7 @@ a:focus-visible {
 }
 
 :root[data-initial-load] .page {
-  animation: page-enter var(--duration-ui) var(--ease-out) both;
+  animation: page-enter var(--webase-duration-ui) var(--webase-ease-out) both;
 }
 
 .top {
@@ -183,9 +183,9 @@ a:focus-visible {
   justify-content: space-between;
   min-height: 62px;
   padding: 14px clamp(20px, 4vw, 48px);
-  background-color: var(--paper);
-  background-color: color-mix(in srgb, var(--paper) 92%, transparent);
-  background-image: var(--dot-rule-image);
+  background-color: var(--webase-color-canvas);
+  background-color: color-mix(in srgb, var(--webase-color-canvas) 92%, transparent);
+  background-image: var(--webase-dot-rule-image);
   background-position: left bottom;
   background-repeat: repeat-x;
   background-size: 7px 2px;
@@ -195,7 +195,7 @@ a:focus-visible {
 
 .top .name,
 .top nav {
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
   pointer-events: auto;
 }
 
@@ -219,7 +219,7 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 20px;
-  font-family: var(--display);
+  font-family: var(--webase-font-display);
   font-size: 12px;
   font-style: italic;
   font-weight: 600;
@@ -236,12 +236,18 @@ a:focus-visible {
 }
 
 .top nav a {
-  color: var(--ink-muted);
-  transition: color var(--duration-ui) var(--ease-out);
+  color: var(--webase-color-ink-muted);
+  transition: color var(--webase-duration-ui) var(--webase-ease-out);
+}
+
+.top nav a.ds-link-nav {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
 }
 
 .top nav a[aria-current='page'] {
-  color: var(--ink);
+  color: var(--webase-color-ink);
 }
 
 .menu {
@@ -251,7 +257,7 @@ a:focus-visible {
 .menu-arrow {
   display: inline-block;
   transform-origin: center;
-  transition: transform 160ms var(--ease-out);
+  transition: transform 160ms var(--webase-ease-out);
   will-change: transform;
 }
 
@@ -278,8 +284,8 @@ a:focus-visible {
   transform-origin: top right;
   visibility: hidden;
   transition:
-    opacity 160ms var(--ease-out),
-    transform 160ms var(--ease-out),
+    opacity 160ms var(--webase-ease-out),
+    transform 160ms var(--webase-ease-out),
     visibility 0s linear 160ms;
 }
 
@@ -303,17 +309,17 @@ a:focus-visible {
   display: flex;
   min-height: 44px;
   align-items: center;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-top: 0;
   padding: 12px 16px;
-  background: var(--surface);
-  color: var(--ink-muted);
+  background: var(--webase-color-surface);
+  color: var(--webase-color-ink-muted);
   font-size: 12px;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
 }
 
 .menu .dropdown a:first-child {
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid var(--webase-color-border);
   border-radius: 3px 3px 0 0;
 }
 
@@ -322,8 +328,8 @@ a:focus-visible {
 }
 
 .menu .dropdown a:hover {
-  background: var(--brand-tint);
-  color: var(--ink);
+  background: var(--webase-color-brand-tint);
+  color: var(--webase-color-ink);
 }
 
 .icon-btn {
@@ -331,10 +337,10 @@ a:focus-visible {
   width: 17px;
   height: 17px;
   place-items: center;
-  color: var(--ink-muted);
+  color: var(--webase-color-ink-muted);
   transition:
-    color var(--duration-ui) var(--ease-out),
-    transform var(--duration-ui) var(--ease-out);
+    color var(--webase-duration-ui) var(--webase-ease-out),
+    transform var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .icon-mask {
@@ -354,9 +360,9 @@ a:focus-visible {
   border: 0;
   padding: 0;
   background: transparent;
-  color: var(--ink-muted);
+  color: var(--webase-color-ink-muted);
   cursor: pointer;
-  transition: color var(--duration-ui) var(--ease-out);
+  transition: color var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .theme-toggle::before {
@@ -365,18 +371,18 @@ a:focus-visible {
   bottom: 0;
   left: -10px;
   width: 1px;
-  background: var(--hairline-strong);
+  background: var(--webase-color-border-strong);
   content: '';
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--webase-color-brand);
   outline-offset: 4px;
-  color: var(--brand);
+  color: var(--webase-color-brand);
 }
 
 .theme-toggle:focus-visible .theme-icon {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--brand) 55%, transparent));
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--webase-color-brand) 55%, transparent));
 }
 
 .theme-icon {
@@ -412,11 +418,11 @@ a:focus-visible {
 /* Type treatment only; .section-label also picks up layout further down, near .projects-section. */
 .hero-kicker,
 .section-label {
-  color: var(--brand);
-  font-family: var(--sans);
+  color: var(--webase-color-brand);
+  font-family: var(--webase-font-sans);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: var(--track-caps);
+  letter-spacing: var(--webase-letter-spacing-caps);
   text-transform: uppercase;
 }
 
@@ -430,9 +436,9 @@ a:focus-visible {
   position: relative;
   z-index: 0;
   margin: 0 0 -0.52em;
-  color: var(--brand);
+  color: var(--webase-color-brand);
   filter: blur(3px);
-  font-family: var(--display);
+  font-family: var(--webase-font-display);
   font-size: clamp(64px, 12vw, 128px);
   font-style: italic;
   font-weight: 600;
@@ -471,7 +477,7 @@ a:focus-visible {
   position: absolute;
   inset: 9% 19% 3% 21%;
   border-radius: 18px;
-  background: var(--book-shadow);
+  background: var(--webase-shadow-book);
   filter: blur(28px);
   content: '';
 }
@@ -633,9 +639,9 @@ a:focus-visible {
   height: 44px;
   padding: 0;
   background: transparent;
-  color: var(--ink-muted);
+  color: var(--webase-color-ink-muted);
   cursor: pointer;
-  transition: color var(--duration-ui) var(--ease-out);
+  transition: color var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .sb-arrow.left {
@@ -657,10 +663,10 @@ a:focus-visible {
 
 .sb-caption {
   margin: 0;
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
-  letter-spacing: var(--track-caps);
+  letter-spacing: var(--webase-letter-spacing-caps);
   line-height: 1.3;
   text-transform: uppercase;
   animation: caption-in 0.45s ease both;
@@ -677,10 +683,10 @@ a:focus-visible {
   border: 0;
   padding: 10px 14px;
   background: transparent;
-  color: var(--ink);
+  color: var(--webase-color-ink);
   cursor: pointer;
   transform: translateX(-50%);
-  animation: cue-breathe 2.6s var(--ease-in-out) infinite paused;
+  animation: cue-breathe 2.6s var(--webase-ease-in-out) infinite paused;
 }
 
 .hero.is-visible .hero-down {
@@ -705,23 +711,23 @@ a:focus-visible {
 .about-text .bio {
   max-width: 540px;
   margin: 0;
-  color: var(--ink-soft);
+  color: var(--webase-color-ink-soft);
   font-size: clamp(16px, 1.8vw, 19px);
   letter-spacing: 0;
   line-height: 1.58;
 }
 
 .bio-link {
-  color: var(--brand);
+  color: var(--webase-color-brand);
   font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: var(--hairline-strong);
+  text-decoration-color: var(--webase-color-border-strong);
   text-underline-offset: 3px;
   transition: text-decoration-color 0.2s ease;
 }
 
 .bio-link:hover {
-  text-decoration-color: var(--brand);
+  text-decoration-color: var(--webase-color-brand);
 }
 
 .headshot {
@@ -735,7 +741,7 @@ a:focus-visible {
 .headshot img {
   width: 100%;
   height: 100%;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 8px;
   object-fit: contain;
   object-position: top center;
@@ -759,7 +765,7 @@ a:focus-visible {
   height: 18px;
   flex: none;
   border-radius: 2px;
-  background: var(--brand);
+  background: var(--webase-color-brand);
   content: '';
 }
 
@@ -772,27 +778,27 @@ a:focus-visible {
 .project-card .thumb {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 8px;
   aspect-ratio: 16 / 10;
-  background: var(--surface);
+  background: var(--webase-color-surface);
   transform-origin: center;
   transition:
-    border-color var(--duration-ui) var(--ease-out),
-    box-shadow var(--duration-ui) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+    border-color var(--webase-duration-ui) var(--webase-ease-out),
+    box-shadow var(--webase-duration-ui) var(--webase-ease-out),
+    transform var(--webase-duration-fast) var(--webase-ease-out);
 }
 
 .project-card .thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 220ms var(--ease-out);
+  transition: transform 220ms var(--webase-ease-out);
 }
 
 .project-card:focus-visible .thumb {
-  border-color: var(--hairline-strong);
-  box-shadow: var(--whisper-shadow);
+  border-color: var(--webase-color-border-strong);
+  box-shadow: var(--webase-shadow-whisper);
 }
 
 .project-card:active .thumb {
@@ -814,8 +820,8 @@ a:focus-visible {
 }
 
 .project-card .category {
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
   letter-spacing: 0.04em;
   text-align: right;
@@ -849,14 +855,14 @@ a:focus-visible {
 
 .blog-year {
   margin: 0 0 14px;
-  color: var(--brand);
+  color: var(--webase-color-brand);
   font-size: clamp(24px, 3vw, 32px);
   font-weight: 500;
   line-height: 1.2;
 }
 
 .blog-rows {
-  background-image: var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image);
   background-position: left top;
   background-repeat: repeat-x;
   background-size: 7px 2px;
@@ -869,15 +875,15 @@ a:focus-visible {
   align-items: baseline;
   gap: 16px;
   padding: 20px 12px;
-  background-image: var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image);
   background-position: left bottom;
   background-repeat: repeat-x;
   background-size: 7px 2px;
   transform: translateX(0);
   transition:
-    background-color var(--duration-ui) var(--ease-out),
-    opacity var(--duration-fast) var(--ease-out),
-    transform var(--duration-ui) var(--ease-out);
+    background-color var(--webase-duration-ui) var(--webase-ease-out),
+    opacity var(--webase-duration-fast) var(--webase-ease-out),
+    transform var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .blog-row::before {
@@ -885,17 +891,17 @@ a:focus-visible {
   inset: 14px auto 14px 0;
   width: 3px;
   border-radius: 2px;
-  background: var(--brand);
+  background: var(--webase-color-brand);
   content: '';
   opacity: 0;
   transform: scaleY(0.3);
   transition:
-    opacity var(--duration-ui) var(--ease-out),
-    transform var(--duration-ui) var(--ease-out);
+    opacity var(--webase-duration-ui) var(--webase-ease-out),
+    transform var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .blog-row:focus-visible {
-  background-color: var(--surface);
+  background-color: var(--webase-color-surface);
   transform: translateX(8px);
 }
 
@@ -906,14 +912,14 @@ a:focus-visible {
 
 .blog-row time,
 .blog-row .tag {
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
 }
 
 .blog-row time {
-  font-family: var(--font);
+  font-family: var(--webase-font-body);
   letter-spacing: 0;
   white-space: nowrap;
 }
@@ -927,8 +933,8 @@ a:focus-visible {
 .blog-row .tag {
   border-radius: 3px;
   padding: 3px 7px;
-  background: var(--brand-tint);
-  color: var(--brand);
+  background: var(--webase-color-brand-tint);
+  color: var(--webase-color-brand);
   text-align: right;
   text-transform: uppercase;
 }
@@ -940,17 +946,17 @@ a:focus-visible {
   z-index: 6;
   overflow: hidden;
   width: 116px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 8px;
-  background: var(--placeholder);
-  box-shadow: var(--whisper-shadow);
+  background: var(--webase-color-placeholder);
+  box-shadow: var(--webase-shadow-whisper);
   opacity: 0;
   pointer-events: none;
   aspect-ratio: 3 / 2;
   transform: translateY(-50%) scale(0.9);
   transition:
-    opacity var(--duration-ui) var(--ease-out),
-    transform var(--duration-ui) var(--ease-out);
+    opacity var(--webase-duration-ui) var(--webase-ease-out),
+    transform var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .blog-row .row-thumb img {
@@ -962,15 +968,15 @@ a:focus-visible {
 .back-link {
   display: inline-block;
   margin-bottom: clamp(34px, 6vh, 64px);
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
   transition: color 0.2s ease;
 }
 
 .back-link:hover {
-  color: var(--brand);
+  color: var(--webase-color-brand);
 }
 
 .article-layout {
@@ -987,7 +993,7 @@ a:focus-visible {
 }
 
 .article-header {
-  border-left: 3px solid var(--brand);
+  border-left: 3px solid var(--webase-color-brand);
   border-radius: 2px;
   padding-left: clamp(18px, 3vw, 28px);
   margin-bottom: clamp(48px, 8vh, 84px);
@@ -1008,36 +1014,36 @@ a:focus-visible {
   flex-wrap: wrap;
   gap: 10px;
   margin: 18px 0 0;
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
 }
 
 .article-tags a {
-  color: var(--brand);
+  color: var(--webase-color-brand);
   text-decoration: underline;
-  text-decoration-color: var(--hairline-strong);
+  text-decoration-color: var(--webase-color-border-strong);
   text-underline-offset: 3px;
-  transition: text-decoration-color var(--duration-ui) var(--ease-out);
+  transition: text-decoration-color var(--webase-duration-ui) var(--webase-ease-out);
 }
 
 .article-tags a:hover {
-  text-decoration-color: var(--brand);
+  text-decoration-color: var(--webase-color-brand);
 }
 
 .article-description {
   max-width: 620px;
   margin: 28px 0 0;
-  color: var(--ink-soft);
+  color: var(--webase-color-ink-soft);
   font-size: clamp(17px, 2.2vw, 21px);
   letter-spacing: 0;
   line-height: 1.55;
 }
 
 .prose {
-  color: var(--ink-soft);
-  font-family: var(--font);
+  color: var(--webase-color-ink-soft);
+  font-family: var(--webase-font-body);
   font-size: 17px;
   letter-spacing: 0;
   line-height: 1.62;
@@ -1048,7 +1054,7 @@ a:focus-visible {
 .prose h4,
 .prose h5,
 .prose h6 {
-  color: var(--ink);
+  color: var(--webase-color-ink);
   scroll-margin-top: 96px;
 }
 
@@ -1074,14 +1080,14 @@ a:focus-visible {
 .prose h5,
 .prose h6 {
   margin: 1.9em 0 0.65em;
-  font-family: var(--sans);
+  font-family: var(--webase-font-sans);
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
 }
 
 .prose h6 {
-  color: var(--ink-muted);
+  color: var(--webase-color-ink-muted);
   text-transform: uppercase;
 }
 
@@ -1093,10 +1099,10 @@ a:focus-visible {
 }
 
 .prose a {
-  color: var(--brand);
+  color: var(--webase-color-brand);
   font-weight: 500;
   text-decoration: underline;
-  text-decoration-color: var(--hairline-strong);
+  text-decoration-color: var(--webase-color-border-strong);
   text-underline-offset: 3px;
 }
 
@@ -1104,18 +1110,18 @@ a:focus-visible {
   width: 100%;
   height: auto;
   margin: clamp(28px, 5vw, 56px) 0;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 8px;
 }
 
 .prose blockquote {
-  border-left: 3px solid var(--brand);
+  border-left: 3px solid var(--webase-color-brand);
   padding-left: 24px;
-  color: var(--ink-soft);
+  color: var(--webase-color-ink-soft);
 }
 
 .prose li::marker {
-  color: var(--brand);
+  color: var(--webase-color-brand);
 }
 
 .prose hr {
@@ -1123,18 +1129,18 @@ a:focus-visible {
   width: min(180px, 40%);
   margin: clamp(44px, 7vw, 72px) auto;
   border: 0;
-  background-image: var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image);
   background-position: left center;
   background-repeat: repeat-x;
   background-size: 7px 2px;
 }
 
 .prose strong {
-  color: var(--ink);
+  color: var(--webase-color-ink);
 }
 
 .prose del {
-  color: var(--ink-muted);
+  color: var(--webase-color-ink-muted);
 }
 
 .prose table {
@@ -1149,31 +1155,31 @@ a:focus-visible {
 .prose th,
 .prose td {
   min-width: 120px;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--webase-color-border);
   padding: 10px 14px;
   text-align: left;
   vertical-align: top;
 }
 
 .prose th {
-  border-bottom-color: var(--hairline-strong);
-  color: var(--ink);
-  font-family: var(--sans);
+  border-bottom-color: var(--webase-color-border-strong);
+  color: var(--webase-color-ink);
+  font-family: var(--webase-font-sans);
   font-size: 0.72em;
   font-weight: 500;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
   text-transform: uppercase;
 }
 
 .prose input[type='checkbox'] {
   margin: 0 0.45em 0 0;
-  accent-color: var(--brand);
+  accent-color: var(--webase-color-brand);
 }
 
 .prose details {
   margin: 0 0 1.45em;
   padding: 12px 0;
-  background-image: var(--dot-rule-image), var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image), var(--webase-dot-rule-image);
   background-position: left top, left bottom;
   background-repeat: repeat-x;
   background-size: 7px 2px;
@@ -1181,24 +1187,24 @@ a:focus-visible {
 
 .prose summary {
   cursor: pointer;
-  color: var(--ink);
+  color: var(--webase-color-ink);
   font-weight: 600;
 }
 
 .prose kbd {
-  border: 1px solid var(--hairline-strong);
+  border: 1px solid var(--webase-color-border-strong);
   border-bottom-width: 2px;
   border-radius: 4px;
   padding: 0.08em 0.35em;
-  background: var(--surface);
-  font-family: var(--mono);
+  background: var(--webase-color-surface);
+  font-family: var(--webase-font-mono);
   font-size: 0.78em;
 }
 
 .article-footer {
   margin-top: clamp(64px, 10vh, 108px);
   padding-top: clamp(28px, 4vw, 42px);
-  background-image: var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image);
   background-position: left top;
   background-repeat: repeat-x;
   background-size: 7px 2px;
@@ -1213,21 +1219,21 @@ a:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  border: 1px solid var(--hairline-strong);
+  border: 1px solid var(--webase-color-border-strong);
   border-radius: 2px;
   padding: 10px 16px;
-  color: var(--brand);
-  font-family: var(--sans);
+  color: var(--webase-color-brand);
+  font-family: var(--webase-font-sans);
   font-size: 11px;
-  letter-spacing: var(--track-nav);
+  letter-spacing: var(--webase-letter-spacing-nav);
   line-height: 1;
   transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .article-back-button:hover {
-  border-color: var(--brand);
-  background: var(--brand-tint);
-  color: var(--brand);
+  border-color: var(--webase-color-brand);
+  background: var(--webase-color-brand-tint);
+  color: var(--webase-color-brand);
 }
 
 .article-nav {
@@ -1248,7 +1254,7 @@ a:focus-visible {
 }
 
 .article-nav-link:hover .article-nav-title {
-  color: var(--brand);
+  color: var(--webase-color-brand);
 }
 
 .article-nav-next {
@@ -1257,17 +1263,17 @@ a:focus-visible {
 }
 
 .article-nav-direction {
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 10px;
-  letter-spacing: var(--track-caps);
+  letter-spacing: var(--webase-letter-spacing-caps);
   line-height: 1.3;
   text-transform: uppercase;
 }
 
 .article-nav-title {
   overflow-wrap: anywhere;
-  color: var(--ink-soft);
+  color: var(--webase-color-ink-soft);
   font-size: 16px;
   line-height: 1.35;
   transition: color 0.2s ease;
@@ -1278,21 +1284,21 @@ a:focus-visible {
 }
 
 .prose code {
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 5px;
   padding: 0.12em 0.34em;
-  background: var(--surface);
-  font-family: var(--mono);
+  background: var(--webase-color-surface);
+  font-family: var(--webase-font-mono);
   font-size: 0.86em;
 }
 
 .prose pre {
   overflow-x: auto;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--webase-color-border);
   border-radius: 8px;
   padding-block: 18px;
-  background: var(--surface);
-  font-family: var(--mono);
+  background: var(--webase-color-surface);
+  font-family: var(--webase-font-mono);
   font-size: 0.86em;
   line-height: 1.7;
   tab-size: 2;
@@ -1320,14 +1326,14 @@ a:focus-visible {
 }
 
 .prose [data-highlighted-line] {
-  border-left: 2px solid var(--ink-muted);
-  background: color-mix(in srgb, var(--surface-muted) 68%, transparent);
+  border-left: 2px solid var(--webase-color-ink-muted);
+  background: color-mix(in srgb, var(--webase-color-surface-muted) 68%, transparent);
 }
 
 .prose [data-highlighted-chars] {
   border-radius: 3px;
   padding: 0.1em 0.2em;
-  background: var(--surface-muted);
+  background: var(--webase-color-surface-muted);
 }
 
 .prose [data-theme*=' '] span {
@@ -1356,14 +1362,14 @@ a:focus-visible {
   max-width: 1120px;
   margin: clamp(40px, 8vh, 90px) auto 0;
   padding: 4vh clamp(28px, 5vw, 72px) 6vh;
-  background-image: var(--dot-rule-image);
+  background-image: var(--webase-dot-rule-image);
   background-position: left top;
   background-repeat: repeat-x;
   background-size: 7px 2px;
-  color: var(--ink-muted);
-  font-family: var(--sans);
+  color: var(--webase-color-ink-muted);
+  font-family: var(--webase-font-sans);
   font-size: 11px;
-  letter-spacing: var(--track-caps);
+  letter-spacing: var(--webase-letter-spacing-caps);
   text-align: center;
 }
 
@@ -1440,7 +1446,7 @@ a:focus-visible {
 
 @media (hover: hover) and (pointer: fine) {
   .top nav a:hover {
-    color: var(--ink);
+    color: var(--webase-color-ink);
   }
 
   .menu:hover .menu-arrow {
@@ -1456,16 +1462,16 @@ a:focus-visible {
   }
 
   .icon-btn:hover {
-    color: var(--brand);
+    color: var(--webase-color-brand);
     transform: translateY(-1px);
   }
 
   .theme-toggle:hover {
-    color: var(--brand);
+    color: var(--webase-color-brand);
   }
 
   .sb-arrow:hover {
-    color: var(--ink);
+    color: var(--webase-color-ink);
   }
 
   .hero-down:hover {
@@ -1477,12 +1483,12 @@ a:focus-visible {
   }
 
   .project-card:hover .thumb {
-    border-color: var(--hairline-strong);
-    box-shadow: var(--whisper-shadow);
+    border-color: var(--webase-color-border-strong);
+    box-shadow: var(--webase-shadow-whisper);
   }
 
   .blog-row:hover {
-    background-color: var(--surface);
+    background-color: var(--webase-color-surface);
     transform: translateX(8px);
   }
 
@@ -1547,12 +1553,12 @@ a:focus-visible {
     top: 50%;
     bottom: auto;
     /* Center the rule in the visible album/icon gap, not the hit-box edge. */
-    left: 6px;
+    left: 3px;
     width: 2px;
     height: var(--top-link-size);
     transform: translate(-50%, -50%);
     background: transparent;
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: center center;
     background-repeat: repeat-y;
     background-size: 2px 7px;
@@ -1731,8 +1737,8 @@ a:focus-visible {
   .menu .dropdown {
     transform: none;
     transition:
-      opacity var(--duration-fast) var(--ease-out),
-      visibility 0s linear var(--duration-fast);
+      opacity var(--webase-duration-fast) var(--webase-ease-out),
+      visibility 0s linear var(--webase-duration-fast);
   }
 
   .menu:focus-within .dropdown {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseLink, WeBaseTag } from '@webaseui/svelte';
   import ArticleToc from '$lib/components/article/ArticleToc.svelte';
   import ContentRelations from '$lib/components/article/ContentRelations.svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
@@ -36,7 +37,7 @@
 />
 
 <main class="page article-page">
-  <a class="back-link" href="/blog">← all posts</a>
+  <WeBaseLink class="back-link" variant="back" href="/blog" label="all posts" />
   <div class="article-layout">
     {#key data.post.slug}
       <ArticleToc headings={data.post.toc} />
@@ -52,9 +53,8 @@
           {/if}
           <span aria-hidden="true">·</span>
           <span class="article-tags">
-            {#each data.tags as tag, index (tag.slug)}
-              {#if index > 0}<span aria-hidden="true"> / </span>{/if}
-              <a href={`/blog/tags/${tag.slug}`}>{tag.label}</a>
+            {#each data.tags as tag (tag.slug)}
+              <WeBaseTag variant="outline" href={`/blog/tags/${tag.slug}`} label={tag.label} />
             {/each}
           </span>
           {#if data.post.locations.length > 0}
@@ -76,10 +76,7 @@
       />
 
       <footer class="article-footer">
-        <a class="article-back-button" href="/blog">
-          <span aria-hidden="true">&larr;</span>
-          Back to Blog
-        </a>
+        <WeBaseLink class="article-back-button" variant="back" href="/blog" label="Back to Blog" />
 
         <nav class="article-nav" aria-label="Article navigation">
           {#if data.previous}
