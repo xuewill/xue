@@ -173,7 +173,7 @@ Phase 2 执行记录（2026-08-04）：
 ### Phase 3：独立仓库与发布
 
 - [x] 创建 WeBaseUI 独立仓库并迁移 `packages/*`、consumer fixture 与发布基础设施。
-- [ ] 将 docs app 从当前站点迁入 WeBaseUI 仓库。
+- [x] 将 docs app 从当前站点迁入 WeBaseUI 仓库。
 - [x] 增加 Changesets 或等价版本流程。
 - [x] 从打包 tarball 安装的 consumer fixture 成为发布门禁。
 - [x] 发布 `@webaseui/core` 与 `@webaseui/svelte` 0.x 版本。
@@ -183,7 +183,8 @@ Phase 3 发布准备记录（2026-08-04）：
 
 - GitHub 仓库已创建为 `https://github.com/WeOpen/WeBaseUI`，本地仓库位于 `/Users/willxue/will/WeOpen/WeBaseUI`。
 - 独立仓库包含 `@webaseui/core`、`@webaseui/svelte`、Changesets、CI 和 tarball consumer fixture；构建产物未进入版本控制。
-- 文档页面暂留在 `xue` 作为真实 registry 消费方；站点内的 workspace 包、Changesets 和 tarball fixture 已移除。
+- WeBaseUI 独立仓库现包含 `apps/docs` 作为 canonical catalogue；它只通过公开包入口消费 core 与 Svelte 包，并由 package CI 强制构建。
+- 当前站点继续保留 `/design-system` 作为真实 registry 消费方和部署证明，但不再承担库文档源码职责；站点内的 workspace 包、Changesets 和 tarball fixture 已移除。
 - Changesets 已配置为 public access，并约束所有用户可见的包变化附带 changeset。
 - 独立 Svelte fixture 会打出真实 tarball、安装到临时项目并执行 Vite 生产构建。
 - CI 已增加 tarball consumer 门禁，避免 workspace 软链接掩盖发布物缺失。
@@ -214,7 +215,7 @@ Phase 3 发布准备记录（2026-08-04）：
 - 不引入 React 或跨框架运行时。
 - 不重写现有组件视觉和交互。
 - 不把站点全部页面迁移到 WeBaseUI。
-- 不把 docs app 从当前 SvelteKit 站点拆出部署。
+- docs app 的独立托管与自定义域名留给后续部署任务；本阶段只完成代码归属和 CI 边界。
 
 ## GSTACK REVIEW REPORT
 
