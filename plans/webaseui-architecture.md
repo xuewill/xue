@@ -1,6 +1,6 @@
 # WeBaseUI 架构与迁移计划
 
-状态：Phase 1–3 已完成；Phase 4 全站迁移与 registry 发布完成，等待 xue 迁移 PR 和生产部署收口
+状态：Phase 1–4 已完成；全站已迁移到 WeBaseUI registry 包并完成生产部署验证
 日期：2026-08-05
 目标：把当前站点内的设计系统收敛为可独立发布的 WeBaseUI，并为未来 React 适配保留清晰边界。
 
@@ -201,7 +201,7 @@ Phase 3 发布准备记录（2026-08-04）：
 - [x] 保留相册灯箱、文章目录、翻页册和拉绳开关等站点专属组合，仅复用其内部 WeBaseUI primitive。
 - [x] 增加全路由行为基线和 WeBaseUI 架构边界测试。
 - [x] 发布 `@webaseui/svelte@0.3.2` 并将 xue 的精确依赖更新到 0.3.2。
-- [ ] 合并 xue 迁移 PR 并验证生产部署。
+- [x] 合并 xue 迁移 PR 并验证生产部署。
 
 Phase 4 执行记录（2026-08-05）：
 
@@ -210,8 +210,9 @@ Phase 4 执行记录（2026-08-05）：
 - 全站性能门禁发现包根入口会带入未使用组件；WeBaseUI PR #6 增加 `sideEffects: false` 和 packed-consumer tree-shaking 回归测试，并以 `@webaseui/svelte@0.3.1` 发布修复。
 - 全站无障碍门禁发现 Tag 小字号对比度不足；WeBaseUI PR #7 修复明暗主题颜色并增加包契约检查，以 `@webaseui/svelte@0.3.2` 发布。
 - xue 源码已不再消费 `--paper`、`--brand` 等兼容别名，也不存在组件深层导入。
-- 类型检查、73 个单元测试、生产构建和 12 个全路由 Chromium 基线测试通过。
+- 类型检查、73 个单元测试、71 个跨浏览器 E2E 测试、14 个视觉基线和生产构建通过。
 - xue 已从 npm registry 精确安装 `@webaseui/svelte@0.3.2`；源码、包构建、GitHub CI 与 registry 发布均已通过。
+- xue PR #23 已合并；Cloudflare Pages 生产部署、`willxue.com`、`www.willxue.com` 与 `will.l.cd` 均已通过线上 smoke check。
 
 ### Phase 5：React 适配
 
