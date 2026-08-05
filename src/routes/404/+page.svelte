@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseLink } from '@webaseui/svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
 </script>
 
@@ -12,5 +13,5 @@
 <main class="page error-page">
   <p class="section-label">404</p>
   <h1>Page not found</h1>
-  <a class="back-link" href="/">← home</a>
+  <WeBaseLink class="back-link" variant="back" href="/" label="home" />
 </main>

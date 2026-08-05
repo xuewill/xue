@@ -1,7 +1,7 @@
 # WeBaseUI 架构与迁移计划
 
-状态：Phase 1–3 已完成，WeBaseUI 已独立发布并由当前站点消费
-日期：2026-08-04
+状态：Phase 1–3 已完成；Phase 4 全站迁移与 registry 发布完成，等待 xue 迁移 PR 和生产部署收口
+日期：2026-08-05
 目标：把当前站点内的设计系统收敛为可独立发布的 WeBaseUI，并为未来 React 适配保留清晰边界。
 
 ## 1. 目标与成功标准
@@ -192,7 +192,28 @@ Phase 3 发布准备记录（2026-08-04）：
 - `@webaseui/core@0.1.0` 与 `@webaseui/svelte@0.2.0` 已公开发布，并建立对应 GitHub Releases。
 - `xue` 已切换到 registry 版本；组件 API 使用 `WeBase*`，公共 token 使用 `--webase-*`。
 
-### Phase 4：React 适配
+### Phase 4：当前站点全页面迁移
+
+- [x] 增加 `WeBaseLink` 与 `WeBaseTag`，补足站点导航和分类语义。
+- [x] 将 xue 源码中的短 token 消费全部切换为 `--webase-*` canonical token。
+- [x] 迁移共享导航、错误页、归档、相册、博客、标签、文章和项目详情页。
+- [x] 迁移首页业务组合中的文本链接与分类标签。
+- [x] 保留相册灯箱、文章目录、翻页册和拉绳开关等站点专属组合，仅复用其内部 WeBaseUI primitive。
+- [x] 增加全路由行为基线和 WeBaseUI 架构边界测试。
+- [x] 发布 `@webaseui/svelte@0.3.2` 并将 xue 的精确依赖更新到 0.3.2。
+- [ ] 合并 xue 迁移 PR 并验证生产部署。
+
+Phase 4 执行记录（2026-08-05）：
+
+- 所有 10 个公开页面路由均直接或通过首页业务组合消费 `@webaseui/svelte`。
+- `WeBaseLink` 与 `WeBaseTag` 已在 WeBaseUI PR #5 合并，并随 `@webaseui/svelte@0.3.0` 发布。
+- 全站性能门禁发现包根入口会带入未使用组件；WeBaseUI PR #6 增加 `sideEffects: false` 和 packed-consumer tree-shaking 回归测试，并以 `@webaseui/svelte@0.3.1` 发布修复。
+- 全站无障碍门禁发现 Tag 小字号对比度不足；WeBaseUI PR #7 修复明暗主题颜色并增加包契约检查，以 `@webaseui/svelte@0.3.2` 发布。
+- xue 源码已不再消费 `--paper`、`--brand` 等兼容别名，也不存在组件深层导入。
+- 类型检查、73 个单元测试、生产构建和 12 个全路由 Chromium 基线测试通过。
+- xue 已从 npm registry 精确安装 `@webaseui/svelte@0.3.2`；源码、包构建、GitHub CI 与 registry 发布均已通过。
+
+### Phase 5：React 适配
 
 - [ ] 根据真实 React 项目确定最低 React 版本和构建目标。
 - [ ] 建立 `@webaseui/react`，从低状态组件开始实现。
@@ -214,8 +235,8 @@ Phase 3 发布准备记录（2026-08-04）：
 
 - 不引入 React 或跨框架运行时。
 - 不重写现有组件视觉和交互。
-- 不把站点全部页面迁移到 WeBaseUI。
-- docs app 的独立托管与自定义域名留给后续部署任务；本阶段只完成代码归属和 CI 边界。
+- React 适配继续推迟，直到出现真实 React 消费项目。
+- 站点专属业务组合不下沉到 WeBaseUI；只有可跨项目复用的 primitive 才进入公共包。
 
 ## GSTACK REVIEW REPORT
 

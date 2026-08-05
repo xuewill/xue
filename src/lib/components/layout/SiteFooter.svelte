@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { WeBaseLink } from '@webaseui/svelte';
   import { posts, site as siteConfig } from '$lib/generated/content/index.js';
   import { fallbackSocialData, type SocialData } from '$lib/types/social';
 
@@ -279,14 +280,14 @@
               {/each}
             </span>
           {/if}
-          <a
+          <WeBaseLink
+            variant="action"
             class="preview-action"
             href={socialHref(item)}
             target={item.href.startsWith('http') ? '_blank' : undefined}
             rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
-          >
-            {previewActionLabel(item)} <span aria-hidden="true">↗</span>
-          </a>
+            label={previewActionLabel(item)}
+          />
         </span>
       </span>
     {/each}
@@ -344,8 +345,8 @@
     width: calc(100% - (var(--social-icon-inset) * 2));
     height: calc(100% - (var(--social-icon-inset) * 2));
     transition:
-      opacity var(--duration-ui) var(--ease-out),
-      transform var(--duration-ui) var(--ease-out);
+      opacity var(--webase-duration-ui) var(--webase-ease-out),
+      transform var(--webase-duration-ui) var(--webase-ease-out);
   }
 
   .social-link-icon-mono {
@@ -377,7 +378,7 @@
   }
 
   .social-preview {
-    --preview-accent: var(--brand);
+    --preview-accent: var(--webase-color-brand);
 
     position: absolute;
     bottom: calc(100% + 16px);
@@ -387,19 +388,19 @@
     width: min(284px, calc(100vw - 32px));
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--hairline-strong) 82%, transparent);
+    border: 1px solid color-mix(in srgb, var(--webase-color-border-strong) 82%, transparent);
     border-radius: 7px;
     gap: 10px;
     padding: 14px 16px 0;
     background:
-      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 5%, transparent) 0 0.55px, transparent 0.75px)
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--webase-color-ink) 5%, transparent) 0 0.55px, transparent 0.75px)
         0 0 / 12px 12px,
-      color-mix(in srgb, var(--surface) 97%, transparent);
+      color-mix(in srgb, var(--webase-color-surface) 97%, transparent);
     box-shadow:
       0 24px 64px rgb(20 20 19 / 18%),
       0 4px 14px rgb(20 20 19 / 8%);
-    color: var(--ink);
-    font-family: var(--sans);
+    color: var(--webase-color-ink);
+    font-family: var(--webase-font-sans);
     font-size: 13px;
     letter-spacing: 0;
     line-height: 1.45;
@@ -410,8 +411,8 @@
     transform-origin: bottom center;
     visibility: hidden;
     transition:
-      opacity var(--duration-ui) var(--ease-out) 80ms,
-      transform var(--duration-ui) var(--ease-out) 80ms,
+      opacity var(--webase-duration-ui) var(--webase-ease-out) 80ms,
+      transform var(--webase-duration-ui) var(--webase-ease-out) 80ms,
       visibility 0s linear 280ms;
   }
 
@@ -460,32 +461,32 @@
     transition-delay: 0s;
   }
 
-  .preview-action {
+  :global(.preview-action) {
     display: flex;
     min-height: 44px;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     margin: 0 -16px;
-    border-top: 1px solid color-mix(in srgb, var(--preview-accent) 20%, var(--hairline));
+    border-top: 1px solid color-mix(in srgb, var(--preview-accent) 20%, var(--webase-color-border));
     padding: 0 16px;
     background: color-mix(in srgb, var(--preview-accent) 5%, transparent);
     color: var(--preview-accent);
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     font-size: 10px;
-    letter-spacing: var(--track-nav);
+    letter-spacing: var(--webase-letter-spacing-nav);
     text-transform: uppercase;
     transition:
-      background var(--duration-fast) var(--ease-out),
-      letter-spacing var(--duration-fast) var(--ease-out);
+      background var(--webase-duration-fast) var(--webase-ease-out),
+      letter-spacing var(--webase-duration-fast) var(--webase-ease-out);
   }
 
-  .preview-action:hover {
+  :global(.preview-action:hover) {
     background: color-mix(in srgb, var(--preview-accent) 9%, transparent);
-    letter-spacing: calc(var(--track-nav) + 0.025em);
+    letter-spacing: calc(var(--webase-letter-spacing-nav) + 0.025em);
   }
 
-  .preview-action:focus-visible {
+  :global(.preview-action:focus-visible) {
     outline-offset: 2px;
   }
 
@@ -507,16 +508,16 @@
   }
 
   .rss-preview-header strong {
-    color: var(--ink);
-    font-family: var(--font);
+    color: var(--webase-color-ink);
+    font-family: var(--webase-font-body);
     font-size: 16px;
     font-weight: 600;
     line-height: 1.15;
   }
 
   .rss-preview-header > span:last-child > span {
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 9px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -532,7 +533,7 @@
     width: 44px;
     height: 44px;
     flex: none;
-    border: 1px solid color-mix(in srgb, var(--preview-accent) 24%, var(--hairline-strong));
+    border: 1px solid color-mix(in srgb, var(--preview-accent) 24%, var(--webase-color-border-strong));
     border-radius: 50%;
     box-shadow: 0 3px 10px rgb(20 20 19 / 12%);
     object-fit: cover;
@@ -553,8 +554,8 @@
 
   .profile-identity strong,
   .github-header strong {
-    color: var(--ink);
-    font-family: var(--font);
+    color: var(--webase-color-ink);
+    font-family: var(--webase-font-body);
     font-size: 16px;
     font-weight: 600;
     line-height: 1.15;
@@ -562,8 +563,8 @@
 
   .profile-identity > span,
   .github-header > span:first-child > span {
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 9px;
     letter-spacing: 0.05em;
   }
@@ -579,8 +580,8 @@
 
   .profile-bio {
     margin: 2px 0;
-    color: var(--ink-soft);
-    font-family: var(--font);
+    color: var(--webase-color-ink-soft);
+    font-family: var(--webase-font-body);
     font-size: 14px;
     line-height: 1.55;
   }
@@ -589,9 +590,9 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0;
-    border-block: 1px solid var(--hairline);
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    border-block: 1px solid var(--webase-color-border);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 9px;
   }
 
@@ -603,13 +604,13 @@
   }
 
   .profile-stats > span + span {
-    border-left: 1px solid var(--hairline);
+    border-left: 1px solid var(--webase-color-border);
     padding-left: 12px;
   }
 
   .profile-stats strong {
-    color: var(--ink);
-    font-family: var(--font);
+    color: var(--webase-color-ink);
+    font-family: var(--webase-font-body);
     font-size: 16px;
     font-weight: 600;
   }
@@ -625,12 +626,12 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 0;
-    border-top: 1px solid var(--hairline);
+    border-top: 1px solid var(--webase-color-border);
     padding-top: 9px;
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 10px;
-    letter-spacing: var(--track-nav);
+    letter-spacing: var(--webase-letter-spacing-nav);
     text-transform: uppercase;
   }
 
@@ -638,8 +639,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 8px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -663,7 +664,7 @@
     display: flex;
     gap: 2px;
     padding: 9px 0;
-    border-block: 1px solid color-mix(in srgb, var(--preview-accent) 12%, var(--hairline));
+    border-block: 1px solid color-mix(in srgb, var(--preview-accent) 12%, var(--webase-color-border));
   }
 
   .contribution-column {
@@ -678,19 +679,19 @@
     height: 7px;
     border: 0;
     border-radius: 1.5px;
-    background: var(--surface-muted);
+    background: var(--webase-color-surface-muted);
   }
 
   .contribution-cell.level-1 {
-    background: color-mix(in srgb, var(--preview-accent) 28%, var(--surface-muted));
+    background: color-mix(in srgb, var(--preview-accent) 28%, var(--webase-color-surface-muted));
   }
 
   .contribution-cell.level-2 {
-    background: color-mix(in srgb, var(--preview-accent) 48%, var(--surface-muted));
+    background: color-mix(in srgb, var(--preview-accent) 48%, var(--webase-color-surface-muted));
   }
 
   .contribution-cell.level-3 {
-    background: color-mix(in srgb, var(--preview-accent) 70%, var(--surface-muted));
+    background: color-mix(in srgb, var(--preview-accent) 70%, var(--webase-color-surface-muted));
   }
 
   .contribution-cell.level-4 {
@@ -700,7 +701,7 @@
   .rss-preview-list {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--hairline);
+    border-top: 1px solid var(--webase-color-border);
   }
 
   .rss-preview-list a {
@@ -709,11 +710,11 @@
     grid-template-columns: 34px minmax(0, 1fr) auto;
     align-items: center;
     gap: 9px;
-    border-bottom: 1px solid var(--hairline);
-    color: var(--ink);
+    border-bottom: 1px solid var(--webase-color-border);
+    color: var(--webase-color-ink);
     transition:
-      background var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out);
+      background var(--webase-duration-fast) var(--webase-ease-out),
+      color var(--webase-duration-fast) var(--webase-ease-out);
   }
 
   .rss-preview-list a:hover,
@@ -723,15 +724,15 @@
   }
 
   .rss-preview-list a > span:first-child {
-    color: var(--ink-muted);
-    font-family: var(--mono);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-mono);
     font-size: 8px;
     letter-spacing: 0.04em;
   }
 
   .rss-preview-list strong {
     overflow: hidden;
-    font-family: var(--font);
+    font-family: var(--webase-font-body);
     font-size: 12px;
     font-weight: 500;
     line-height: 1.25;
@@ -764,7 +765,7 @@
     color: var(--mail-ink);
   }
 
-  .social-preview-email .preview-action {
+  .social-preview-email :global(.preview-action) {
     position: absolute;
     right: 4px;
     bottom: 4px;
@@ -811,7 +812,7 @@
     top: 19px;
     left: 19px;
     z-index: 1;
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     font-size: 8px;
     line-height: 1.45;
     letter-spacing: 0.08em;
@@ -843,7 +844,7 @@
     align-items: center;
     justify-content: center;
     border: 3px dotted var(--mail-paper);
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     line-height: 1;
     box-shadow: 0 0 0 1px rgb(104 102 95 / 36%);
   }
@@ -899,7 +900,7 @@
     display: grid;
     place-items: center;
     content: '26 JUL';
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     font-size: 5px;
     letter-spacing: 0.04em;
   }
@@ -923,7 +924,7 @@
     top: 94px;
     left: 42px;
     z-index: 2;
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     line-height: 1.25;
     white-space: nowrap;
   }
@@ -989,14 +990,14 @@
     .social-link-icon-mono,
     .social-link-icon-color {
       transform: none;
-      transition: opacity var(--duration-fast) var(--ease-out);
+      transition: opacity var(--webase-duration-fast) var(--webase-ease-out);
     }
 
     .social-preview {
       transform: translate(-50%, 0) scale(1);
       transition:
-        opacity var(--duration-fast) var(--ease-out),
-        visibility 0s linear var(--duration-fast);
+        opacity var(--webase-duration-fast) var(--webase-ease-out),
+        visibility 0s linear var(--webase-duration-fast);
     }
 
     .contribution-cell {

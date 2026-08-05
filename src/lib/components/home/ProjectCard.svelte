@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseTag } from '@webaseui/svelte';
   import type { ProjectSummary } from '$lib/types/content';
 
   export let project: ProjectSummary;
@@ -19,6 +20,6 @@
   </div>
   <div class="cap">
     <span class="title">{project.title}</span>
-    <span class="category">{project.category}</span>
+    <WeBaseTag class="category" variant="outline" label={project.category} />
   </div>
 </a>

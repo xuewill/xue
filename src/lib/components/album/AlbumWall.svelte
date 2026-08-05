@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
+  import { WeBaseIcon, WeBaseLink } from '@webaseui/svelte';
   import type { AlbumPhotoView } from '$lib/types/content';
 
   type LightboxState = 'opening' | 'open' | 'closing';
@@ -286,15 +287,7 @@
       style={lightboxNavStyle}
       onclick={() => navigatePhoto('previous')}
     >
-      <svg viewBox="0 0 14 44" width="14" height="44" fill="none" aria-hidden="true">
-        <polyline
-          points="11,3 3,22 11,41"
-          stroke="currentColor"
-          stroke-width="1.1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        ></polyline>
-      </svg>
+      <WeBaseIcon name="arrow-left" size={20} />
     </button>
     <button
       class="album-lightbox-nav album-lightbox-next"
@@ -303,15 +296,7 @@
       style={lightboxNavStyle}
       onclick={() => navigatePhoto('next')}
     >
-      <svg viewBox="0 0 14 44" width="14" height="44" fill="none" aria-hidden="true">
-        <polyline
-          points="3,3 11,22 3,41"
-          stroke="currentColor"
-          stroke-width="1.1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        ></polyline>
-      </svg>
+      <WeBaseIcon name="arrow-right" size={20} />
     </button>
     <span class="album-lightbox-marks album-corners" style={lightboxMarksStyle} aria-hidden="true">
       <span class="album-corner album-corner-tl"></span>
@@ -356,13 +341,13 @@
           {#if selected.relatedPosts.length > 0}
             <span>Notes</span>
             {#each selected.relatedPosts as post (post.slug)}
-              <a href={`/blog/${post.slug}`}>{post.title}</a>
+              <WeBaseLink class="album-related-link" href={`/blog/${post.slug}`} label={post.title} />
             {/each}
           {/if}
           {#if selected.relatedProjects.length > 0}
             <span>Projects</span>
             {#each selected.relatedProjects as project (project.slug)}
-              <a href={`/home/${project.slug}`}>{project.title}</a>
+              <WeBaseLink class="album-related-link" href={`/home/${project.slug}`} label={project.title} />
             {/each}
           {/if}
         </div>
@@ -375,7 +360,7 @@
       aria-label="Close image"
       onclick={() => closePhoto()}
     >
-      <span aria-hidden="true">×</span>
+      <WeBaseIcon name="x" size={20} />
     </button>
   </dialog>
 {/if}
@@ -401,7 +386,7 @@
     border: 0;
     padding: 0;
     background: transparent;
-    color: var(--ink);
+    color: var(--webase-color-ink);
     cursor: zoom-in;
     transform: rotate(var(--photo-tilt));
     transform-origin: center;
@@ -413,9 +398,9 @@
   .album-trigger img {
     width: 100%;
     height: auto;
-    border: 1px solid var(--hairline);
+    border: 1px solid var(--webase-color-border);
     border-radius: 2px;
-    background: var(--surface);
+    background: var(--webase-color-surface);
     box-shadow: 0 10px 28px rgb(20 20 19 / 7%);
   }
 
@@ -435,8 +420,8 @@
     width: var(--corner-arm);
     height: var(--corner-arm);
     background:
-      var(--dot-rule-image) left top / 7px 2px repeat-x,
-      var(--dot-rule-image) left top / 2px 7px repeat-y;
+      var(--webase-dot-rule-image) left top / 7px 2px repeat-x,
+      var(--webase-dot-rule-image) left top / 2px 7px repeat-y;
   }
 
   .album-corner-tl {
@@ -485,7 +470,7 @@
     padding: 0;
     overflow: hidden;
     background: transparent;
-    color: var(--ink);
+    color: var(--webase-color-ink);
     outline: none;
   }
 
@@ -500,10 +485,10 @@
     height: 100%;
     border: 0;
     padding: 0;
-    background: color-mix(in srgb, var(--paper) 95%, transparent);
+    background: color-mix(in srgb, var(--webase-color-canvas) 95%, transparent);
     cursor: zoom-out;
     opacity: 0;
-    transition: opacity 200ms var(--ease-out);
+    transition: opacity 200ms var(--webase-ease-out);
   }
 
   .album-lightbox[data-state='open'] .album-lightbox-backdrop {
@@ -518,12 +503,12 @@
     border: 0;
     padding: 0;
     border-radius: 2px;
-    background: var(--surface);
+    background: var(--webase-color-surface);
     object-fit: contain;
     box-shadow: none;
     cursor: zoom-out;
     will-change: transform;
-    transition: transform 290ms var(--ease-out);
+    transition: transform 290ms var(--webase-ease-out);
   }
 
   .album-lightbox-image::after {
@@ -534,7 +519,7 @@
     content: '';
     opacity: 0;
     pointer-events: none;
-    transition: opacity 180ms var(--ease-out);
+    transition: opacity 180ms var(--webase-ease-out);
   }
 
   .album-lightbox-image img {
@@ -573,14 +558,14 @@
     padding: 0;
     place-items: center;
     background: transparent;
-    color: var(--ink-muted);
+    color: var(--webase-color-ink-muted);
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
     transition:
-      color var(--duration-fast) var(--ease-out),
-      background-color var(--duration-fast) var(--ease-out),
-      opacity var(--duration-fast) var(--ease-out);
+      color var(--webase-duration-fast) var(--webase-ease-out),
+      background-color var(--webase-duration-fast) var(--webase-ease-out),
+      opacity var(--webase-duration-fast) var(--webase-ease-out);
   }
 
   .album-lightbox-prev {
@@ -603,7 +588,7 @@
     position: fixed;
     z-index: 2;
     opacity: 0;
-    transition: opacity var(--duration-fast) var(--ease-out);
+    transition: opacity var(--webase-duration-fast) var(--webase-ease-out);
   }
 
   .album-lightbox[data-state='open'] .album-lightbox-marks {
@@ -623,14 +608,14 @@
     padding: 0;
     place-items: center;
     background: transparent;
-    color: var(--ink-muted);
+    color: var(--webase-color-ink-muted);
     cursor: pointer;
-    font-family: var(--sans);
+    font-family: var(--webase-font-sans);
     font-size: 20px;
     opacity: 0;
     transition:
-      color var(--duration-fast) var(--ease-out),
-      opacity var(--duration-fast) var(--ease-out);
+      color var(--webase-duration-fast) var(--webase-ease-out),
+      opacity var(--webase-duration-fast) var(--webase-ease-out);
   }
 
   .album-lightbox[data-state='open'] .album-lightbox-close {
@@ -655,11 +640,11 @@
     gap: 18px;
     margin: 0;
     padding: 12px 0 0;
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left top;
     background-repeat: repeat-x;
     background-size: 7px 2px;
-    font-family: var(--mono);
+    font-family: var(--webase-font-mono);
     font-variant-numeric: tabular-nums;
   }
 
@@ -668,22 +653,22 @@
     opacity: 0;
     transform: translateY(8px);
     transition:
-      opacity 160ms var(--ease-out) calc(var(--detail-index) * 15ms),
-      transform 160ms var(--ease-out) calc(var(--detail-index) * 15ms);
+      opacity 160ms var(--webase-ease-out) calc(var(--detail-index) * 15ms),
+      transform 160ms var(--webase-ease-out) calc(var(--detail-index) * 15ms);
   }
 
   .album-lightbox[data-state='open'] .album-detail {
     opacity: 1;
     transform: none;
     transition:
-      opacity 180ms var(--ease-out) calc(110ms + var(--detail-index) * 30ms),
-      transform 200ms var(--ease-out) calc(110ms + var(--detail-index) * 30ms);
+      opacity 180ms var(--webase-ease-out) calc(110ms + var(--detail-index) * 30ms),
+      transform 200ms var(--webase-ease-out) calc(110ms + var(--detail-index) * 30ms);
   }
 
   .album-detail dt {
     overflow: hidden;
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 10px;
     letter-spacing: 0.09em;
     line-height: 1.2;
@@ -695,7 +680,7 @@
   .album-detail dd {
     overflow: hidden;
     margin: 5px 0 0;
-    color: var(--ink-soft);
+    color: var(--webase-color-ink-soft);
     font-size: 12px;
     line-height: 1.35;
     text-overflow: ellipsis;
@@ -709,20 +694,20 @@
     gap: 6px 12px;
     margin-top: 14px;
     padding-top: 10px;
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left top;
     background-repeat: repeat-x;
     background-size: 7px 2px;
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 10px;
-    letter-spacing: var(--track-nav);
+    letter-spacing: var(--webase-letter-spacing-nav);
     opacity: 0;
     pointer-events: auto;
     transform: translateY(8px);
     transition:
-      opacity 180ms var(--ease-out),
-      transform 200ms var(--ease-out);
+      opacity 180ms var(--webase-ease-out),
+      transform 200ms var(--webase-ease-out);
   }
 
   .album-lightbox[data-state='open'] .album-related {
@@ -732,22 +717,22 @@
   }
 
   .album-related span {
-    color: var(--brand);
+    color: var(--webase-color-brand);
     text-transform: uppercase;
   }
 
-  .album-related a {
+  :global(.album-related-link) {
     display: inline-flex;
     min-height: 44px;
     align-items: center;
-    color: var(--ink-soft);
+    color: var(--webase-color-ink-soft);
     text-decoration: underline;
-    text-decoration-color: var(--hairline-strong);
+    text-decoration-color: var(--webase-color-border-strong);
     text-underline-offset: 3px;
   }
 
-  .album-related a:hover {
-    color: var(--brand);
+  :global(.album-related-link:hover) {
+    color: var(--webase-color-brand);
   }
 
   :global(html:has(.album-lightbox[open])) {
@@ -764,12 +749,12 @@
 
   @media (hover: hover) and (pointer: fine) {
     .album-lightbox-nav:hover {
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      color: var(--ink);
+      background: color-mix(in srgb, var(--webase-color-surface) 70%, transparent);
+      color: var(--webase-color-ink);
     }
 
     .album-lightbox-close:hover {
-      color: var(--ink);
+      color: var(--webase-color-ink);
     }
 
     .album-trigger:hover,
@@ -812,15 +797,15 @@
       width: 44px;
       height: 60px;
       margin-top: -30px;
-      color: var(--ink);
-      filter: drop-shadow(0 1px 2px var(--paper));
+      color: var(--webase-color-ink);
+      filter: drop-shadow(0 1px 2px var(--webase-color-canvas));
     }
 
-    .album-lightbox-prev svg {
+    .album-lightbox-prev :global(svg) {
       transform: translateX(-7px);
     }
 
-    .album-lightbox-next svg {
+    .album-lightbox-next :global(svg) {
       transform: translateX(7px);
     }
 
@@ -873,7 +858,7 @@
 
     .album-lightbox-image::after {
       opacity: 1;
-      transition: opacity 160ms var(--ease-out);
+      transition: opacity 160ms var(--webase-ease-out);
     }
 
     .album-trigger:hover,

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseLink } from '@webaseui/svelte';
   import type { ResponsiveImage, TextSegment } from '$lib/types/content';
 
   export let body: readonly TextSegment[];
@@ -11,7 +12,7 @@
     <p class="bio">
       {#each body as segment, index (`${index}:${segment.text}`)}
         {#if segment.href}
-          <a href={segment.href} target="_blank" rel="noreferrer" class="bio-link">{segment.text}</a>
+          <WeBaseLink href={segment.href} target="_blank" rel="noreferrer" class="bio-link" label={segment.text} />
         {:else}
           <span>{segment.text}</span>
         {/if}

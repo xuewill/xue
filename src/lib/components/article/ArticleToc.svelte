@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import { WeBaseLink } from '@webaseui/svelte';
   import type { ContentHeading } from '$lib/types/content';
 
   export let headings: readonly ContentHeading[] = [];
@@ -140,22 +141,26 @@
     <ol>
       {#each items as item (item.id)}
         <li style={`--toc-level: ${Math.max(0, item.level - 2)}`}>
-          <a
+          <WeBaseLink
+            variant="nav"
             class="toc-section-link"
             href={`#${item.id}`}
             aria-current={activeId === item.id ? 'location' : undefined}
             onclick={handleTocLink}
           >
             {item.label}
-          </a>
+          </WeBaseLink>
         </li>
       {/each}
     </ol>
   </nav>
-  <a class="toc-top-link" href="#article-overview" onclick={handleTocLink}>
-    <span>Back to top</span>
-    <span aria-hidden="true">↑</span>
-  </a>
+  <WeBaseLink
+    class="toc-top-link"
+    variant="action"
+    href="#article-overview"
+    label="Back to top"
+    onclick={handleTocLink}
+  />
 </aside>
 
 <style>
@@ -177,10 +182,10 @@
 
   .article-toc-title {
     margin: 0 0 16px;
-    color: var(--ink);
-    font-family: var(--sans);
+    color: var(--webase-color-ink);
+    font-family: var(--webase-font-sans);
     font-size: 11px;
-    letter-spacing: var(--track-caps);
+    letter-spacing: var(--webase-letter-spacing-caps);
     line-height: 1.4;
     text-transform: uppercase;
   }
@@ -188,7 +193,7 @@
   ol {
     margin: 0;
     padding: 0;
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left top;
     background-repeat: repeat-y;
     background-size: 2px 7px;
@@ -200,60 +205,60 @@
     padding-left: calc(15px + var(--toc-level) * 9px);
   }
 
-  .toc-section-link {
+  :global(.toc-section-link) {
     position: relative;
     display: block;
     padding: 6px 0;
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 13px;
     letter-spacing: 0.035em;
     line-height: 1.45;
-    transition: color var(--duration-ui) var(--ease-out);
+    transition: color var(--webase-duration-ui) var(--webase-ease-out);
   }
 
-  .toc-section-link::before {
+  :global(.toc-section-link)::before {
     position: absolute;
     top: 6px;
     bottom: 6px;
     left: calc(-15px - var(--toc-level) * 9px - 1px);
     width: 2px;
     border-radius: 2px;
-    background: var(--brand);
+    background: var(--webase-color-brand);
     content: '';
     opacity: 0;
-    transition: opacity var(--duration-ui) var(--ease-out);
+    transition: opacity var(--webase-duration-ui) var(--webase-ease-out);
   }
 
-  .toc-section-link:hover,
-  .toc-section-link[aria-current='location'] {
-    color: var(--brand);
+  :global(.toc-section-link:hover),
+  :global(.toc-section-link[aria-current='location']) {
+    color: var(--webase-color-brand);
   }
 
-  .toc-section-link[aria-current='location']::before {
+  :global(.toc-section-link[aria-current='location'])::before {
     opacity: 1;
   }
 
-  .toc-top-link {
+  :global(.toc-top-link) {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 16px;
     padding: 14px 2px 4px;
-    background-image: var(--dot-rule-image);
+    background-image: var(--webase-dot-rule-image);
     background-position: left top;
     background-repeat: repeat-x;
     background-size: 7px 2px;
-    color: var(--ink-muted);
-    font-family: var(--sans);
+    color: var(--webase-color-ink-muted);
+    font-family: var(--webase-font-sans);
     font-size: 11px;
-    letter-spacing: var(--track-nav);
+    letter-spacing: var(--webase-letter-spacing-nav);
     text-transform: uppercase;
-    transition: color var(--duration-ui) var(--ease-out);
+    transition: color var(--webase-duration-ui) var(--webase-ease-out);
   }
 
-  .toc-top-link:hover {
-    color: var(--brand);
+  :global(.toc-top-link:hover) {
+    color: var(--webase-color-brand);
   }
 
   @media (min-width: 1440px) {
@@ -294,12 +299,12 @@
       height: 44px;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--hairline-strong);
+      border: 1px solid var(--webase-color-border-strong);
       border-radius: 2px;
       padding: 0;
-      background: color-mix(in srgb, var(--paper) 94%, transparent);
+      background: color-mix(in srgb, var(--webase-color-canvas) 94%, transparent);
       box-shadow: 0 6px 18px rgb(20 20 19 / 8%);
-      color: var(--brand);
+      color: var(--webase-color-brand);
       cursor: pointer;
       backdrop-filter: blur(10px);
     }
@@ -319,8 +324,8 @@
       background: currentColor;
       transform-origin: center;
       transition:
-        transform var(--duration-ui) var(--ease-out),
-        opacity var(--duration-fast) var(--ease-out);
+        transform var(--webase-duration-ui) var(--webase-ease-out),
+        opacity var(--webase-duration-fast) var(--webase-ease-out);
     }
 
     .toc-trigger-lines span:nth-child(1) {
@@ -356,7 +361,7 @@
       height: auto;
       border: 0;
       padding: 0;
-      background: color-mix(in srgb, var(--ink) 18%, transparent);
+      background: color-mix(in srgb, var(--webase-color-ink) 18%, transparent);
       cursor: default;
       backdrop-filter: blur(4px);
     }
@@ -368,18 +373,18 @@
       width: min(88vw, 360px);
       max-height: calc(100dvh - 56px);
       margin: 0;
-      border-left: 1px solid var(--hairline-strong);
+      border-left: 1px solid var(--webase-color-border-strong);
       padding: 32px 24px 28px;
       overflow-y: auto;
-      background: var(--paper);
+      background: var(--webase-color-canvas);
       box-shadow: -18px 0 42px rgb(20 20 19 / 12%);
       opacity: 0;
       pointer-events: none;
       transform: translateX(100%);
       visibility: hidden;
       transition:
-        transform 240ms var(--ease-drawer),
-        opacity 180ms var(--ease-out),
+        transform 240ms var(--webase-ease-drawer),
+        opacity 180ms var(--webase-ease-out),
         visibility 0s linear 240ms;
     }
 
@@ -398,7 +403,7 @@
 
   @media (prefers-reduced-motion: reduce) and (max-width: 720px) {
     .toc-trigger-lines span {
-      transition: opacity var(--duration-fast) var(--ease-out);
+      transition: opacity var(--webase-duration-fast) var(--webase-ease-out);
     }
 
     .toc-trigger-lines span:nth-child(1),
@@ -412,8 +417,8 @@
     .article-toc {
       transform: none;
       transition:
-        opacity var(--duration-fast) var(--ease-out),
-        visibility 0s linear var(--duration-fast);
+        opacity var(--webase-duration-fast) var(--webase-ease-out),
+        visibility 0s linear var(--webase-duration-fast);
     }
 
     .article-toc.is-open {

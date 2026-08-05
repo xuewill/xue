@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WeBaseLink } from '@webaseui/svelte';
   import ArticleToc from '$lib/components/article/ArticleToc.svelte';
   import ContentRelations from '$lib/components/article/ContentRelations.svelte';
   import Seo from '$lib/components/layout/Seo.svelte';
@@ -33,7 +34,7 @@
 />
 
 <main class="page article-page project-page">
-  <a class="back-link" href="/#projects">← all projects</a>
+  <WeBaseLink class="back-link" variant="back" href="/#projects" label="all projects" />
   <div class="article-layout">
     {#key data.project.slug}
       <ArticleToc headings={data.project.toc} />
