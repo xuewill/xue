@@ -37,7 +37,7 @@
     "@lucide/svelte": "^1.28.0",
     "@playwright/test": "^1.62.0",
     "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.70.1",
+    "@sveltejs/kit": "^2.70.3",
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@types/node": "^22.20.1",
     "@velite/plugin-vite": "0.0.3",
@@ -63,6 +63,7 @@
   "overrides": {
     "@types/unist": "3.0.3",
     "brace-expansion": "5.0.9",
+    "nanoid": "3.3.18",
     "postcss": "8.5.25",
     "undici": "7.29.0",
     "@sveltejs/kit": {
