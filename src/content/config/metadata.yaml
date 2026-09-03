@@ -1,4 +1,8 @@
 locations:
+  - slug: hangzhou
+    label: Hangzhou
+  - slug: changsha
+    label: Changsha
   - slug: taipei
     label: Taipei
   - slug: tokyo
@@ -16,12 +20,12 @@ roles:
     label: Designer
   - slug: artist
     label: Artist
+  - slug: developer
+    label: Developer
 media:
-  - slug: architecture
-    label: Architecture
-  - slug: three-dimensional-modeling
-    label: 3D modeling
   - slug: fashion-design
     label: Fashion design
   - slug: mixed-media
     label: Mixed media
+  - slug: software-development
+    label: Software development

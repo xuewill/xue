@@ -10,7 +10,7 @@ const pages = [
   { path: '/blog/tags', heading: 'Blog topics' },
   { path: '/blog/tags/design', heading: 'Design' },
   { path: '/design-system', heading: /Design System/i },
-  { path: '/home/canopycoffee', heading: 'CanopyCoffee' }
+  { path: '/home/wemail', heading: 'WeMail' }
 ] as const;
 
 for (const route of pages) {
@@ -42,6 +42,21 @@ test('the archive filter remains keyboard-operable', async ({ page }) => {
   await expect(writing).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.archive-post')).not.toHaveCount(0);
   await expect(page.locator('.archive-album')).toHaveCount(0);
+});
+
+test('WeMail publishes its repository link and both requested visual assets', async ({ page }) => {
+  await page.goto('/home/wemail');
+
+  await expect(page.getByRole('link', { name: 'View WeMail on GitHub' })).toHaveAttribute(
+    'href',
+    'https://github.com/WeOpen/WeMail'
+  );
+  await expect(page.locator('article img')).toHaveCount(2);
+  await expect(page.locator('article img').first()).toHaveAttribute('src', /\/generated\/media\/content\/cover\./);
+  await expect(page.locator('article img').last()).toHaveAttribute(
+    'src',
+    /\/generated\/media\/content\/wemail-minimal-zine-poster\./
+  );
 });
 
 test('unknown routes keep the shared error-page contract', async ({ page }) => {

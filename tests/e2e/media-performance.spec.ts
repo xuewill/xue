@@ -88,7 +88,7 @@ test.describe('media performance budgets', () => {
 
   test('home stays within 2.5 MiB after the Hero autoplay sequence', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('Stanford', {
+    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('West Lake, Hangzhou', {
       timeout: 8_000
     });
     await page.waitForLoadState('networkidle');
@@ -138,7 +138,7 @@ test.describe('media performance budgets', () => {
     await enableLabProfile(page);
     await installLabObservers(page);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('Stanford', {
+    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('West Lake, Hangzhou', {
       timeout: 8_000
     });
     await page.getByRole('button', { name: 'Next page' }).last().click();

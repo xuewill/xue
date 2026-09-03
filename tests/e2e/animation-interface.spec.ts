@@ -62,7 +62,7 @@ test('pointer sketchbook navigation keeps the production page-turn animation', a
   await page.goto('/');
 
   const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
-  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
+  await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
 
   await page.locator('.sb-zone.sb-next').click();
 
@@ -71,6 +71,47 @@ test('pointer sketchbook navigation keeps the production page-turn animation', a
   await expect(flap).toHaveCSS('animation-name', 'sb-fold-next');
   await expect(flap).toHaveCSS('animation-duration', '0.85s');
   await expect(flap).toHaveCount(0, { timeout: 2_000 });
+});
+
+test('sketchbook keeps one fixed shell outside the animated artwork layers', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+
+  const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
+  await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
+  await expect(page.locator('.sb-shell')).toHaveCount(1);
+
+  const shellState = () =>
+    page.evaluate(() => {
+      const shell = document.querySelector<HTMLImageElement>('.sb-shell img');
+      if (!shell) return null;
+      const rect = shell.getBoundingClientRect();
+      const style = getComputedStyle(shell);
+      return {
+        src: shell.currentSrc,
+        documentX: rect.left + scrollX,
+        documentY: rect.top + scrollY,
+        width: rect.width,
+        height: rect.height,
+        transform: style.transform,
+        animationName: style.animationName,
+        insideFlap: Boolean(shell.closest('.sb-flap'))
+      };
+    });
+
+  const before = await shellState();
+  await page.locator('.sb-zone.sb-prev').click();
+  await expect(page.locator('.sb-flap.prev')).toHaveCount(1);
+  await page.waitForTimeout(250);
+  const during = await shellState();
+  await expect(page.locator('.sb-flap')).toHaveCount(0, { timeout: 2_000 });
+  const after = await shellState();
+
+  expect(before).not.toBeNull();
+  expect(during).toEqual(before);
+  expect(after).toEqual(before);
+  expect(after).toMatchObject({ transform: 'none', animationName: 'none', insideFlap: false });
+  await expect(caption).toHaveText('Orange Isle, Changsha');
 });
 
 test('email links avoid Cloudflare markup rewriting while preserving the address', async ({
@@ -108,11 +149,11 @@ test('desktop sketchbook intro replays on each page load', async ({ page }) => {
   await page.goto('/');
 
   const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
-  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
+  await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
 
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(caption).not.toHaveText('Stanford', { timeout: 1_000 });
-  await expect(caption).toHaveText('Stanford', { timeout: 6_000 });
+  await expect(caption).not.toHaveText('West Lake, Hangzhou', { timeout: 1_000 });
+  await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
 });
 
 test('client navigation does not replay the initial page entrance', async ({ page }) => {
@@ -121,6 +162,15 @@ test('client navigation does not replay the initial page entrance', async ({ pag
 
   await page.locator('.top nav > a[href="/blog"]').click();
   await expect(page.locator('main.page')).toHaveCSS('animation-name', 'none');
+});
+
+test('navigation typography uses the intended desktop and mobile sizes', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  await expect(page.locator('.top nav')).toHaveCSS('font-size', '14px');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.top nav')).toHaveCSS('font-size', '12px');
 });
 
 test.describe('mobile touch interface', () => {
@@ -167,7 +217,27 @@ test.describe('mobile touch interface', () => {
     const sketchbook = page.locator('.sb-wrap');
     await expect(page.locator('.sb-wrap.intro .sb-flap')).toHaveCount(1, { timeout: 4_000 });
     await expect(sketchbook).not.toHaveClass(/intro/, { timeout: 4_000 });
-    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('Stanford');
+    await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('West Lake, Hangzhou');
+  });
+
+  test('mobile page turns keep the fixed shell outside the animated layer', async ({ page }) => {
+    await page.goto('/');
+    const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
+    await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
+
+    const shell = page.locator('.sb-shell img');
+    const source = await shell.getAttribute('src');
+    const before = await shell.boundingBox();
+    await page.locator('.sb-zone.sb-prev').click();
+    await expect(page.locator('.sb-flap.prev')).toHaveCount(1);
+    await page.waitForTimeout(250);
+
+    await expect(shell).toHaveAttribute('src', source ?? '');
+    await expect(page.locator('.sb-flap .sb-shell')).toHaveCount(0);
+    await expect(shell).toHaveCSS('animation-name', 'none');
+    await expect(shell).toHaveCSS('transform', 'none');
+    expect(await shell.boundingBox()).toEqual(before);
+    await expect(caption).toHaveText('Orange Isle, Changsha');
   });
 
   test('primary controls meet the 44px touch target baseline', async ({ page }) => {
@@ -194,6 +264,9 @@ test.describe('mobile touch interface', () => {
       'href',
       '/design-system'
     );
+    await expect(
+      page.getByRole('link', { name: 'Design system', exact: true }).locator('img')
+    ).toHaveAttribute('src', '/icons/design-system-seal.svg');
     await expect(page.locator('.footer-socials > .social-item > .social-link')).toHaveCount(5);
     const footerLabels = await page
       .locator('.footer-socials > .social-item > .social-link')

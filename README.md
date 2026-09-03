@@ -147,19 +147,20 @@ Album dates use explicit `date` and `dateKind` fields. Blog locations, Project l
 
 Configuration objects reject unknown fields. Hero and Album IDs must be unique, Hero width and height must match the source file, and Project `order` values must be unique even for drafts. Tags must use a configured lowercase kebab-case slug. Post, Project, Album, and series references are checked for missing, duplicate, draft-only, self-referential, or conflicting targets before production filtering. Validation errors identify the affected field and explain the expected correction.
 
-Hero images live in `static/home/sketchbook/`. Add, remove, or reorder entries under `hero.images` in `home.yaml` to control what is displayed:
+Hero images live in `static/home/sketchbook/`. The fixed background shell is configured once under `hero.shell`; add or remove transparent artwork layers under `hero.images`. Presentation order is ascending by `date` with `id` as the tie-breaker:
 
 ```yaml
 - id: image-id
   src: /home/sketchbook/image.png
   alt: Accessible description
   caption: Image caption
+  date: '2026-09-18'
   width: 1280
   height: 720
   enabled: true
 ```
 
-Keep `width` and `height` aligned with the source image dimensions to avoid layout shifts. Set `enabled: false` to keep an image configured without showing it.
+Keep `width` and `height` aligned with the source dimensions to avoid layout shifts. Page sources must be shell-free RGBA layers with all pixels inside the fixed page-safe area; run `.agents/skills/sketchbook/scripts/normalize-artwork-layer.mjs` before registration. The browser renders `/home/sketchbook/book-shell.png` once beneath the page-turn layers. Set `enabled: false` to keep an image configured without showing it.
 
 The Playwright media budgets cover the full Hero autoplay transfer (`<= 2.5 MiB`) and Album first load (`<= 2 MiB`). On the current desktop fixture, measured transfers are approximately 1.36 MiB for Home after autoplay and 0.67 MiB for Album before opening the lightbox.
 

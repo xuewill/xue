@@ -4,7 +4,7 @@ tags:
     description: Notes on building reliable, maintainable software and web systems.
   - slug: design
     label: Design
-    description: Work and observations across interaction, architecture, and visual design.
+    description: Work and observations across interaction, software, and visual design.
   - slug: art
     label: Art
     description: Mixed-media studies, drawing processes, and visual experiments.

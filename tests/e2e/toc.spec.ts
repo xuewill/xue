@@ -18,7 +18,7 @@ test('prerendered articles expose heading anchors and a complete TOC without Jav
 
 test('desktop article TOC remains visible outside the centered article column', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/blog/designing-canopy-coffee');
+  await page.goto('/blog/typed-content-media-pipeline');
   await page.locator('.article-page').evaluate(async (articlePage) => {
     await Promise.all(articlePage.getAnimations().map((animation) => animation.finished));
   });

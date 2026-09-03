@@ -6,7 +6,7 @@ updated: '2026-07-29'
 draft: false
 tags:
   - publishing
-cover: /home/sketchbook/tokyo-tower.png
+cover: /home/sketchbook/west-lake-watercolor.png
 series:
   slug: site-notes
   title: Site Notes

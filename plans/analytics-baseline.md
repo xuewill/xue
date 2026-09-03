@@ -98,7 +98,7 @@ Cloudflare Web Analytics 当前不支持自定义事件或查询字符串分析�
 | CLS | 100% good | 已出现现场样本，尚不记录为稳定 p75 结论 |
 | INP | 无数据 | 需要更多真实交互样本 |
 
-当前路径分布为 `/blog/designing-canopy-coffee` 4 次、`/` 2 次、`/blog` 1 次；来源全部显示为直接访问。浏览器分布包含 Chrome 5 次和 ChromeHeadless 2 次，国家或地区分布为日本 6 次、美国 1 次，全部为桌面设备。ChromeHeadless 和部分直接访问可能来自部署后巡检、自动化验证或维护者自测，因此不能视为自然访问趋势。
+当前路径分布为一篇现已下线的 Project note 4 次、`/` 2 次、`/blog` 1 次；来源全部显示为直接访问。浏览器分布包含 Chrome 5 次和 ChromeHeadless 2 次，国家或地区分布为日本 6 次、美国 1 次，全部为桌面设备。ChromeHeadless 和部分直接访问可能来自部署后巡检、自动化验证或维护者自测，因此不能视为自然访问趋势。
 
 这个检查点只用于确认 beacon、CSP、Cloudflare 注入和 Dashboard 聚合链路正常，不用于产品排期。观察窗口结束前保持以下结论：
 

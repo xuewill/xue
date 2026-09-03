@@ -7,7 +7,7 @@ draft: false
 tags:
   - engineering
   - publishing
-cover: /home/sketchbook/stanford.png
+cover: /home/sketchbook/west-lake-watercolor.png
 series:
   slug: site-notes
   title: Site Notes

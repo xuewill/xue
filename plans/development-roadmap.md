@@ -271,7 +271,7 @@ CLI 负责本地、可恢复的内容状态变更；Cloudflare PR 预览仍由 C
 - Archive 客户端数据不包含所有文章或 Project 正文 HTML。
 - 390×844、768×1024、1440×1000 无横向溢出。
 
-完成记录（2026-08-01）：Archive 使用 server-only compact entries 汇总 8 篇文章、3 个 Project 和 10 个 Album works；`npm run verify` 通过，Playwright 35/36，唯一失败是用户保留的 `ContentRelations.svelte` 相册轨道 axe `target-size` 已知问题。后续 5.6 Project 过程案例也已完成。
+完成记录（2026-08-01）：Archive 使用 server-only compact entries 汇总文章、Project 和 Album works；`npm run verify` 通过，Playwright 35/36，唯一失败是用户保留的 `ContentRelations.svelte` 相册轨道 axe `target-size` 已知问题。后续 5.6 Project 过程案例也已完成。
 
 ### 5.6 将 Project 扩展为过程案例
 
@@ -282,14 +282,14 @@ CLI 负责本地、可恢复的内容状态变更；Cloudflare PR 预览仍由 C
 - [x] 补充 Key decisions 和 Process。
 - [x] 补充 Outcome；不虚构商业指标、客户反馈或未记录结果。
 - [x] 使用现有 related posts 与 Album works 连接过程说明和视觉作品。
-- [x] 保留建筑、runway 和持续艺术集合的真实差异；章节是内容指导而非强制 schema。
+- [x] 保留软件产品、runway 和持续艺术集合的真实差异；章节是内容指导而非强制 schema。
 
 完成标准：
 
 - Project 不再只是图片和一句说明。
 - 至少 2 个 Project 可以作为独立、完整的设计案例阅读。
 
-完成记录（2026-08-01）：CanopyCoffee、Fashion Design 和 Art 均已扩展为可独立阅读的过程案例；下一步进入延期项目复审，需等待完整 14 天 Analytics 数据与内容规模变化。
+完成记录（2026-08-30）：WeMail、Fashion Design 和 Art 均已扩展为可独立阅读的过程案例；下一步进入延期项目复审，需等待完整 14 天 Analytics 数据与内容规模变化。
 
 ## 六、延期
 
@@ -305,7 +305,7 @@ CLI 负责本地、可恢复的内容状态变更；Cloudflare PR 预览仍由 C
 - **地图视图**：Archive 已有足够地点数据后再开发，避免先做空地图。
 - **Newsletter 后台**：建立稳定更新频率后，再评估 Buttondown、Loops 等托管方案。
 
-延期项目首轮复审（2026-08-01）：全部继续延期。当前只有 8 篇已发布文章，未达到静态搜索的 15 至 20 篇内容门槛；前三天 Web Analytics 只有 7 次访问且包含 2 次 ChromeHeadless，没有搜索需求、内容漏斗、错误率或 Newsletter 转化证据；当前地点词表有 6 个地点，但 Archive 数据密度尚不足以让地图优于现有时间线。`featured`、`language` 和 Newsletter 的内容运营门槛也未出现。下一次复审时间为 2026-08-13 之后，或已发布文章、地点内容、更新频率提前达到对应门槛时。
+延期项目首轮复审（2026-08-01）：全部继续延期。当前只有 7 篇已发布文章，未达到静态搜索的 15 至 20 篇内容门槛；前三天 Web Analytics 只有 7 次访问且包含 2 次 ChromeHeadless，没有搜索需求、内容漏斗、错误率或 Newsletter 转化证据；当前地点词表有 6 个地点，但 Archive 数据密度尚不足以让地图优于现有时间线。`featured`、`language` 和 Newsletter 的内容运营门槛也未出现。下一次复审时间为 2026-08-13 之后，或已发布文章、地点内容、更新频率提前达到对应门槛时。
 
 ### 6.2 明确暂不开发
 

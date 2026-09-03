@@ -73,6 +73,8 @@ test('sitemap and RSS include discovery routes, last-modified dates, and categor
   expect(sitemap.ok()).toBe(true);
   expect(sitemapXml).toContain('<loc>https://willxue.com/blog/tags/art</loc>');
   expect(sitemapXml).toContain('<loc>https://willxue.com/archive</loc>');
+  expect(sitemapXml).toContain('<loc>https://willxue.com/home/wemail</loc>');
+  expect(sitemapXml).not.toContain('/home/canopycoffee');
   expect(sitemapXml).toContain('<lastmod>2026-07-29</lastmod>');
 
   const rss = await request.get('/rss.xml');

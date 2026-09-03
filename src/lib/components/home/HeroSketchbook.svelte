@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { HeroImage } from '$lib/types/content';
+  import type { HeroImage, SketchbookShell } from '$lib/types/content';
 
   type Direction = 'next' | 'prev';
   const heroImageSizes = '(max-width: 640px) 86vw, (max-width: 975px) 80vw, 780px';
@@ -16,6 +16,7 @@
 
   export let kicker: string;
   export let title: string;
+  export let shell: SketchbookShell;
   export let images: readonly HeroImage[];
 
   $: enabledImages = images.filter((image) => image.enabled);
@@ -288,7 +289,21 @@
           </svg>
         </button>
 
-        <div class="sb-book" style={`aspect-ratio: ${enabledImages[0].width} / ${enabledImages[0].height}`}>
+        <div class="sb-book" style={`aspect-ratio: ${shell.width} / ${shell.height}`}>
+          <div class="sb-shell" aria-hidden="true">
+            <img
+              src={shell.responsive.src}
+              srcset={shell.responsive.srcset}
+              sizes={heroImageSizes}
+              alt=""
+              width={shell.width}
+              height={shell.height}
+              draggable="false"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </div>
+
           {#if coarsePointer}
             <div class="sb-full sb-stack">
               <img

@@ -296,11 +296,11 @@
         <span class="social-link-icon design-system-link-icon" aria-hidden="true">
           <span
             class="icon-mask social-link-icon-mono"
-            style="--icon: url('/icons/design-system.svg')"
+            style="--icon: url('/icons/design-system-seal.svg')"
           ></span>
           <img
             class="social-link-icon-color"
-            src="/icons/design-system.svg"
+            src="/icons/design-system-seal.svg"
             alt=""
             width="20"
             height="20"

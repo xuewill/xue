@@ -1,0 +1,83 @@
+{
+  "skill_name": "sketchbook",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "用 $sketchbook 做一张杭州西湖的水彩 sketchbook。",
+      "expected_output": "Stops before tools or file edits and asks for the missing date while preserving the supplied place and medium.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "用 $sketchbook 做一张 2026-09-18 的中国水墨 sketchbook。",
+      "expected_output": "Stops before tools or file edits and asks for the missing place or landmark.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "用 $sketchbook 生成 2026-09-18 杭州西湖的水彩首页图，没有参考照片。",
+      "expected_output": "Uses the fixed shell only as an alignment guide plus the shell-free watercolor reference, stores date 2026-09-18 while rendering visible 26 09 18 as a separate handwriting layer, declares 西湖 as 上=西/下=湖, generates the Chongxi-guided location seal, normalizes the transparent artwork with normalize-artwork-layer.mjs, composites all marks without shell pixels, registers the full date, and relies on Velite ascending chronology.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "用这张照片做 2026-10-03 巴黎凯旋门的油画 sketchbook，并自动加到首页。",
+      "expected_output": "Treats the photo as an edit target, records landmark invariants, passes the photo, alignment-only shell, and shell-free oil reference to the artwork call, generates the date separately from the handwriting sheet, preserves the right-starting 凯旋门 seal map, normalizes the shell-free layer before deterministic mark composition, and registers ISO date 2026-10-03.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "用 $sketchbook 做 2026-11-08 桂林山水的中国水墨版本。",
+      "expected_output": "Uses the no-photo Chinese-ink route with only bundled references, declares the four-character 回文 map 右上=桂, 左上=林, 左下=山, 右下=水 and reading order 右上→左上→左下→右下, renders a borderless Chongxi control image, samples a random outer shape, generates and validates the textured location seal, avoids paper and extra calligraphy, then composites the exact upper seal, approved date layer, and location raster into the shell-free RGBA artwork.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "用 $sketchbook 做 2026-12-01 纽约中央公园的水彩页，并加一行手写注记 CENTRAL PARK — 40.78° N。",
+      "expected_output": "Uses label 中央公园 with the four-character 回文 map, samples and generates the Chongxi-guided location seal, generates exact date and annotation layers from the bundled handwriting sheet, keeps the scene artwork free of shell, paper, and text, then composites the exact canonical seal and approved transparent generated marks before inspection.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "使用 $sketchbook 生成 2022-01-11 长沙橘子洲头的水彩 sketchbook。",
+      "expected_output": "Selects label 橘子洲头 and glyphs 橘子洲頭 with the true 回文 map, generates the location seal and shell-free watercolor artwork against the alignment-only shell, generates the visible date separately, normalizes the artwork safe area, composites exact assets/seal.png plus approved date/location rasters, and registers ISO date 2022-01-11 for ascending order.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "使用 $sketchbook 生成 2027-04-06 长沙岳麓山的油画 sketchbook。",
+      "expected_output": "Uses the five-character label 长沙岳麓山, renders a borderless Chongxi glyph reference in a supported 2+3 or 3+2 composition, samples a random shape from the five-character-compatible set, generates and validates the final location seal with imagegen without changing the right-first order, and composites exact assets/seal.png plus that approved location seal into the base spread.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "用 $sketchbook 生成 2027-05-12 青岛栈桥的蓝橙双色孔版印刷版本。",
+      "expected_output": "Routes to mono-riso, uses the fixed shell only for alignment plus the shell-free mono-riso reference, assigns distinct dominant/accent plate roles with no more than two artwork inks, preserves one focal event and one transparent release zone, normalizes the art layer before marks, and registers ISO date 2027-05-12.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "用 $sketchbook 做 2027-06-01 香港太平山的精细点阵日记。",
+      "expected_output": "Routes to pixel-diary, uses fine dot-density shading rather than game pixels, keeps the landmark recognizable with transparent quiet space and restrained micro marks, excludes all shell/paper geometry from the page asset, preserves the mark system, and registers the ISO date.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "用 $sketchbook 生成 2027-07-08 厦门鼓浪屿的极简杂志留白版本。",
+      "expected_output": "Routes to minimal-zine, reduces the place to one concrete visual relation and one compact focal cluster with 55%-75% transparent quiet space, uses one structural high-chroma accent, and keeps the fixed shell outside the generated asset while retaining the date/seal system.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "用 $sketchbook 做 2027-08-09 青海湖的场景提纯版本。",
+      "expected_output": "After the date/place gate passes, stops and asks only for the missing source photo because distilled-scene is photo-required.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "用这张照片做 2027-09-10 阿里山的 Gathered Memory sketchbook。",
+      "expected_output": "Routes to gathered-memory, records photo and spatial invariants, preserves one truthful anchor, compresses foliage into broad masses, builds three to five unequal source-derived fragments and one structural accent, then normalizes and chronologically registers the shell-free artwork layer for the fixed homepage book.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "shell": {
+    "source": "assets/canonical-book-shell.png",
+    "runtime": "static/home/sketchbook/book-shell.png",
+    "bounds": {
+      "width": 1034,
+      "height": 644,
+      "left": 124,
+      "top": 40
+    }
+  },
+  "artwork": {
+    "safeArea": {
+      "left": 144,
+      "top": 44,
+      "right": 1136,
+      "bottom": 664
+    }
+  },
+  "marks": {
+    "canonical": {
+      "x": 1008,
+      "y": 45,
+      "size": 90
+    },
+    "date": {
+      "y": 143,
+      "maxWidth": 110,
+      "maxHeight": 26
+    },
+    "location": {
+      "x": 160,
+      "y": 510,
+      "size": 118
+    }
+  }
+}

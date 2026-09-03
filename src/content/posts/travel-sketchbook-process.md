@@ -7,13 +7,9 @@ tags:
   - field-notes
   - art
 locations:
-  - osaka
-  - tokyo
-  - kyoto
-  - kamakura
-  - taipei
-  - stanford
-cover: /home/sketchbook/osaka-castle.png
+  - hangzhou
+  - changsha
+cover: /home/sketchbook/changsha-orange-isle-watercolor.png
 relatedProjects:
   - art
 relatedAlbum:
@@ -21,7 +17,7 @@ relatedAlbum:
   - lane-737
 ---
 
-The homepage sketchbook moves through drawings of Osaka, Tokyo, Kyoto, Kamakura, Taipei, and Stanford. Together they form a small index of places rather than a conventional image carousel.
+The homepage sketchbook moves between West Lake in Hangzhou and Orange Isle in Changsha. Together they form a compact pair of place studies rather than a conventional image carousel.
 
 ## Start with landmarks, keep the details
 

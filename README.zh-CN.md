@@ -147,19 +147,20 @@ Album 日期使用显式的 `date` 和 `dateKind`。Blog 地点、Project 地点
 
 配置对象会拒绝未知字段。Hero 和 Album ID 必须唯一，Hero 宽高必须与源文件一致，所有 Project（包括草稿）的 `order` 也必须唯一。标签必须使用配置内的 lowercase kebab-case slug；Post、Project、Album 和 series 引用会在过滤草稿前检查缺失、重复、自引用、草稿目标和顺序冲突。校验错误会指出对应字段和修正方式。
 
-Hero 图片位于 `static/home/sketchbook/`。在 `home.yaml` 的 `hero.images` 下增删条目或调整顺序即可控制前台内容：
+Hero 图片位于 `static/home/sketchbook/`。固定背景书壳只在 `hero.shell` 配置一次；在 `hero.images` 下增删透明画面层。前台会按 `date` 升序排列，同一天再按 `id` 排序：
 
 ```yaml
 - id: image-id
   src: /home/sketchbook/image.png
   alt: Accessible description
   caption: Image caption
+  date: '2026-09-18'
   width: 1280
   height: 720
   enabled: true
 ```
 
-请让 `width` 和 `height` 与源图片尺寸一致，避免页面布局偏移。如果暂时不希望展示某张图片，可保留配置并设置 `enabled: false`。
+请让 `width` 和 `height` 与源图尺寸一致，避免页面布局偏移。页面源图必须是无书壳的 RGBA 透明层，所有像素都位于固定页面安全区内；注册前运行 `.agents/skills/sketchbook/scripts/normalize-artwork-layer.mjs`。浏览器只在所有翻页画面下渲染一次 `/home/sketchbook/book-shell.png`。如果暂时不希望展示某张图片，可保留配置并设置 `enabled: false`。
 
 Playwright 会持续检查完整 Hero 自动播放传输量不超过 2.5 MiB、Album 首屏不超过 2 MiB。当前桌面测试数据约为：首页自动播放完成后 1.36 MiB，Album 打开灯箱前 0.67 MiB。
 

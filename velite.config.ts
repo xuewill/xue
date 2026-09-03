@@ -7,6 +7,7 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSlug from 'rehype-slug';
 import sharp from 'sharp';
 import { defineCollection, defineConfig, s } from 'velite';
+import sketchbookLayout from './.agents/skills/sketchbook/assets/layout.json';
 
 const root = process.cwd();
 const staticRoot = path.join(root, 'static');
@@ -14,6 +15,9 @@ const generatedMediaRoot = path.join(staticRoot, 'generated', 'media');
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const unknownMetadata = '—';
 const mediaPipelineVersion = 1;
+const canonicalHeroShellBounds = sketchbookLayout.shell.bounds;
+const canonicalHeroArtworkBounds = sketchbookLayout.artwork.safeArea;
+const canonicalHeroShell = path.join(root, '.agents', 'skills', 'sketchbook', sketchbookLayout.shell.source);
 type SharpMetadata = Awaited<ReturnType<ReturnType<typeof sharp>['metadata']>>;
 
 export interface ResponsiveImage {
@@ -374,13 +378,74 @@ function rehypeResponsiveImages() {
   };
 }
 
-export async function validateHeroImageDimensions(image: HeroImageInput): Promise<void> {
+async function inspectTransparentHeroImage(image: HeroImageInput, role: 'artwork layer' | 'shell') {
   const actual = await readStaticImageDimensions(image.src);
-  if (image.width === actual.width && image.height === actual.height) return;
+  if (image.width !== actual.width || image.height !== actual.height) {
+    throw new Error(
+      `${image.src}: declares ${image.width}x${image.height}, but the source is ${actual.width}x${actual.height}; update width and height`
+    );
+  }
 
-  throw new Error(
-    `${image.src}: declares ${image.width}x${image.height}, but the source is ${actual.width}x${actual.height}; update width and height`
-  );
+  const target = resolveStaticAssetTarget(image.src);
+  if (!target) throw new Error(`${image.src}: image file does not exist under static/`);
+  const metadata = await sharp(target).metadata();
+  if (!metadata.hasAlpha) {
+    throw new Error(`${image.src}: Sketchbook ${role} must have an alpha channel`);
+  }
+  const alpha = await sharp(target).extractChannel('alpha').stats();
+  if ((alpha.channels[0]?.max ?? 0) === 0) {
+    throw new Error(`${image.src}: Sketchbook ${role} cannot be fully transparent`);
+  }
+
+  const { info } = await sharp(target)
+    .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer({ resolveWithObject: true });
+  const bounds = {
+    width: info.width,
+    height: info.height,
+    left: Math.abs(info.trimOffsetLeft ?? 0),
+    top: Math.abs(info.trimOffsetTop ?? 0)
+  };
+  return { target, bounds };
+}
+
+export async function validateHeroImageDimensions(image: HeroImageInput): Promise<void> {
+  const { bounds } = await inspectTransparentHeroImage(image, 'artwork layer');
+
+  const right = bounds.left + bounds.width;
+  const bottom = bounds.top + bounds.height;
+  if (
+    bounds.left < canonicalHeroArtworkBounds.left ||
+    bounds.top < canonicalHeroArtworkBounds.top ||
+    right > canonicalHeroArtworkBounds.right ||
+    bottom > canonicalHeroArtworkBounds.bottom
+  ) {
+    throw new Error(
+      `${image.src}: Sketchbook artwork bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; keep all pixels inside x=${canonicalHeroArtworkBounds.left}..${canonicalHeroArtworkBounds.right}, y=${canonicalHeroArtworkBounds.top}..${canonicalHeroArtworkBounds.bottom} and exclude the fixed book shell; run normalize-artwork-layer.mjs`
+    );
+  }
+}
+
+export async function validateHeroShellDimensions(image: HeroImageInput): Promise<void> {
+  const { target, bounds } = await inspectTransparentHeroImage(image, 'shell');
+  if (
+    bounds.width !== canonicalHeroShellBounds.width ||
+    bounds.height !== canonicalHeroShellBounds.height ||
+    bounds.left !== canonicalHeroShellBounds.left ||
+    bounds.top !== canonicalHeroShellBounds.top
+  ) {
+    throw new Error(
+      `${image.src}: Sketchbook shell bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; expected ${canonicalHeroShellBounds.width}x${canonicalHeroShellBounds.height}+${canonicalHeroShellBounds.left}+${canonicalHeroShellBounds.top}`
+    );
+  }
+
+  const [runtimeShell, skillShell] = await Promise.all([readFile(target), readFile(canonicalHeroShell)]);
+  if (!runtimeShell.equals(skillShell)) {
+    throw new Error(
+      `${image.src}: runtime Sketchbook shell differs from .agents/skills/sketchbook/${sketchbookLayout.shell.source}; copy the canonical shell before building`
+    );
+  }
 }
 
 export function validateUniqueProjectOrders(
@@ -987,6 +1052,30 @@ const home = defineCollection({
       .object({
         kicker: s.string().min(1),
         title: s.string().min(1),
+        shell: s
+          .object({
+            src: staticAsset(),
+            width: s.number().int().positive(),
+            height: s.number().int().positive()
+          })
+          .strict()
+          .transform(async (shell, { addIssue }) => {
+            try {
+              await validateHeroShellDimensions(shell);
+              return {
+                ...shell,
+                responsive: await generateResponsiveImage(shell.src, responsiveImageSpecs.hero)
+              };
+            } catch (error) {
+              addIssue({
+                fatal: true,
+                code: 'custom',
+                path: ['src'],
+                message: errorMessage(error)
+              });
+              return { ...shell, responsive: fallbackResponsiveImage(shell.src) };
+            }
+          }),
         images: s
           .array(
             s
@@ -995,6 +1084,7 @@ const home = defineCollection({
                 src: staticAsset(),
                 alt: s.string().min(1),
                 caption: s.string().min(1),
+                date: calendarDate(),
                 width: s.number().int().positive(),
                 height: s.number().int().positive(),
                 enabled: s.boolean()
@@ -1030,6 +1120,11 @@ const home = defineCollection({
               });
             });
           })
+          .transform((images) =>
+            [...images].sort(
+              (left, right) => left.date.localeCompare(right.date) || left.id.localeCompare(right.id)
+            )
+          )
       })
       .strict(),
     about: s
