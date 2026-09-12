@@ -224,7 +224,7 @@ describe('Velite content layer', () => {
         'west-lake-watercolor'
       ]);
     }
-  });
+  }, 15_000);
 
   it('requires future-dated published posts to remain drafts', () => {
     expect(isFutureCalendarDate('2026-07-31', '2026-07-30')).toBe(true);

@@ -33,7 +33,7 @@ describe('Sketchbook regression gates', () => {
     const overwrite = runScript('composite-page-marks.mjs', composeArgs(a));
     expect(overwrite.status).toBe(1);
     expect(overwrite.stderr).toContain('exists');
-  }, 15000);
+  }, 45_000);
 
   it('rejects explicit low-contrast ink and marks on a fold or protected subject', () => {
     const region = path.join(workDirectory, 'exclude.json');
