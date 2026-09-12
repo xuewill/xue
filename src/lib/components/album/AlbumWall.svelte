@@ -15,6 +15,7 @@
   let returnTransform = 'none';
   let trigger: HTMLButtonElement | null = null;
   let dialog: HTMLDialogElement;
+  let details: HTMLDivElement;
   let closeButton: HTMLButtonElement;
   let closeTimer: number | undefined;
 
@@ -38,20 +39,28 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
-  function targetRect(photo: AlbumPhotoView): TargetRect {
+  function estimatedDetailsTop(photo: AlbumPhotoView) {
     const compact = window.innerWidth <= 720;
-    const viewportPadding = compact ? 18 : 32;
     const hasRelations = photo.relatedPosts.length > 0 || photo.relatedProjects.length > 0;
     const detailSpace = compact ? (hasRelations ? 224 : 172) : hasRelations ? 142 : 104;
+
+    return window.innerHeight - detailSpace;
+  }
+
+  function targetRect(photo: AlbumPhotoView, detailsTop = estimatedDetailsTop(photo)): TargetRect {
+    const compact = window.innerWidth <= 720;
+    const viewportPadding = compact ? 18 : 32;
+    const detailsGap = compact ? 18 : 24;
+    const contentBottom = Math.max(viewportPadding + 1, detailsTop - detailsGap);
     const maxWidth = Math.max(1, window.innerWidth - viewportPadding * 2);
-    const maxHeight = Math.max(1, window.innerHeight - viewportPadding * 2 - detailSpace);
+    const maxHeight = Math.max(1, contentBottom - viewportPadding);
     const scale = Math.min(maxWidth / photo.width, maxHeight / photo.height, 1);
     const width = Math.round(photo.width * scale);
     const height = Math.round(photo.height * scale);
 
     return {
       left: Math.round((window.innerWidth - width) / 2),
-      top: Math.round((window.innerHeight - detailSpace - height) / 2),
+      top: Math.round(viewportPadding + (maxHeight - height) / 2),
       width,
       height
     };
@@ -78,6 +87,8 @@
 
     await tick();
     dialog.showModal();
+    target = targetRect(photo, details.getBoundingClientRect().top);
+    returnTransform = transformFrom(image.getBoundingClientRect(), target);
     closeButton?.focus({ preventScroll: true });
 
     if (state === 'opening') {
@@ -93,7 +104,7 @@
     );
   }
 
-  function navigatePhoto(direction: NavigationDirection) {
+  async function navigatePhoto(direction: NavigationDirection) {
     if (!selected || !target || state !== 'open' || photos.length < 2) return;
 
     const currentIndex = photos.findIndex((photo) => photo.id === selected?.id);
@@ -109,8 +120,13 @@
 
     selected = nextPhoto;
     trigger = nextTrigger;
-    target = targetRect(nextPhoto);
+    target = targetRect(nextPhoto, details.getBoundingClientRect().top);
     returnTransform = 'none';
+
+    await tick();
+    if (selected?.id === nextPhoto.id) {
+      target = targetRect(nextPhoto, details.getBoundingClientRect().top);
+    }
   }
 
   function finishClose() {
@@ -190,7 +206,7 @@
   function handleViewportChange() {
     if (!selected || state === 'closing') return;
 
-    const nextTarget = targetRect(selected);
+    const nextTarget = targetRect(selected, details.getBoundingClientRect().top);
     if (state === 'opening') {
       const image = trigger?.querySelector('img');
       if (image) returnTransform = transformFrom(image.getBoundingClientRect(), nextTarget);
@@ -304,7 +320,7 @@
       <span class="album-corner album-corner-bl"></span>
       <span class="album-corner album-corner-br"></span>
     </span>
-    <div class="album-details">
+    <div bind:this={details} class="album-details">
       <dl>
         <div class="album-detail" style="--detail-index:0">
           <dt>{selected.dateKind === 'created' ? 'Created' : 'Photographed'}</dt>

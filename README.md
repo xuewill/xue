@@ -147,7 +147,7 @@ Album dates use explicit `date` and `dateKind` fields. Blog locations, Project l
 
 Configuration objects reject unknown fields. Hero and Album IDs must be unique, Hero width and height must match the source file, and Project `order` values must be unique even for drafts. Tags must use a configured lowercase kebab-case slug. Post, Project, Album, and series references are checked for missing, duplicate, draft-only, self-referential, or conflicting targets before production filtering. Validation errors identify the affected field and explain the expected correction.
 
-Hero images live in `static/home/sketchbook/`. The fixed background shell is configured once under `hero.shell`; add or remove transparent artwork layers under `hero.images`. Presentation order is ascending by `date` with `id` as the tie-breaker:
+Hero images live in `static/home/sketchbook/`. Every entry under `hero.images` is a complete double-page Sketchbook spread; the carousel has no fixed background shell. Presentation order is ascending by `date` with `id` as the tie-breaker:
 
 ```yaml
 - id: image-id
@@ -160,7 +160,7 @@ Hero images live in `static/home/sketchbook/`. The fixed background shell is con
   enabled: true
 ```
 
-Keep `width` and `height` aligned with the source dimensions to avoid layout shifts. Page sources must be shell-free RGBA layers with all pixels inside the fixed page-safe area; run `.agents/skills/sketchbook/scripts/normalize-artwork-layer.mjs` before registration. The browser renders `/home/sketchbook/book-shell.png` once beneath the page-turn layers. Set `enabled: false` to keep an image configured without showing it.
+Keep `width` and `height` aligned with the source dimensions to avoid layout shifts. Page sources must be `1280×720` RGBA full-book spreads with exact `1200×680+40+20` visible bounds: warm two-page paper, one center binding, canonical transparent corners and gutter notches, and no hard cover or dark stacked edge. Coordinated responsive light/dark imagegen album backings are configured separately under `hero.albumBackdrops`; they are not part of the Sketchbook image. Run `.agents/skills/sketchbook/scripts/normalize-book-spread.mjs` before registration. Set `enabled: false` to keep an image configured without showing it.
 
 The Playwright media budgets cover the full Hero autoplay transfer (`<= 2.5 MiB`) and Album first load (`<= 2 MiB`). On the current desktop fixture, measured transfers are approximately 1.36 MiB for Home after autoplay and 0.67 MiB for Album before opening the lightbox.
 
@@ -287,11 +287,11 @@ endYear: 2026
 status: completed
 category: design
 locations:
-  - stanford
+  - taipei
 roles:
   - designer
 media:
-  - fashion-design
+  - mixed-media
 cover: /images/projects/cover.webp
 order: 10
 updated: '2026-07-18'

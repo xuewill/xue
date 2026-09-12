@@ -1,6 +1,6 @@
 # Location Seal Composition
 
-Use this reference whenever choosing, prompting, inspecting, or retrying the lower-left location seal. It distinguishes historical reading conventions from the design defaults of this skill.
+Use this reference whenever choosing, prompting, inspecting, or retrying the location seal. Its page position and ink may vary, while the historical glyph composition and reading order remain exact.
 
 ## Reading terminology
 

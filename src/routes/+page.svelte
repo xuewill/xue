@@ -41,7 +41,7 @@
   <HeroSketchbook
     kicker={homeConfig.hero.kicker}
     title={homeConfig.hero.title}
-    shell={homeConfig.hero.shell}
+    albumBackdrops={homeConfig.hero.albumBackdrops}
     images={homeConfig.hero.images}
   />
   <AboutSection

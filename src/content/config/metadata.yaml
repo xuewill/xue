@@ -13,8 +13,6 @@ locations:
     label: Osaka
   - slug: kamakura
     label: Kamakura
-  - slug: stanford
-    label: Stanford
 roles:
   - slug: designer
     label: Designer
@@ -23,8 +21,6 @@ roles:
   - slug: developer
     label: Developer
 media:
-  - slug: fashion-design
-    label: Fashion design
   - slug: mixed-media
     label: Mixed media
   - slug: software-development

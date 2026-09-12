@@ -1,4 +1,4 @@
 interface:
   display_name: "Sketchbook"
-  short_description: "Dated artwork layers over one fixed homepage book"
-  default_prompt: "Use $sketchbook to create and chronologically register a shell-free dated artwork layer for the fixed homepage Sketchbook."
+  short_description: "Dated full-book travel journal spreads"
+  default_prompt: "Use $sketchbook to create a dated, full-page open-book Sketchbook spread with a visible binding and place-specific travel artwork."

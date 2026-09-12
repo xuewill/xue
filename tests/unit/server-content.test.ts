@@ -94,7 +94,7 @@ describe('server content boundary', () => {
 
   it('builds compact archive entries across all three content types', () => {
     const entries = getArchiveEntries();
-    expect(entries).toHaveLength(20);
+    expect(entries).toHaveLength(18);
     expect(entries[0]).toMatchObject({
       kind: 'post',
       year: 2026,

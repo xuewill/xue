@@ -277,19 +277,19 @@ CLI 负责本地、可恢复的内容状态变更；Cloudflare PR 预览仍由 C
 
 **优先级：P2；内容工作**
 
-- [x] 为 3 个现有 Project 补充真实 Context / Problem。
+- [x] 为现有 Project 补充真实 Context / Problem。
 - [x] 补充 Constraints 和 Role。
 - [x] 补充 Key decisions 和 Process。
 - [x] 补充 Outcome；不虚构商业指标、客户反馈或未记录结果。
 - [x] 使用现有 related posts 与 Album works 连接过程说明和视觉作品。
-- [x] 保留软件产品、runway 和持续艺术集合的真实差异；章节是内容指导而非强制 schema。
+- [x] 保留软件产品和持续艺术集合的真实差异；章节是内容指导而非强制 schema。
 
 完成标准：
 
 - Project 不再只是图片和一句说明。
 - 至少 2 个 Project 可以作为独立、完整的设计案例阅读。
 
-完成记录（2026-08-30）：WeMail、Fashion Design 和 Art 均已扩展为可独立阅读的过程案例；下一步进入延期项目复审，需等待完整 14 天 Analytics 数据与内容规模变化。
+完成记录（2026-08-30）：WeMail 和 Art 均已扩展为可独立阅读的过程案例；下一步进入延期项目复审，需等待完整 14 天 Analytics 数据与内容规模变化。
 
 ## 六、延期
 

@@ -3,6 +3,27 @@
     "width": 1280,
     "height": 720
   },
+  "book": {
+    "bounds": {
+      "width": 1200,
+      "height": 680,
+      "left": 40,
+      "top": 20
+    },
+    "silhouette": {
+      "outerCornerRadius": 44,
+      "gutterNotchHalfWidth": 56,
+      "gutterNotchDepth": 32
+    }
+  },
+  "album": {
+    "bounds": {
+      "width": 1260,
+      "height": 700,
+      "left": 10,
+      "top": 10
+    }
+  },
   "shell": {
     "source": "assets/canonical-book-shell.png",
     "runtime": "static/home/sketchbook/book-shell.png",
@@ -11,7 +32,8 @@
       "height": 644,
       "left": 124,
       "top": 40
-    }
+    },
+    "role": "legacy-only; never pass to generation"
   },
   "artwork": {
     "safeArea": {
@@ -35,7 +57,97 @@
     "location": {
       "x": 160,
       "y": 510,
-      "size": 118
+      "size": 118,
+      "placement": "seeded-qualified-stroke-contrast",
+      "minimumContrast": 3.2,
+      "candidates": [
+        {
+          "id": "upper-left",
+          "x": [
+            96,
+            210
+          ],
+          "y": [
+            72,
+            172
+          ]
+        },
+        {
+          "id": "middle-left",
+          "x": [
+            92,
+            205
+          ],
+          "y": [
+            258,
+            382
+          ]
+        },
+        {
+          "id": "lower-left",
+          "x": [
+            105,
+            220
+          ],
+          "y": [
+            492,
+            552
+          ]
+        },
+        {
+          "id": "lower-right",
+          "x": [
+            930,
+            1045
+          ],
+          "y": [
+            492,
+            552
+          ]
+        },
+        {
+          "id": "upper-inner-right",
+          "x": [
+            780,
+            865
+          ],
+          "y": [
+            72,
+            172
+          ]
+        }
+      ],
+      "inkPalette": [
+        {
+          "id": "cinnabar",
+          "hex": "#c33f32"
+        },
+        {
+          "id": "cobalt",
+          "hex": "#2148b8"
+        },
+        {
+          "id": "aubergine",
+          "hex": "#69385f"
+        },
+        {
+          "id": "forest",
+          "hex": "#174c35"
+        },
+        {
+          "id": "charcoal",
+          "hex": "#2f343a"
+        },
+        {
+          "id": "saffron",
+          "hex": "#d28a1f"
+        }
+      ]
     }
+  },
+  "paperReference": {
+    "source": "assets/paper-geometry.png",
+    "role": "geometry-only",
+    "generator": "scripts/create-paper-reference.mjs"
   }
 }

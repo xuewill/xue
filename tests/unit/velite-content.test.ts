@@ -28,14 +28,13 @@ import {
   contentMetadataSchema,
   validateContentMetadata,
   validateContentRelations,
-  validateHeroImageDimensions,
-  validateHeroShellDimensions
+  validateHeroAlbumBackdropDimensions,
+  validateHeroImageDimensions
 } from '../../velite.config';
 
 const sketchbookFixtureDirectory = path.join('static', 'test-fixtures', 'sketchbook');
 const transparentFixture = path.join(sketchbookFixtureDirectory, 'transparent.png');
-const wrongShellBoundsFixture = path.join(sketchbookFixtureDirectory, 'wrong-shell-bounds.png');
-const driftShellFixture = path.join(sketchbookFixtureDirectory, 'drift-shell.png');
+const undersizedBookFixture = path.join(sketchbookFixtureDirectory, 'undersized-book.png');
 
 beforeAll(async () => {
   mkdirSync(sketchbookFixtureDirectory, { recursive: true });
@@ -57,17 +56,7 @@ beforeAll(async () => {
       }
     ])
     .png()
-    .toFile(wrongShellBoundsFixture);
-  await sharp('static/home/sketchbook/book-shell.png')
-    .composite([
-      {
-        input: Buffer.from('<svg width="2" height="2"><rect width="2" height="2" fill="#8f3434"/></svg>'),
-        left: 500,
-        top: 500
-      }
-    ])
-    .png()
-    .toFile(driftShellFixture);
+    .toFile(undersizedBookFixture);
 });
 
 afterAll(() => {
@@ -78,7 +67,6 @@ describe('Velite content layer', () => {
   it('generates sorted post and project collections from file-based slugs', () => {
     expect(posts.map(({ slug }) => slug)).toEqual([
       'typed-content-media-pipeline',
-      'fashionx-runway-notes',
       'travel-sketchbook-process',
       'mixed-media-city-studies',
       'markdown-format-showcase',
@@ -87,7 +75,6 @@ describe('Velite content layer', () => {
     ]);
     expect(projects.map(({ slug }) => slug)).toEqual([
       'wemail',
-      'fashion-design',
       'art'
     ]);
   });
@@ -112,9 +99,27 @@ describe('Velite content layer', () => {
   it('loads site, home, and album configuration from YAML', () => {
     expect(site.url).toBe('https://willxue.com');
     expect(site.navigation.map(({ label }) => label)).toEqual(['blog', 'archive', 'album']);
-    expect(home.hero.shell.src).toBe('/home/sketchbook/book-shell.png');
+    expect(home.hero).not.toHaveProperty('shell');
+    expect(home.hero.albumBackdrops.light.src).toBe(
+      '/home/sketchbook/album-backdrop-light.png'
+    );
+    expect(home.hero.albumBackdrops.dark.src).toBe(
+      '/home/sketchbook/album-backdrop-dark.png'
+    );
     expect(home.hero.images.map(({ id, date }) => ({ id, date }))).toEqual([
       { id: 'changsha-orange-isle-watercolor', date: '2022-01-01' },
+      { id: 'dali-ancient-town-watercolor', date: '2023-04-09' },
+      { id: 'erhai-distilled-scene-2023-04-11', date: '2023-04-11' },
+      {
+        id: 'lijiang-ancient-town-gathered-memory-2023-04-11',
+        date: '2023-04-11'
+      },
+      { id: 'pudacuo-chinese-ink-2023-04-13', date: '2023-04-13' },
+      {
+        id: 'tiger-leaping-gorge-chinese-ink-2023-04-13',
+        date: '2023-04-13'
+      },
+      { id: 'napahai-chinese-ink-2023-04-14', date: '2023-04-14' },
       { id: 'west-lake-watercolor', date: '2026-09-18' }
     ]);
     expect(album.photos).toHaveLength(10);
@@ -198,12 +203,24 @@ describe('Velite content layer', () => {
     if (chronological.success) {
       expect(chronological.data.hero.images.map(({ date }) => date)).toEqual([
         '2022-01-01',
+        '2023-04-09',
+        '2023-04-11',
+        '2023-04-11',
+        '2023-04-13',
+        '2023-04-13',
+        '2023-04-14',
         '2026-09-18'
       ]);
     }
     if (sameDate.success) {
       expect(sameDate.data.hero.images.map(({ id }) => id)).toEqual([
         'changsha-orange-isle-watercolor',
+        'dali-ancient-town-watercolor',
+        'erhai-distilled-scene-2023-04-11',
+        'lijiang-ancient-town-gathered-memory-2023-04-11',
+        'napahai-chinese-ink-2023-04-14',
+        'pudacuo-chinese-ink-2023-04-13',
+        'tiger-leaping-gorge-chinese-ink-2023-04-13',
         'west-lake-watercolor'
       ]);
     }
@@ -267,16 +284,15 @@ describe('Velite content layer', () => {
   it('validates declared Hero dimensions against the source file', async () => {
     const image = home.hero.images[0];
 
-    await expect(validateHeroShellDimensions(home.hero.shell)).resolves.toBeUndefined();
+    await expect(
+      validateHeroAlbumBackdropDimensions(home.hero.albumBackdrops.light)
+    ).resolves.toBeUndefined();
+    await expect(
+      validateHeroAlbumBackdropDimensions(home.hero.albumBackdrops.dark)
+    ).resolves.toBeUndefined();
     await expect(validateHeroImageDimensions(image)).resolves.toBeUndefined();
-    await expect(validateHeroImageDimensions(home.hero.shell)).rejects.toThrow(
-      /exclude the fixed book shell/
-    );
     await expect(
       validateHeroImageDimensions({ ...image, width: image.width + 1 })
-    ).rejects.toThrow(/declares .* but the source is .* update width and height/);
-    await expect(
-      validateHeroShellDimensions({ ...home.hero.shell, width: home.hero.shell.width + 1 })
     ).rejects.toThrow(/declares .* but the source is .* update width and height/);
     await expect(
       validateHeroImageDimensions({
@@ -284,35 +300,21 @@ describe('Velite content layer', () => {
         width: 1600,
         height: 900
       })
-    ).rejects.toThrow(/artwork layer must have an alpha channel/);
+    ).rejects.toThrow(/full-book image must have an alpha channel/);
     await expect(
       validateHeroImageDimensions({
         src: '/test-fixtures/sketchbook/transparent.png',
         width: 1280,
         height: 720
       })
-    ).rejects.toThrow(/artwork layer cannot be fully transparent/);
+    ).rejects.toThrow(/full-book image cannot be fully transparent/);
     await expect(
-      validateHeroShellDimensions({
-        src: '/home/projects/wemail/cover.jpg',
-        width: 1600,
-        height: 900
-      })
-    ).rejects.toThrow(/shell must have an alpha channel/);
-    await expect(
-      validateHeroShellDimensions({
-        src: '/test-fixtures/sketchbook/wrong-shell-bounds.png',
+      validateHeroImageDimensions({
+        src: '/test-fixtures/sketchbook/undersized-book.png',
         width: 1280,
         height: 720
       })
-    ).rejects.toThrow(/shell bounds are .* expected/);
-    await expect(
-      validateHeroShellDimensions({
-        src: '/test-fixtures/sketchbook/drift-shell.png',
-        width: 1280,
-        height: 720
-      })
-    ).rejects.toThrow(/runtime Sketchbook shell differs/);
+    ).rejects.toThrow(/full-book bounds are/);
   });
 
   it('reports invalid Album image data instead of emitting incomplete metadata', async () => {
@@ -488,7 +490,7 @@ describe('Velite content layer', () => {
       category: 'design',
       locations: [],
       roles: ['designer'],
-      media: ['fashion-design'],
+      media: ['mixed-media'],
       cover: '/seal.png',
       order: 1,
       draft: true,

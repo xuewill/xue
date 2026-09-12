@@ -1,126 +1,114 @@
-# Shell-free Reference Art Prompts
+# Reference Art Prompts
 
-These are the production prompts used to generate the eight bundled reference layers. They are reproducibility records, not mandatory subject templates. Future updates may change the subject while preserving the style contract, transparent safe area, quiet mark zones, and no-shell constraints.
+The eight bundled references were regenerated with built-in imagegen on 2026-09-10 after the paper, composition and mark-placement update. They are **unmarked base spreads**: no date, seals, text, signatures or homepage marks. Pixel shell remains source-photo-driven and intentionally has no bundled image reference.
 
-The final section also records the two homepage artwork prompts used during the shell-separation migration.
+## Shared generation contract
+
+Every call used only `assets/paper-geometry.png` as a geometry input; no prior travel scene and no legacy cover-bearing shell was passed. The input role was:
+
+```text
+Image 1 is a neutral single-sheet two-page geometry guide only. Do not copy its pixels, subject or texture and do not add another book.
+```
+
+Every style prompt ended with:
+
+```text
+Keep final top-right approximately 77%–88% width and 6%–27% height pale and calm for later marks. Show one thin open sheet with a subtle fold and clean bare-paper edge, with no cover or page stack. Exterior canvas should be transparent. Generate no text, date, seal, signature, frame, UI, logo or watermark. Stickers are prohibited except in gathered memory.
+```
+
+The original refresh generator returned RGB images with a rendered checkerboard/black surround; the retained raw files document that historical failure. Current reference assets use the reviewed inset hard seed mask before proportional normalization, so the black matte cannot enter interpolation. `validate-spread.mjs` now requires the canonical `1200x680+40+20` silhouette plus a clean semitransparent edge. Future generations must attempt and inspect native alpha first rather than treating this fallback as the normal route.
 
 ## Watercolor
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original loose watercolor travel-study artwork layer of a windswept coastal lighthouse on a rocky headland, with waves, pale sky washes, and ochre grasses.
-Style/medium: Abstract watercolor wash, loose oversized brushstrokes, broad flowing color shapes, minimal detail, soft pigment bleeding, expressive wet-on-wet texture, simplified recognizable forms, airy composition, no linework, no outlines.
-Composition/framing: Exactly 16:9. Arrange the artwork as a two-page spread composition aligned within the safe area x=144..1136 and y=44..664, allowing a natural visual pause around x=640 for a future center gutter. Keep the upper-right x=990..1120,y=44..190 and lower-left x=150..300,y=490..640 relatively quiet.
-Color palette: storm blue, sea green, warm ochre, sparse charcoal-gray.
-Constraints: Output only the isolated watercolor pigment and painted forms on a genuinely transparent background. No white paper, no beige page, no canvas rectangle, no book, no cover, no binding, no spine, no gutter line, no page edges, no page shadow, no tabletop. No seal, stamp, date, handwriting, typography, logo, border, watermark, or UI. Preserve transparent pixels between and around washes.
+Original windswept tidal inlet. A small vermilion fishing skiff rests left of the fold; a pale S-shaped channel leads through reeds toward a low misty headland. Transparent reflections connect both halves. The sharpest edge and strongest color sit at the skiff, a soft reed mass supports it, and sky/water provide the release.
+
+Use large transparent wet-on-wet washes, pigment blooms, granulation, backruns, lifted white-paper light and a few dry-brush reeds. Blue-gray atmosphere, sea-green water and raw-sienna reeds support one vermilion focal accent. Avoid outlines, uniformly sharp detail, photorealism, digital embossing, repeated paper-noise texture and opaque gouache.
 ```
+
+Generated source: `exec-0eabdf1b-d635-4b9f-ae47-9b234e52cb04.png`. Reviewed mask: `55,22 → 1618,911`, radius `42`.
 
 ## Oil
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original plein-air oil study of a quiet mountain railway platform, a small timber station shelter, tracks leading toward a blue-violet valley, late-afternoon trees, and a distant peak.
-Style/medium: Tactile oil paint with visible impasto ridges, broken color, broad blocky brushwork, dry-brush scumbling, a few palette-knife accents, simplified recognizable forms, painterly rather than photorealistic.
-Composition/framing: Exactly 16:9. Two-page-spread rhythm contained within x=144..1136 and y=44..664, with a natural interruption near x=640. Keep upper-right and lower-left mark zones quiet.
-Color palette: sunlit ochre, cobalt and violet mountain shadow, cypress green, small warm red station accents.
-Constraints: Output only isolated oil-painted forms and pigment on a genuinely transparent background. No paper, canvas rectangle, book, cover, binding, spine, gutter line, page edge, page shadow, table, frame, seal, stamp, date, text, logo, or watermark. Transparent negative space must remain visible around and between painted regions.
+Original late-afternoon terraced hillside village. Three sunlit ochre stone houses form the left-middle focal cluster; a diagonal path crosses the fold and descends toward blue-violet fields. Cypress and olive masses support the architecture while the distant valley and pale sky release it.
+
+Use directional loaded brushstrokes following planes, broken color, selective impasto on sunlit walls, dry scumbling in distance, palette-knife accents only near focal roofs and visible underpainting in quiet areas. Ochre/warm-white light, cobalt/violet shadow, olive/cypress support and small rust-red roofs. Avoid watercolor bleeding, an all-over raised texture filter, glossy 3D paint, photorealism and uniform tiny strokes.
 ```
+
+A targeted edit moved the tallest upper-left cypress inward and restored a natural pale lavender-gold sky reserve without changing houses, path or valley. Accepted source: `exec-3dda0cb7-675b-440e-b957-aece7e4d5f6a.png`. Reviewed mask: `53,23 → 1619,913`, radius `42`.
 
 ## Chinese ink
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original Chinese ink-wash landscape study of a misty river gorge, bamboo at the left edge, layered mountains, pine silhouettes, rocks, and one small arched stone bridge.
-Style/medium: Expressive calligraphic brushwork, layered pale-to-deep ink, controlled wet bleeding, dry-brush texture, reserved empty space, atmospheric depth, simplified recognizable forms, sparse mineral-blue wash only in the far mountains.
-Composition/framing: Exactly 16:9. Two-page-spread rhythm inside x=144..1136 and y=44..664; let mist and negative space create a visual pause near x=640. Keep upper-right and lower-left mark zones quiet.
-Constraints: Output only isolated ink and mineral-pigment marks on a genuinely transparent background. No white or xuan paper rectangle, no book, cover, binding, spine, gutter line, page edges, page shadow, table, calligraphy, poem, signature, seal, stamp, date, text, logo, or watermark. No Western photorealistic shading.
+Original wind-cut basalt river gorge. One near-black cliff mass rises on the left; the river bends around a low rock just left of the fold and opens into mist on the right. Sparse dry shrubs and reed gestures provide scale. The cliff-to-water collision is the focal event.
+
+Use varied ink load, wet bleeding, bone-dry broken rock strokes, splashed ink at the current, lost edges, visible paper and restrained mineral blue-green only in the river. Avoid bamboo, arched bridge, decorative Huangshan peaks, repeated pine silhouettes, watercolor outlines, photorealism, uniform gray filtering and calligraphy.
 ```
+
+A targeted edit faded the lower-right foreground rocks/reeds into pale river wash so a location seal can sit without covering the focal cliff or central rock. Accepted source: `exec-353bca6a-dcc4-45a0-8107-f1f774fe4f71.png`. Reviewed mask: `53,23 → 1619,913`, radius `42`.
 
 ## Minimal zine
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free minimal-zine reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original poetic micro-editorial composition about a small passenger ferry crossing a quiet lake: one tiny grayscale ferry, one interrupted ultramarine rectangular field, a faint horizon fragment, and two tiny registration dots.
-Style/medium: Minimal paper-texture zine grammar, xerox softness, restrained halftone, one torn edge, one clear high-chroma accent, one visual event.
-Composition/framing: Exactly 16:9. Keep 65%–75% of the canvas genuinely transparent. One focal cluster occupies only 18%–25% near the lower center and may bridge the imaginary two-page divide at x=640. Keep upper-right and lower-left mark zones empty.
-Color palette: grayscale plus one ultramarine accent.
-Constraints: Output only isolated printed/collaged artwork on genuine transparency. No paper sheet, beige rectangle, book, cover, spine, binding, gutter, page edge, page shadow, table, headline, letters, words, numbers, date, seal, stamp, logo, border, watermark, mockup, or decorative scrapbook clutter.
+Original micro-editorial relation: two weathered basalt sea stacks almost touch across the fold. Reduce them to two black xerox fragments with a deliberate narrow gap. An interrupted cobalt tide field enters from lower-right, stops before the left rock and resumes as a thin registration trace; a pale graphite horizon barely joins the pages.
+
+Use one process: xerox softness, coarse-to-fine halftone, slight cobalt misregistration, one torn printed edge and at most two registration dots. Cobalt is the only high-chroma accent. Avoid a full landscape, realistic sea, centered poster block, headline, scrapbook, inventory collage or a photograph with one blue rectangle.
 ```
+
+Generated source: `exec-e55205e3-7110-4586-926f-81ae84fc02a1.png`. Reviewed mask: `53,21 → 1618,913`, radius `42`.
 
 ## Mono riso
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free mono-riso reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original two-plate editorial image of one cyclist crossing a long arched urban bridge with a distant low skyline and sparse river reeds.
-Style/medium: Physical risograph print made from exactly two artwork inks, cobalt #2148B8 as the 75% dominant plate and terracotta #C65F38 as the 25% accent plate. Halftone density, paper knockouts, clipped highlights, uneven ink, and one subtle registration drift.
-Composition/framing: Exactly 16:9. The cyclist and bridge form one strong focal event spanning the lower half, while the upper-left is a quiet release zone. Contain printed marks inside x=144..1136,y=44..664 and keep upper-right and lower-left mark zones quiet.
-Constraints: Output only isolated ink marks on genuine transparency. No paper/background color, no book, cover, binding, spine, gutter, page edges, shadow, gradients, full-color photography, text, date, seal, stamp, logo, border, watermark, or vintage grunge overload.
+Original coastal funicular climbing diagonally from lower-left across the fold to a small cliff station. The car is the focal event; track and cable connect the pages. A low sea horizon and sparse scrub support it.
+
+Use exactly two plates: cobalt #2148B8 for roughly 78% of structure, shadow, sea and track; safety orange #E55D2B for roughly 22% of car, sunlit cliff and one cloud band. Use halftone density, paper knockouts, clipped highlights, uneven ink load and one restrained drift around the car. Avoid gradients, full color, digital duotone filters, equal orange scattering, photographic detail and a third ink.
 ```
+
+Generated source: `exec-a422bb49-1bff-4239-8f43-838c127057a9.png`. Reviewed mask: `52,23 → 1619,911`, radius `42`.
 
 ## Pixel diary
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free pixel-diary reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original fine bitmap-print study of a hilltop observatory reached by a long stepped path, with sparse fir trees, a domed telescope building, and distant clouds.
-Style/medium: Fine square-pixel grid and small dot-matrix halftone, stepped edges, missing-pixel gaps, density-based shading; sophisticated editorial bitmap printing, not game art. Violet-blue dominant ink with tiny acid-lime registration accents.
-Composition/framing: Exactly 16:9. One large observatory/path gesture occupies 45%–60% of the canvas, with 35%–45% transparent quiet space. Contain marks inside x=144..1136,y=44..664; preserve a calm upper-right and lower-left.
-Constraints: Output only isolated pixel/dot artwork on genuine transparency. No paper, page rectangle, book, binding, cover, spine, gutter, edge, shadow, sprite, 8-bit game scene, game UI, voxel form, neon cyberpunk, chunky pixels, text, date, seal, stamp, logo, border, or watermark.
+Original high-plateau radio telescope. One large parabolic dish sits left of the fold, tilted to upper-center; a stepped switchback path crosses the fold and dissolves toward a small equipment hut. A low mesa and sparse grasses support a wide sky.
+
+Construct forms from square fine bitmap cells, stepped contours, missing-pixel gaps and density transitions. Violet-blue dominates; acid-lime appears only as a registration offset on the dish rim, path markers and a few grasses. Density decreases toward sky and edges. Avoid round riso dots, smooth stippling, sprites, chunky 8-bit blocks, voxels, game UI and photorealistic gradients.
 ```
+
+Generated source: `exec-c5e179f2-014d-4aae-8cfb-2790867803d1.png`. Reviewed mask: `45,21 → 1626,913`, radius `42`.
 
 ## Distilled scene
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free distilled-scene reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original scene-distillation illustration derived conceptually from a lone pedestrian crossing a rain-dark city street under one red umbrella. Preserve only the semantic nucleus: small human silhouette, diagonal crossing path, one reflected light band, and one interrupted block suggesting buildings.
-Style/medium: Aggressively distilled dry-print silhouette plus cut-paper mass, 70%–85% descriptive detail removed, one dominant charcoal mass, two supporting gray-blue forms, one high-chroma vermilion umbrella as a structural bridge, restrained xerox breakup.
-Composition/framing: Exactly 16:9. Keep 55%–70% of the canvas genuinely transparent. Place one compact unresolved relation across the imaginary gutter at x=640; keep upper-right and lower-left mark zones empty.
-Constraints: Original illustration only; no photographic pixels, photorealistic patch, universal-symbol cliché, polished vector style, paper sheet, book, cover, spine, binding, gutter, page edge, shadow, text, date, seal, stamp, logo, border, or watermark. Output isolated artwork on genuine transparency.
+Original distilled departure scene: exactly two front-facing travelers sit at opposite ends of one low station bench. A vermilion scarf passes from one figure toward the other but stops across a narrow fold gap. One broken platform edge crosses pale rain reflections; a charcoal shelter mass supports the left figure. The tension is closeness interrupted by departure.
+
+Remove about 80% of detail. Use charcoal dry-print silhouettes, one pale blue-gray reflection field and the scarf as the only bright bridge. Keep the paired cluster, two supporting forms, xerox breakup, fibrous edges and active paper. Avoid photorealistic faces, a detailed station, cute cartoons, polished vectors, arbitrary grids, multiple bright accents or turning either figure away.
 ```
+
+Generated source: `exec-90926239-a13f-4035-a639-5d938b60df8b.png`. Reviewed mask: `52,22 → 1620,913`, radius `42`.
 
 ## Gathered memory
 
 ```text
-Use case: stylized-concept
-Asset type: shell-free gathered-memory reference artwork layer for a 1280x720 homepage sketchbook
-Primary request: Create an original gathered travel-memory composition of a hillside tram stop. The dominant scene is a red tram shelter beside curving tracks and one large dark-green canopy; the companion side has four unequal source-related fragments: a bell, a leaf pair, a window corner, and a section of rail.
-Style/medium: Opaque gouache and cut-paper fills with relaxed irregular edges, 5–8 broad color families, compressed foliage masses, shallow flat fragment shadows, one source-derived vermilion structural color repeated sparingly.
-Composition/framing: Exactly 16:9. Main scene occupies 50%–60% on the right; four unequal fragments occupy the left with a clear eye path across the imaginary gutter at x=640. Keep 25%–40% genuine transparent quiet space, including upper-right and lower-left mark zones.
-Constraints: Output only isolated scene and fragment artwork on genuine transparency. No paper sheet, scrapbook page, book, cover, binding, spine, gutter, page edges, page shadow, keyword footer, postal marks, text, date, seal, stamp, logo, border, watermark, equal sticker sizes, gradients, glossy 3D, or dense foliage micro-detail.
+Original night canal flower-stall memory. A narrow water lane enters from lower-center, passes a rust-orange awning and flower stall on the left and recedes toward cool indigo buildings; pale steps and dark foliage support the right. Cobalt, amber and restrained magenta reflections cross the fold.
+
+Add exactly four source-derived die-cut stickers: awning corner, vertical canal-ripple strip, compact flower cluster and worn stone-step fragment. Group three unequal stickers asymmetrically along the left page; place the smallest stair fragment low-right. Use distinct silhouettes/scales, cream borders, tactile gouache/riso surfaces, varied tilt and small lifted shadows. Avoid one sticker in every corner, equal sizes, rectangular photos, tickets, labels and souvenir icons.
 ```
 
-## Homepage migration: Orange Isle, Changsha
+Generated source: `exec-d3b1781c-57cf-4f9a-8ed7-4345d991c4df.png`. Reviewed mask: `61,22 → 1610,902`, radius `42`.
 
-Input image: the previous complete `changsha-orange-isle-watercolor.png`, used only as a subject/composition reference.
+## Acceptance
 
-```text
-Use case: style-transfer
-Asset type: replacement shell-free artwork layer for a 1280x720 homepage sketchbook
-Input images: Image 1 is the previous complete Changsha spread and is a subject/composition reference only. Do not reproduce its paper, book, seals, or date.
-Primary request: Regenerate Orange Isle in Changsha as a fresh watercolor artwork layer: preserve the recognizable monumental young Mao sculpture, Xiang River, winter trees, low distant skyline, cool winter atmosphere, and the broad left-to-right river panorama. The new brushwork must be original rather than copied pixel-for-pixel.
-Style/medium: Abstract watercolor wash, loose oversized brushstrokes, broad flowing color shapes, minimal detail, soft pigment bleeding, expressive wet-on-wet texture, simplified recognizable forms, airy composition, no linework, no outlines.
-Composition/framing: Exactly 16:9. Arrange content inside x=144..1136,y=44..664 with a gentle visual pause near x=640. Keep upper-right x=990..1125,y=44..195 and lower-left x=150..300,y=490..645 quiet for later deterministic marks.
-Color palette: winter blue-gray, muted stone umber, charcoal, sparse moss green.
-Constraints: Output only isolated watercolor pigment and painted forms on a genuinely transparent background. Remove and do not recreate all book geometry: no paper, white/beige page rectangle, cover, binding, spine, gutter line, page edges, page layers, shadows, table, frame. Do not include either seal, any stamp, date, handwriting, text, logo, watermark, or border.
-```
+At about 240px, the eight references must remain distinguishable by structure rather than palette alone:
 
-## Homepage migration: West Lake, Hangzhou
+1. transparent washes and skiff;
+2. loaded oil planes and hillside path;
+3. ink load/lost-edge gorge;
+4. two-fragment editorial relation;
+5. two assigned plates and diagonal funicular;
+6. square bitmap density and dish;
+7. semantic reduction with front-facing pair;
+8. truthful canal anchor plus asymmetrical die-cut stickers.
 
-Input image: the previous complete `west-lake-watercolor.png`, used only as a subject/composition reference.
-
-```text
-Use case: style-transfer
-Asset type: replacement shell-free artwork layer for a 1280x720 homepage sketchbook
-Input images: Image 1 is the previous complete West Lake spread and is a subject/composition reference only. Do not reproduce its paper, book, seals, or date.
-Primary request: Regenerate Hangzhou West Lake as a fresh watercolor artwork layer: preserve a recognizable arched stone bridge, calm reflective lake, willow branches entering from the upper-right, layered distant hills, and a small pagoda silhouette. The new brushwork must be original rather than copied pixel-for-pixel.
-Style/medium: Abstract watercolor wash, loose oversized brushstrokes, broad flowing color shapes, minimal detail, soft pigment bleeding, expressive wet-on-wet texture, simplified recognizable forms, airy composition, no linework, no outlines.
-Composition/framing: Exactly 16:9. Arrange content inside x=144..1136,y=44..664 with a gentle visual pause near x=640. Keep upper-right x=990..1125,y=44..195 and lower-left x=150..300,y=490..645 quiet for later deterministic marks.
-Color palette: mist blue, celadon green, soft charcoal, muted warm stone.
-Constraints: Output only isolated watercolor pigment and painted forms on a genuinely transparent background. Remove and do not recreate all book geometry: no paper, white/beige page rectangle, cover, binding, spine, gutter line, page edges, page layers, shadows, table, frame. Do not include either seal, any stamp, date, handwriting, text, logo, watermark, or border.
-```
+The full-size check covers pigment/print construction, one-sheet edges, fold, visual hierarchy and absence of generated marks. Light and dark contact sheets are preserved in the production directory for review.

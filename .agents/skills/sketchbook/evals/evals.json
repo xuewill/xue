@@ -16,55 +16,55 @@
     {
       "id": 3,
       "prompt": "用 $sketchbook 生成 2026-09-18 杭州西湖的水彩首页图，没有参考照片。",
-      "expected_output": "Uses the fixed shell only as an alignment guide plus the shell-free watercolor reference, stores date 2026-09-18 while rendering visible 26 09 18 as a separate handwriting layer, declares 西湖 as 上=西/下=湖, generates the Chongxi-guided location seal, normalizes the transparent artwork with normalize-artwork-layer.mjs, composites all marks without shell pixels, registers the full date, and relies on Velite ascending chronology.",
+      "expected_output": "Produces a full-paper watercolor spread with two active pages, a visible central binding, clean bare-paper outer edges without a cover, and transparent exterior canvas; stores date 2026-09-18 while rendering visible 26 09 18 as a separate handwriting layer, declares 西湖 as 上=西/下=湖, generates the Chongxi-guided location seal, normalizes while preserving exterior alpha, composites all marks, and reports direct-homepage registration status.",
       "files": []
     },
     {
       "id": 4,
       "prompt": "用这张照片做 2026-10-03 巴黎凯旋门的油画 sketchbook，并自动加到首页。",
-      "expected_output": "Treats the photo as an edit target, records landmark invariants, passes the photo, alignment-only shell, and shell-free oil reference to the artwork call, generates the date separately from the handwriting sheet, preserves the right-starting 凯旋门 seal map, normalizes the shell-free layer before deterministic mark composition, and registers ISO date 2026-10-03.",
+      "expected_output": "Treats the photo as an edit target, records landmark invariants, generates a full opaque oil-book spread with a visible binding and active two-page coverage, generates the date separately from the handwriting sheet, preserves the right-starting 凯旋门 seal map, normalizes and composites deterministic marks, then registers the complete spread because homepage insertion was explicitly requested.",
       "files": []
     },
     {
       "id": 5,
       "prompt": "用 $sketchbook 做 2026-11-08 桂林山水的中国水墨版本。",
-      "expected_output": "Uses the no-photo Chinese-ink route with only bundled references, declares the four-character 回文 map 右上=桂, 左上=林, 左下=山, 右下=水 and reading order 右上→左上→左下→右下, renders a borderless Chongxi control image, samples a random outer shape, generates and validates the textured location seal, avoids paper and extra calligraphy, then composites the exact upper seal, approved date layer, and location raster into the shell-free RGBA artwork.",
+      "expected_output": "Uses the no-photo Chinese-ink route with only bundled references, declares the four-character 回文 map 右上=桂, 左上=林, 左下=山, 右下=水 and reading order 右上→左上→左下→右下, renders a borderless Chongxi control image, samples a random outer shape, generates and validates the textured location seal, avoids extra calligraphy, then composites exact marks into an RGBA full-book spread with visible binding, clean single-layer outer edge, and transparent exterior.",
       "files": []
     },
     {
       "id": 6,
       "prompt": "用 $sketchbook 做 2026-12-01 纽约中央公园的水彩页，并加一行手写注记 CENTRAL PARK — 40.78° N。",
-      "expected_output": "Uses label 中央公园 with the four-character 回文 map, samples and generates the Chongxi-guided location seal, generates exact date and annotation layers from the bundled handwriting sheet, keeps the scene artwork free of shell, paper, and text, then composites the exact canonical seal and approved transparent generated marks before inspection.",
+      "expected_output": "Uses label 中央公园 with the four-character 回文 map, samples and generates the Chongxi-guided location seal, generates exact date and annotation layers from the bundled handwriting sheet, creates a full opaque physical-book spread free of generated text, then composites the exact canonical seal and approved generated marks before inspection.",
       "files": []
     },
     {
       "id": 7,
       "prompt": "使用 $sketchbook 生成 2022-01-11 长沙橘子洲头的水彩 sketchbook。",
-      "expected_output": "Selects label 橘子洲头 and glyphs 橘子洲頭 with the true 回文 map, generates the location seal and shell-free watercolor artwork against the alignment-only shell, generates the visible date separately, normalizes the artwork safe area, composites exact assets/seal.png plus approved date/location rasters, and registers ISO date 2022-01-11 for ascending order.",
+      "expected_output": "Selects label 橘子洲头 and glyphs 橘子洲頭 with the true 回文 map, generates the location seal and an opaque watercolor full-book spread, generates the visible date separately, normalizes the book, composites exact assets/seal.png plus approved date/location rasters, and reports the ISO date 2022-01-11 with direct-homepage registration status.",
       "files": []
     },
     {
       "id": 8,
       "prompt": "使用 $sketchbook 生成 2027-04-06 长沙岳麓山的油画 sketchbook。",
-      "expected_output": "Uses the five-character label 长沙岳麓山, renders a borderless Chongxi glyph reference in a supported 2+3 or 3+2 composition, samples a random shape from the five-character-compatible set, generates and validates the final location seal with imagegen without changing the right-first order, and composites exact assets/seal.png plus that approved location seal into the base spread.",
+      "expected_output": "Uses the five-character label 长沙岳麓山, renders a borderless Chongxi glyph reference in a supported 2+3 or 3+2 composition, samples a random shape from the five-character-compatible set, generates and validates the final location seal with imagegen without changing the right-first order, and composites exact assets/seal.png plus that approved location seal into a full-book base spread with transparent exterior.",
       "files": []
     },
     {
       "id": 9,
       "prompt": "用 $sketchbook 生成 2027-05-12 青岛栈桥的蓝橙双色孔版印刷版本。",
-      "expected_output": "Routes to mono-riso, uses the fixed shell only for alignment plus the shell-free mono-riso reference, assigns distinct dominant/accent plate roles with no more than two artwork inks, preserves one focal event and one transparent release zone, normalizes the art layer before marks, and registers ISO date 2027-05-12.",
+      "expected_output": "Routes to mono-riso, produces an RGBA full-book spread with a visible binding, clean single-layer outer edge, and transparent exterior, assigns distinct dominant/accent plate roles with no more than two artwork inks, preserves one focal event and one lightly treated release zone, and normalizes before marks.",
       "files": []
     },
     {
       "id": 10,
       "prompt": "用 $sketchbook 做 2027-06-01 香港太平山的精细点阵日记。",
-      "expected_output": "Routes to pixel-diary, uses fine dot-density shading rather than game pixels, keeps the landmark recognizable with transparent quiet space and restrained micro marks, excludes all shell/paper geometry from the page asset, preserves the mark system, and registers the ISO date.",
+      "expected_output": "Routes to pixel-diary, uses fine dot-density shading rather than game pixels, keeps the landmark recognizable with quiet but treated pages and restrained micro marks, includes full-book paper and binding geometry, and preserves the mark system.",
       "files": []
     },
     {
       "id": 11,
       "prompt": "用 $sketchbook 生成 2027-07-08 厦门鼓浪屿的极简杂志留白版本。",
-      "expected_output": "Routes to minimal-zine, reduces the place to one concrete visual relation and one compact focal cluster with 55%-75% transparent quiet space, uses one structural high-chroma accent, and keeps the fixed shell outside the generated asset while retaining the date/seal system.",
+      "expected_output": "Routes to minimal-zine, reduces the place to one concrete visual relation and one compact focal cluster while keeping the remaining pages quietly treated rather than transparent, uses one structural high-chroma accent, and retains the full-book, date, and seal system.",
       "files": []
     },
     {
@@ -76,7 +76,61 @@
     {
       "id": 13,
       "prompt": "用这张照片做 2027-09-10 阿里山的 Gathered Memory sketchbook。",
-      "expected_output": "Routes to gathered-memory, records photo and spatial invariants, preserves one truthful anchor, compresses foliage into broad masses, builds three to five unequal source-derived fragments and one structural accent, then normalizes and chronologically registers the shell-free artwork layer for the fixed homepage book.",
+      "expected_output": "Routes to sticker-memory, records photo and spatial invariants, preserves one truthful anchor, compresses foliage into broad masses, builds three to five unequal source-derived die-cut stickers with tactile paper borders and lift shadows, and normalizes the full-paper spread while preserving transparent exterior and clean bare-paper outer edges.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "用这张照片做 2027-10-12 青海湖的像素贝壳 Sketchbook，不要保留原照片。",
+      "expected_output": "Routes to pixel-shell, treats the uploaded photo as semantic evidence only, records subject/composition/perspective/structure/memory anchors/atmosphere and a discard list, removes the original upper-photo split entirely, retains no photographic pixels, and reconstructs one recognizable 30%–45% material-seal cluster from a source-appropriate density of distinct matte shell/mineral near-square modules that progressively disperse into active warm-paper negative space without dense micro-tiling. It applies no numeric module limit and preserves the full-book silhouette, binding, exact date, and seal workflow without generated editorial text.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "用 $sketchbook 做 2027-10-12 青海湖的像素贝壳版本。",
+      "expected_output": "After the date/place gate passes, stops and asks only for the missing source photo because pixel-shell is photo-required.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "已经有日期和地点，继续上次未完成的普达措；之后默认加首页。",
+      "expected_output": "Recovers inputs and completed artifacts, resumes only missing work, and applies standing local registration intent without asking again. Does not conflate image quota with Codex account usage.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "做同一张两人正面照片的极简杂志和场景提纯版，先比较。",
+      "expected_output": "Preserves front/back orientation, gaze and count, uses distinct medium construction and focal/quiet relations, rejects a tinted full-landscape zine and unrequested back views; retains both as candidates.",
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "照片拼贴完成了，把印章放好，别挡住贴纸。",
+      "expected_output": "Records sticker and subject rectangles on normalized coordinates, runs seeded dry-run, requires fixed and location mark contrast, and fails if no qualified placement exists. No average-patch or random low-contrast fallback.",
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "透明重试又返回画进图片的棋盘格，接着做下一张。",
+      "expected_output": "Recognizes RGB/no alpha after running native-alpha inspection, does not repeat identical transparency retries indefinitely, then uses the reviewed three-pixel-inset hard seed mask so black matte cannot enter resize interpolation. It normalizes, requires geometry-and-edge validation, checks light/dark backings at 4x, and never color-keys painting whites.",
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "虎跳峡已经加入过，再加入一次。",
+      "expected_output": "Exact metadata replay returns Already registered without changing bytes. Conflicting id/source is reported without overwriting. Chronological insertion respects same-date id order.",
+      "files": []
+    },
+    {
+      "id": 21,
+      "prompt": "生成 20230413 普达措、20230414 纳帕海。",
+      "expected_output": "Verifies distinct geographic anchors, avoids identical alpine-lake layouts and unsupported historic weather claims, uses neutral paper geometry, generates bases before new marks, saves individual results promptly, and stops image calls on quota errors.",
+      "files": []
+    },
+    {
+      "id": 22,
+      "prompt": "图像尺寸正确、四角透明，但纸中间有孔，是否可加入首页？",
+      "expected_output": "Full-interior alpha validation rejects holes even with correct trim and corner samples; no registration until corrected. Does not claim pixel validation proves aesthetic fidelity.",
       "files": []
     }
   ]

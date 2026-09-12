@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { HeroImage, SketchbookShell } from '$lib/types/content';
+  import type { HeroAlbumBackdrops, HeroImage } from '$lib/types/content';
 
   type Direction = 'next' | 'prev';
-  const heroImageSizes = '(max-width: 640px) 86vw, (max-width: 975px) 80vw, 780px';
+  const heroImageSizes = '(max-width: 640px) 80vw, (max-width: 975px) 72vw, 690px';
 
   interface TurnState {
     id: number;
@@ -16,7 +16,7 @@
 
   export let kicker: string;
   export let title: string;
-  export let shell: SketchbookShell;
+  export let albumBackdrops: HeroAlbumBackdrops;
   export let images: readonly HeroImage[];
 
   $: enabledImages = images.filter((image) => image.enabled);
@@ -289,18 +289,29 @@
           </svg>
         </button>
 
-        <div class="sb-book" style={`aspect-ratio: ${shell.width} / ${shell.height}`}>
-          <div class="sb-shell" aria-hidden="true">
+        <div class="sb-book" style={`aspect-ratio: ${current.width} / ${current.height}`}>
+          <div class="sb-album" aria-hidden="true">
             <img
-              src={shell.responsive.src}
-              srcset={shell.responsive.srcset}
+              class="sb-album-light"
+              src={albumBackdrops.light.responsive.src}
+              srcset={albumBackdrops.light.responsive.srcset}
               sizes={heroImageSizes}
               alt=""
-              width={shell.width}
-              height={shell.height}
+              width={albumBackdrops.light.width}
+              height={albumBackdrops.light.height}
               draggable="false"
               decoding="async"
-              fetchpriority="high"
+            />
+            <img
+              class="sb-album-dark"
+              src={albumBackdrops.dark.responsive.src}
+              srcset={albumBackdrops.dark.responsive.srcset}
+              sizes={heroImageSizes}
+              alt=""
+              width={albumBackdrops.dark.width}
+              height={albumBackdrops.dark.height}
+              draggable="false"
+              decoding="async"
             />
           </div>
 

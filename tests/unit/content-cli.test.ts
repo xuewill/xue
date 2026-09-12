@@ -31,9 +31,9 @@ function repositoryFixture() {
   writeFileSync(
     path.join(root, 'src/content/config/metadata.yaml'),
     stringify({
-      locations: [{ slug: 'stanford' }],
+      locations: [{ slug: 'taipei' }],
       roles: [{ slug: 'designer' }],
-      media: [{ slug: 'fashion-design' }]
+      media: [{ slug: 'mixed-media' }]
     })
   );
   writeFileSync(path.join(root, 'static/images/cover.jpg'), 'fixture');
@@ -59,7 +59,7 @@ describe('content CLI core', () => {
       description: 'A publishing note.',
       date: '2026-07-31',
       tags: 'publishing',
-      locations: 'stanford'
+      locations: 'taipei'
     });
 
     expect(draft.route).toBe('/blog/first-note');
@@ -69,7 +69,7 @@ describe('content CLI core', () => {
       date: '2026-07-31',
       draft: true,
       tags: ['publishing'],
-      locations: ['stanford']
+      locations: ['taipei']
     });
     expect(draft.content).not.toContain('related:');
   });
@@ -84,9 +84,9 @@ describe('content CLI core', () => {
       'end-year': '2026',
       status: 'completed',
       category: 'design',
-      locations: 'stanford',
+      locations: 'taipei',
       roles: 'designer',
-      media: 'fashion-design',
+      media: 'mixed-media',
       cover: '/images/cover.jpg',
       order: '3'
     });
@@ -97,9 +97,9 @@ describe('content CLI core', () => {
       startYear: 2026,
       endYear: 2026,
       status: 'completed',
-      locations: ['stanford'],
+      locations: ['taipei'],
       roles: ['designer'],
-      media: ['fashion-design'],
+      media: ['mixed-media'],
       cover: '/images/cover.jpg',
       order: 3,
       draft: true
@@ -139,7 +139,7 @@ describe('content CLI core', () => {
         status: 'completed',
         category: 'design',
         roles: 'designer',
-        media: 'fashion-design',
+        media: 'mixed-media',
         cover: '/images/missing.jpg',
         order: '3'
       })
@@ -154,7 +154,7 @@ describe('content CLI core', () => {
         status: 'completed',
         category: 'design',
         roles: 'designer',
-        media: 'fashion-design',
+        media: 'mixed-media',
         cover: '/images/cover.jpg',
         order: '2'
       })
@@ -169,7 +169,7 @@ describe('content CLI core', () => {
         status: 'completed',
         category: 'design',
         roles: 'unknown',
-        media: 'fashion-design',
+        media: 'mixed-media',
         cover: '/images/cover.jpg',
         order: '3'
       })

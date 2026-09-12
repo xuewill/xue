@@ -1,36 +1,31 @@
 # Project Integration
 
-The skill is self-contained. Its shell, fonts, marks, and references live under `assets/`; the paths below are only the current homepage adapter and output destinations.
+The skill is self-contained. Its geometry guide, fonts, marks, and references live under `assets/`; the paths below are only the current homepage adapter and output destinations.
 
-## Fixed shell
+## Homepage adapter
 
-- `assets/canonical-book-shell.png` is the skill-owned alignment guide.
-- `assets/layout.json` is the shared geometry and runtime-path manifest consumed by the skill scripts and Velite.
-- The homepage copy is `static/home/sketchbook/book-shell.png`.
-- The component renders this shell once beneath all page layers.
-- Do not list `book-shell.png` inside `hero.images`, pass it through page-turn state, or flatten it into a page source.
+- The homepage carousel renders one complete `1280x720` transparent-exterior book spread at a time on coordinated stationary responsive `hero.albumBackdrops.light` and `hero.albumBackdrops.dark` assets. These imagegen-created theme backings are UI-only and must never be generated into or composited onto a Sketchbook source image.
+- The page source itself includes clean warm paper pages, the central binding, painting, fixed upper marks, one recorded contrast-aware random location seal, and only a narrow transparent exterior margin.
+- Save an approved image as lowercase kebab-case `<id>.png` under `static/home/sketchbook/`. The old `book-shell.png` must not be registered or passed to generation; use `paper-geometry.png`.
 
-When intentionally changing the shell, replace both copies with the same `1280x720` RGBA raster and update the manifest only if geometry changes. Velite compares the two files byte-for-byte and validates the declared bounds, so `npm run check` fails on drift. Ordinary Sketchbook generation never changes either file.
+## Full-book registration source
 
-## Final page layer
-
-- Save under `static/home/sketchbook/` as lowercase kebab-case `<id>.png`.
-- Exactly `1280x720`, RGBA, genuinely transparent.
-- Artwork and marks stay inside `x=144..1136`, `y=44..664`.
-- No paper, cover, spine, page edge, binding, gutter, shadow, or shell pixels.
-- Run `normalize-artwork-layer.mjs` before mark composition.
+- Exactly `1280x720`, RGBA, with genuine transparent pixels outside an exact `1200x680+40+20` full-book silhouette.
+- The full physical paper spread has visible clean pages and a center binding. It has no hard cover, dark outer edge, or exposed stacked paper leaves.
+- Run `normalize-book-spread.mjs` before mark composition.
+- Follow `production.md` for native alpha, reviewed masking, proportional normalization and visual edge checks.
 - Run `composite-page-marks.mjs` with approved date and location-seal layers before saving.
 - Do not overwrite an existing page unless the user explicitly asks; otherwise use a versioned or medium-specific id.
 
-Built-in imagegen saves first under Codex generated images. Copy the approved original into the project and leave that generated original in place. Normalization handles source dimensions while preserving the full transparent composition:
+Built-in imagegen saves first under Codex generated images. Copy the approved original into the project and leave that generated original in place. Normalize the complete book while preserving exterior alpha:
 
 ```bash
-node .agents/skills/sketchbook/scripts/normalize-artwork-layer.mjs \
+node .agents/skills/sketchbook/scripts/normalize-book-spread.mjs \
   --input GENERATED.png \
   --output NORMALIZED.png
 ```
 
-An opaque result must be regenerated; do not fake transparency by treating white paper as alpha.
+An image without an open book, binding, intentional two-page treatment, or transparent exterior must be regenerated; do not create a flat background or an exposed stacked-paper edge to hide an incomplete book. Quiet modes may use large deliberate negative space only within their declared cluster ranges.
 
 ## Homepage registration
 
@@ -43,15 +38,15 @@ node .agents/skills/sketchbook/scripts/register-sketchbook-entry.mjs \
   --date "YYYY-MM-DD"
 ```
 
-The script validates slug, real date, source path, PNG dimensions/alpha, duplicate ids/paths, and insertion point. Velite additionally rejects shell-baked layers that exceed the page-safe area. It sorts enabled and disabled entries by ascending date, then id.
+The command validates dimensions, bounds, interior opacity and exterior/notch transparency. It inserts by ISO date then id while preserving unrelated YAML. Repeating an exact entry is a read-only no-op; conflicting metadata is rejected. Existing entries must already be sorted. `--dry-run` writes nothing.
+
+For xue, successful single-image requests auto-register under the user's standing instruction. Candidate/comparison requests wait for selection. Other repositories follow their own integration intent.
 
 ## Verification
 
-1. Run `npm run check`.
-2. Confirm generated content contains the id and responsive image.
-3. Verify the final PNG alone is transparent and shell-free.
-4. Verify a temporary shell composite aligns on desktop and mobile; do not save it as the source.
-5. Confirm only the page art turns while `book-shell.png` remains stationary.
-6. Run `git diff --check`.
+1. Inspect the book and its exterior transparency at full size and 240px wide.
+2. Verify its binding, full-page content, mark placement, and sticker behavior where applicable.
+3. Register after technical and visual acceptance under the intent above; preserve other assets.
+4. Run `npm run check` and `git diff --check` once per batch. Verify new carousel entries after the flip animation settles: image source, natural size, caption and captured errors. A transition screenshot is not a completed visual check.
 
 Report the source path and exact `home.yaml` entry. Do not commit, push, or deploy unless requested.

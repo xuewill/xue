@@ -2,11 +2,9 @@
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
+import { inspectSpread } from './spread-geometry.mjs';
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const skillDir = path.resolve(scriptDir, '..');
-const layout = JSON.parse(readFileSync(path.join(skillDir, 'assets', 'layout.json'), 'utf8'));
 
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const calendarDatePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -65,22 +63,6 @@ function readPngMetadata(file) {
   };
 }
 
-function unquoteYamlScalar(value) {
-  const trimmed = value.trim();
-  if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
-    return trimmed.slice(1, -1).replaceAll("''", "'");
-  }
-  if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
-    return JSON.parse(trimmed);
-  }
-  return trimmed;
-}
-
-function listedScalars(source, key) {
-  const pattern = new RegExp(`^\\s+(?:-\\s+)?${key}:\\s*(.+)$`, 'gm');
-  return [...source.matchAll(pattern)].map((match) => unquoteYamlScalar(match[1]));
-}
-
 function heroImagesRange(source) {
   const hero = /^hero:\s*$/m.exec(source);
   if (!hero) throw new Error('home.yaml hero section is missing or invalid.');
@@ -97,7 +79,7 @@ function heroImagesRange(source) {
   const remainder = source.slice(headerEnd, heroEnd);
   const boundary = /\n(?=(?:\S| {2}\S))/.exec(remainder);
   const end = boundary ? headerEnd + boundary.index : heroEnd;
-  return { end, source: source.slice(headerEnd, end) };
+  return { start: headerEnd, end, source: source.slice(headerEnd, end) };
 }
 
 function normalizeImage(projectRoot, value) {
@@ -119,39 +101,6 @@ function normalizeImage(projectRoot, value) {
   }
   const src = `/home/sketchbook/${relative.split(path.sep).join('/')}`;
   return { file, src };
-}
-
-async function validateArtworkPixels(imagePath) {
-  const { default: sharp } = await import('sharp');
-  const metadata = await sharp(imagePath).metadata();
-  if (!metadata.hasAlpha) throw new Error('Image must have an alpha channel.');
-
-  const alpha = await sharp(imagePath).extractChannel('alpha').stats();
-  if ((alpha.channels[0]?.max ?? 0) === 0) {
-    throw new Error('Sketchbook artwork layer cannot be fully transparent.');
-  }
-
-  const { info } = await sharp(imagePath)
-    .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png()
-    .toBuffer({ resolveWithObject: true });
-  const bounds = {
-    width: info.width,
-    height: info.height,
-    left: Math.abs(info.trimOffsetLeft ?? 0),
-    top: Math.abs(info.trimOffsetTop ?? 0)
-  };
-  const safe = layout.artwork.safeArea;
-  if (
-    bounds.left < safe.left ||
-    bounds.top < safe.top ||
-    bounds.left + bounds.width > safe.right ||
-    bounds.top + bounds.height > safe.bottom
-  ) {
-    throw new Error(
-      `Sketchbook artwork bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; keep all pixels inside x=${safe.left}..${safe.right}, y=${safe.top}..${safe.bottom} and exclude the fixed book shell.`
-    );
-  }
 }
 
 async function main() {
@@ -183,17 +132,33 @@ async function main() {
     throw new Error(`Image must be exactly 1280x720; received ${metadata.width}x${metadata.height}.`);
   }
   if (!metadata.hasAlpha) throw new Error('Image must have an alpha channel.');
-  await validateArtworkPixels(imagePath);
+  await inspectSpread(imagePath);
 
   const source = readFileSync(configPath, 'utf8');
   const images = heroImagesRange(source);
-  if (listedScalars(images.source, 'id').includes(args.id)) {
-    throw new Error(`Duplicate hero image id: ${args.id}.`);
+  const desired = { id: args.id, src, alt: args.alt.trim(), caption: args.caption.trim(), date: args.date, width: 1280, height: 720, enabled: true };
+  const parsed = parse(source);
+  const entries = parsed.hero.images ?? [];
+  const existing = entries.find(item => item.id === args.id || item.src === src);
+  if (existing) {
+    if (Object.entries(desired).every(([key, value]) => existing[key] === value)) {
+      console.log('Already registered ' + args.id + ' -> ' + src);
+      return;
+    }
+    throw new Error('Conflicting hero image id or src; existing entry left unchanged.');
   }
-  if (listedScalars(images.source, 'src').includes(src)) {
-    throw new Error(`Duplicate hero image src: ${src}.`);
+  const key = item => item.date + '/' + item.id;
+  if (entries.some((item, i) => !isValidCalendarDate(item.date) || !slugPattern.test(item.id) || (i > 0 && key(entries[i - 1]) > key(item)))) {
+    throw new Error('Existing hero images must have valid ISO dates and be sorted by date then id.');
   }
-
+  if (new Set(entries.map(item => item.id)).size !== entries.length || new Set(entries.map(item => item.src)).size !== entries.length) {
+    throw new Error('Existing hero images have duplicate ids or sources.');
+  }
+  // Insert into the original source to preserve comments, quoting and unrelated keys.
+  const offsets = [...images.source.matchAll(/^ {4}- id:/gm)].map(match => images.start + match.index);
+  if (offsets.length !== entries.length) throw new Error('Unsupported hero.images formatting; no file was changed.');
+  const before = entries.findIndex(item => key(item) > key(desired));
+  const insertion = before < 0 ? images.end : offsets[before];
   const entry = [
     `    - id: ${args.id}`,
     `      src: ${src}`,
@@ -204,7 +169,9 @@ async function main() {
     '      height: 720',
     '      enabled: true'
   ].join('\n');
-  const nextSource = `${source.slice(0, images.end)}\n${entry}${source.slice(images.end)}`;
+  const nextSource = before < 0
+    ? `${source.slice(0, insertion)}\n${entry}${source.slice(insertion)}`
+    : `${source.slice(0, insertion)}${entry}\n${source.slice(insertion)}`;
 
   if (!args.dryRun) writeFileSync(configPath, nextSource);
   console.log(`${args.dryRun ? 'Validated' : 'Registered'} ${args.id} -> ${src}`);

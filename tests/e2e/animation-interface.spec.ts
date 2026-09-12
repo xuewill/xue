@@ -44,6 +44,38 @@ test('album lightbox exposes related writing and project links', async ({ page }
   );
 });
 
+test('album lightbox keeps the preview above its photo details', async ({ page }) => {
+  for (const viewport of [
+    { width: 1920, height: 1200 },
+    { width: 390, height: 844 }
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/album');
+    await page.locator('.album-trigger').first().click();
+
+    const dialog = page.locator('dialog.album-lightbox');
+    await expect(dialog).toHaveAttribute('data-state', 'open');
+
+    const geometry = await dialog.evaluate((element) => {
+      const image = element.querySelector('.album-lightbox-image')?.getBoundingClientRect();
+      const marks = element.querySelector('.album-lightbox-marks')?.getBoundingClientRect();
+      const details = element.querySelector('.album-details')?.getBoundingClientRect();
+
+      return {
+        imageBottom: image?.bottom ?? Number.POSITIVE_INFINITY,
+        marksBottom: marks?.bottom ?? Number.POSITIVE_INFINITY,
+        detailsTop: details?.top ?? Number.NEGATIVE_INFINITY
+      };
+    });
+
+    expect(geometry.imageBottom).toBeLessThanOrEqual(geometry.detailsTop - 16);
+    expect(geometry.marksBottom).toBeLessThanOrEqual(geometry.detailsTop - 6);
+
+    await dialog.locator('.album-lightbox-close').click();
+    await expect(dialog).toHaveCount(0);
+  }
+});
+
 test('keyboard sketchbook navigation updates without the physical page-turn animation', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
@@ -70,48 +102,70 @@ test('pointer sketchbook navigation keeps the production page-turn animation', a
   await expect(flap).toHaveCount(1);
   await expect(flap).toHaveCSS('animation-name', 'sb-fold-next');
   await expect(flap).toHaveCSS('animation-duration', '0.85s');
+  await expect(flap).toHaveCSS('filter', 'none');
   await expect(flap).toHaveCount(0, { timeout: 2_000 });
 });
 
-test('sketchbook keeps one fixed shell outside the animated artwork layers', async ({ page }) => {
+test('sketchbook turns uniform book spreads over one stationary album backdrop', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
 
   const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
   await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
-  await expect(page.locator('.sb-shell')).toHaveCount(1);
+  await expect(page.locator('.sb-shell')).toHaveCount(0);
+  await expect(page.locator('.sb-album')).toHaveCount(1);
+  await expect(page.locator('.sb-album-light')).toHaveAttribute(
+    'src',
+    /\/generated\/media\/hero\/album-backdrop-light\./
+  );
+  await expect(page.locator('.sb-album-dark')).toHaveAttribute(
+    'src',
+    /\/generated\/media\/hero\/album-backdrop-dark\./
+  );
+  await expect(page.locator('.sb-album-light')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.sb-album-dark')).toHaveCSS('opacity', '0');
 
-  const shellState = () =>
-    page.evaluate(() => {
-      const shell = document.querySelector<HTMLImageElement>('.sb-shell img');
-      if (!shell) return null;
-      const rect = shell.getBoundingClientRect();
-      const style = getComputedStyle(shell);
+  const albumState = () =>
+    page.locator('.sb-album').evaluate((album) => {
+      const rect = album.getBoundingClientRect();
       return {
-        src: shell.currentSrc,
-        documentX: rect.left + scrollX,
-        documentY: rect.top + scrollY,
+        x: rect.x,
+        y: rect.y,
         width: rect.width,
         height: rect.height,
-        transform: style.transform,
-        animationName: style.animationName,
-        insideFlap: Boolean(shell.closest('.sb-flap'))
+        animationName: getComputedStyle(album).animationName,
+        insideFlap: Boolean(album.closest('.sb-flap'))
       };
     });
+  const geometry = await page.evaluate(() => {
+    const title = document.querySelector<HTMLElement>('.hero-name')?.getBoundingClientRect();
+    const book = document.querySelector<HTMLElement>('.sb-book')?.getBoundingClientRect();
+    const album = document.querySelector<HTMLElement>('.sb-album')?.getBoundingClientRect();
+    if (!title || !book || !album) return null;
+    return {
+      bookWidth: book.width,
+      visibleTitleRatio: Math.max(0, Math.min(title.bottom, album.top) - title.top) / title.height
+    };
+  });
+  expect(geometry).not.toBeNull();
+  expect(geometry?.bookWidth ?? Infinity).toBeLessThanOrEqual(690);
+  expect(geometry?.visibleTitleRatio ?? 0).toBeGreaterThan(0.6);
 
-  const before = await shellState();
+  const albumBefore = await albumState();
+  const currentSpread = page.locator('.sb-full:not(.sb-stack) img');
+  const before = await currentSpread.getAttribute('src');
   await page.locator('.sb-zone.sb-prev').click();
   await expect(page.locator('.sb-flap.prev')).toHaveCount(1);
   await page.waitForTimeout(250);
-  const during = await shellState();
+  const albumDuring = await albumState();
+  await expect(page.locator('.sb-flap .sb-half-img')).toHaveCount(2);
   await expect(page.locator('.sb-flap')).toHaveCount(0, { timeout: 2_000 });
-  const after = await shellState();
-
-  expect(before).not.toBeNull();
-  expect(during).toEqual(before);
-  expect(after).toEqual(before);
-  expect(after).toMatchObject({ transform: 'none', animationName: 'none', insideFlap: false });
-  await expect(caption).toHaveText('Orange Isle, Changsha');
+  const albumAfter = await albumState();
+  await expect(currentSpread).not.toHaveAttribute('src', before ?? '');
+  await expect(caption).toHaveText('Napahai Wetland');
+  expect(albumDuring).toEqual(albumBefore);
+  expect(albumAfter).toEqual(albumBefore);
+  expect(albumAfter).toMatchObject({ animationName: 'none', insideFlap: false });
 });
 
 test('email links avoid Cloudflare markup rewriting while preserving the address', async ({
@@ -220,24 +274,25 @@ test.describe('mobile touch interface', () => {
     await expect(page.locator('.sb-captions > .sb-caption:not(.cap-out)')).toHaveText('West Lake, Hangzhou');
   });
 
-  test('mobile page turns keep the fixed shell outside the animated layer', async ({ page }) => {
+  test('mobile page turns animate uniform spreads over the album backdrop', async ({ page }) => {
     await page.goto('/');
     const caption = page.locator('.sb-captions > .sb-caption:not(.cap-out)');
     await expect(caption).toHaveText('West Lake, Hangzhou', { timeout: 6_000 });
 
-    const shell = page.locator('.sb-shell img');
-    const source = await shell.getAttribute('src');
-    const before = await shell.boundingBox();
+    await expect(page.locator('.sb-shell')).toHaveCount(0);
+    await expect(page.locator('.sb-album')).toHaveCount(1);
+    const bookWidth = await page.locator('.sb-book').evaluate((book) => book.getBoundingClientRect().width);
+    expect(bookWidth).toBeLessThanOrEqual(312);
+    const spread = page.locator('.sb-full.sb-stack img');
+    const source = await spread.getAttribute('src');
     await page.locator('.sb-zone.sb-prev').click();
     await expect(page.locator('.sb-flap.prev')).toHaveCount(1);
     await page.waitForTimeout(250);
 
-    await expect(shell).toHaveAttribute('src', source ?? '');
-    await expect(page.locator('.sb-flap .sb-shell')).toHaveCount(0);
-    await expect(shell).toHaveCSS('animation-name', 'none');
-    await expect(shell).toHaveCSS('transform', 'none');
-    expect(await shell.boundingBox()).toEqual(before);
-    await expect(caption).toHaveText('Orange Isle, Changsha');
+    await expect(page.locator('.sb-flap .sb-half-img')).toHaveCount(2);
+    await expect(page.locator('.sb-flap')).toHaveCount(0, { timeout: 2_000 });
+    await expect(spread).not.toHaveAttribute('src', source ?? '');
+    await expect(caption).toHaveText('Dali Ancient Town');
   });
 
   test('primary controls meet the 44px touch target baseline', async ({ page }) => {

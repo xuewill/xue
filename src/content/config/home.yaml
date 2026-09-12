@@ -1,16 +1,69 @@
 hero:
   kicker: DESIGNER / ENGINEER / IDEALIST
   title: Will Xue
-  shell:
-    src: /home/sketchbook/book-shell.png
-    width: 1280
-    height: 720
+  albumBackdrops:
+    light:
+      src: /home/sketchbook/album-backdrop-light.png
+      width: 1280
+      height: 720
+    dark:
+      src: /home/sketchbook/album-backdrop-dark.png
+      width: 1280
+      height: 720
   images:
     - id: changsha-orange-isle-watercolor
       src: /home/sketchbook/changsha-orange-isle-watercolor.png
       alt: 'Watercolor open sketchbook of Orange Isle in Changsha with the monumental young Mao sculpture, Xiang River, winter trees, and distant skyline'
       caption: 'Orange Isle, Changsha'
       date: '2022-01-01'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: dali-ancient-town-watercolor
+      src: /home/sketchbook/dali-ancient-town-watercolor.png
+      alt: 'Watercolor study of Dali Ancient Town with Cangshan mountains, gray-tile roofs, whitewashed walls, and the old city gate'
+      caption: 'Dali Ancient Town'
+      date: '2023-04-09'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: erhai-distilled-scene-2023-04-11
+      src: /home/sketchbook/erhai-distilled-scene-2023-04-11.png
+      alt: 'Distilled-scene open sketchbook of two travelers seated closely and facing forward beside Erhai Lake, with a cobalt horizon, vivid autumn trees, and diagonal deck boards'
+      caption: 'Erhai Lake, Dali'
+      date: '2023-04-11'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: lijiang-ancient-town-gathered-memory-2023-04-11
+      src: /home/sketchbook/lijiang-ancient-town-gathered-memory-2023-04-11.png
+      alt: 'Gathered-memory open sketchbook of a neon-lit canal in Lijiang Ancient Town at night, with tiled eaves, an old tree, colorful reflections, and four source-derived stickers'
+      caption: 'Lijiang Ancient Town'
+      date: '2023-04-11'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: pudacuo-chinese-ink-2023-04-13
+      src: /home/sketchbook/pudacuo-chinese-ink-2023-04-13.png
+      alt: 'Chinese ink-wash open sketchbook of Pudacuo National Park, with layered plateau ridges, subalpine fir forest, a calm highland lake, a wooded peninsula, and early-spring meadow'
+      caption: 'Pudacuo National Park'
+      date: '2023-04-13'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: tiger-leaping-gorge-chinese-ink-2023-04-13
+      src: /home/sketchbook/tiger-leaping-gorge-chinese-ink-2023-04-13.png
+      alt: 'Chinese ink-wash open sketchbook of Tiger Leaping Gorge, with the Jinsha River crashing around Tiger Leaping Stone between steep mountain walls and distant snow peaks'
+      caption: 'Tiger Leaping Gorge'
+      date: '2023-04-13'
+      width: 1280
+      height: 720
+      enabled: true
+    - id: napahai-chinese-ink-2023-04-14
+      src: /home/sketchbook/napahai-chinese-ink-2023-04-14.png
+      alt: 'Chinese ink-wash open sketchbook of Napahai Wetland, with a winding shallow channel, straw-colored grassland, distant low hills, and three grazing yaks'
+      caption: 'Napahai Wetland'
+      date: '2023-04-14'
       width: 1280
       height: 720
       enabled: true

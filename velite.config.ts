@@ -15,9 +15,8 @@ const generatedMediaRoot = path.join(staticRoot, 'generated', 'media');
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const unknownMetadata = '—';
 const mediaPipelineVersion = 1;
-const canonicalHeroShellBounds = sketchbookLayout.shell.bounds;
-const canonicalHeroArtworkBounds = sketchbookLayout.artwork.safeArea;
-const canonicalHeroShell = path.join(root, '.agents', 'skills', 'sketchbook', sketchbookLayout.shell.source);
+const canonicalHeroBookBounds = sketchbookLayout.book.bounds;
+const canonicalHeroAlbumBounds = sketchbookLayout.album.bounds;
 type SharpMetadata = Awaited<ReturnType<ReturnType<typeof sharp>['metadata']>>;
 
 export interface ResponsiveImage {
@@ -378,7 +377,10 @@ function rehypeResponsiveImages() {
   };
 }
 
-async function inspectTransparentHeroImage(image: HeroImageInput, role: 'artwork layer' | 'shell') {
+async function inspectTransparentHeroImage(
+  image: HeroImageInput,
+  role: 'album backdrop' | 'full-book image'
+) {
   const actual = await readStaticImageDimensions(image.src);
   if (image.width !== actual.width || image.height !== actual.height) {
     throw new Error(
@@ -396,6 +398,9 @@ async function inspectTransparentHeroImage(image: HeroImageInput, role: 'artwork
   if ((alpha.channels[0]?.max ?? 0) === 0) {
     throw new Error(`${image.src}: Sketchbook ${role} cannot be fully transparent`);
   }
+  if ((alpha.channels[0]?.min ?? 255) === 255) {
+    throw new Error(`${image.src}: Sketchbook ${role} needs a genuinely transparent exterior`);
+  }
 
   const { info } = await sharp(target)
     .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -411,39 +416,31 @@ async function inspectTransparentHeroImage(image: HeroImageInput, role: 'artwork
 }
 
 export async function validateHeroImageDimensions(image: HeroImageInput): Promise<void> {
-  const { bounds } = await inspectTransparentHeroImage(image, 'artwork layer');
+  const { bounds } = await inspectTransparentHeroImage(image, 'full-book image');
 
-  const right = bounds.left + bounds.width;
-  const bottom = bounds.top + bounds.height;
   if (
-    bounds.left < canonicalHeroArtworkBounds.left ||
-    bounds.top < canonicalHeroArtworkBounds.top ||
-    right > canonicalHeroArtworkBounds.right ||
-    bottom > canonicalHeroArtworkBounds.bottom
+    bounds.width !== canonicalHeroBookBounds.width ||
+    bounds.height !== canonicalHeroBookBounds.height ||
+    bounds.left !== canonicalHeroBookBounds.left ||
+    bounds.top !== canonicalHeroBookBounds.top
   ) {
     throw new Error(
-      `${image.src}: Sketchbook artwork bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; keep all pixels inside x=${canonicalHeroArtworkBounds.left}..${canonicalHeroArtworkBounds.right}, y=${canonicalHeroArtworkBounds.top}..${canonicalHeroArtworkBounds.bottom} and exclude the fixed book shell; run normalize-artwork-layer.mjs`
+      `${image.src}: Sketchbook full-book bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; expected ${canonicalHeroBookBounds.width}x${canonicalHeroBookBounds.height}+${canonicalHeroBookBounds.left}+${canonicalHeroBookBounds.top}; run normalize-book-spread.mjs`
     );
   }
 }
 
-export async function validateHeroShellDimensions(image: HeroImageInput): Promise<void> {
-  const { target, bounds } = await inspectTransparentHeroImage(image, 'shell');
+export async function validateHeroAlbumBackdropDimensions(image: HeroImageInput): Promise<void> {
+  const { bounds } = await inspectTransparentHeroImage(image, 'album backdrop');
+
   if (
-    bounds.width !== canonicalHeroShellBounds.width ||
-    bounds.height !== canonicalHeroShellBounds.height ||
-    bounds.left !== canonicalHeroShellBounds.left ||
-    bounds.top !== canonicalHeroShellBounds.top
+    bounds.width !== canonicalHeroAlbumBounds.width ||
+    bounds.height !== canonicalHeroAlbumBounds.height ||
+    bounds.left !== canonicalHeroAlbumBounds.left ||
+    bounds.top !== canonicalHeroAlbumBounds.top
   ) {
     throw new Error(
-      `${image.src}: Sketchbook shell bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; expected ${canonicalHeroShellBounds.width}x${canonicalHeroShellBounds.height}+${canonicalHeroShellBounds.left}+${canonicalHeroShellBounds.top}`
-    );
-  }
-
-  const [runtimeShell, skillShell] = await Promise.all([readFile(target), readFile(canonicalHeroShell)]);
-  if (!runtimeShell.equals(skillShell)) {
-    throw new Error(
-      `${image.src}: runtime Sketchbook shell differs from .agents/skills/sketchbook/${sketchbookLayout.shell.source}; copy the canonical shell before building`
+      `${image.src}: Sketchbook album backdrop bounds are ${bounds.width}x${bounds.height}+${bounds.left}+${bounds.top}; expected ${canonicalHeroAlbumBounds.width}x${canonicalHeroAlbumBounds.height}+${canonicalHeroAlbumBounds.left}+${canonicalHeroAlbumBounds.top}`
     );
   }
 }
@@ -1043,6 +1040,33 @@ const contentMetadata = defineCollection({
 });
 export const contentMetadataSchema = contentMetadata.schema;
 
+function heroAlbumBackdropSchema() {
+  return s
+    .object({
+      src: staticAsset(),
+      width: s.number().int().positive(),
+      height: s.number().int().positive()
+    })
+    .strict()
+    .transform(async (backdrop, { addIssue }) => {
+      try {
+        await validateHeroAlbumBackdropDimensions(backdrop);
+        return {
+          ...backdrop,
+          responsive: await generateResponsiveImage(backdrop.src, responsiveImageSpecs.hero)
+        };
+      } catch (error) {
+        addIssue({
+          fatal: true,
+          code: 'custom',
+          path: ['src'],
+          message: errorMessage(error)
+        });
+        return { ...backdrop, responsive: fallbackResponsiveImage(backdrop.src) };
+      }
+    });
+}
+
 const home = defineCollection({
   name: 'HomeConfig',
   pattern: 'config/home.yaml',
@@ -1052,30 +1076,12 @@ const home = defineCollection({
       .object({
         kicker: s.string().min(1),
         title: s.string().min(1),
-        shell: s
+        albumBackdrops: s
           .object({
-            src: staticAsset(),
-            width: s.number().int().positive(),
-            height: s.number().int().positive()
+            light: heroAlbumBackdropSchema(),
+            dark: heroAlbumBackdropSchema()
           })
-          .strict()
-          .transform(async (shell, { addIssue }) => {
-            try {
-              await validateHeroShellDimensions(shell);
-              return {
-                ...shell,
-                responsive: await generateResponsiveImage(shell.src, responsiveImageSpecs.hero)
-              };
-            } catch (error) {
-              addIssue({
-                fatal: true,
-                code: 'custom',
-                path: ['src'],
-                message: errorMessage(error)
-              });
-              return { ...shell, responsive: fallbackResponsiveImage(shell.src) };
-            }
-          }),
+          .strict(),
         images: s
           .array(
             s

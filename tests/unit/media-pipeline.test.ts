@@ -45,11 +45,12 @@ describe('responsive media pipeline', () => {
 
   it('rewrites trusted Markdown images to responsive generated assets', () => {
     const post = posts.find(({ slug }) => slug === 'markdown-format-showcase');
-    const project = projects.find(({ slug }) => slug === 'fashion-design');
+    const project = projects.find(({ slug }) => slug === 'art');
 
     expect(post?.content).toMatch(/<img src="\/generated\/media\/content\//);
     expect(post?.content).toContain('srcset="/generated/media/content/');
     expect(post?.content).toContain('loading="lazy"');
+    expect(project?.content).toMatch(/<img src="\/generated\/media\/content\//);
     expect(project?.content).not.toContain('<img src="/home/');
   });
 

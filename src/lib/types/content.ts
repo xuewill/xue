@@ -8,7 +8,7 @@ import type {
 
 export type ResponsiveImage = HomeConfig['hero']['images'][number]['responsive'];
 export type HeroImage = HomeConfig['hero']['images'][number];
-export type SketchbookShell = HomeConfig['hero']['shell'];
+export type HeroAlbumBackdrops = HomeConfig['hero']['albumBackdrops'];
 export type TextSegment = HomeConfig['about']['body'][number];
 export type ContentHeading = Post['toc'][number];
 export type AlbumPhoto = AlbumConfig['photos'][number];
